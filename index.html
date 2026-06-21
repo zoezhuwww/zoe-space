@@ -1330,6 +1330,147 @@ body {
   width: 1px; height: 28px;
   background: var(--divider);
 }
+.api-cost-row {
+  display: flex; justify-content: center;
+  align-items: baseline; gap: 4px;
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--divider);
+}
+.api-cost-num {
+  font-family: var(--font-display);
+  font-size: 16px; color: var(--rose-deep);
+}
+.api-cost-unit {
+  font-size: 10px; color: var(--text-soft);
+}
+.api-detail-link {
+  text-align: center; font-size: 11px;
+  color: var(--rose-deep); margin-top: 6px;
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+}
+
+/* ═══════════ API Detail Page ═══════════ */
+.api-detail { padding: 0 24px 30px; }
+.api-hero-cost {
+  text-align: center; padding: 20px 0;
+}
+.api-hero-num {
+  font-family: var(--font-display);
+  font-size: 48px; color: var(--rose-deep);
+  line-height: 1;
+}
+.api-hero-label {
+  font-size: 11px; color: var(--text-soft);
+  font-family: var(--font-display);
+  letter-spacing: 0.15em; margin-top: 4px;
+}
+.api-balance-card {
+  background: var(--bg-card);
+  border-radius: 14px; padding: 16px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+  margin-bottom: 12px;
+}
+.api-balance-row {
+  display: flex; justify-content: space-between;
+  align-items: center;
+}
+.api-balance-label {
+  font-size: 13px; color: var(--text-warm);
+}
+.api-balance-val {
+  font-family: var(--font-display);
+  font-size: 20px; color: var(--text-warm);
+}
+.api-balance-bar {
+  height: 6px; border-radius: 3px;
+  background: var(--bg-cream-deep);
+  margin-top: 10px; overflow: hidden;
+}
+.api-balance-fill {
+  height: 100%; border-radius: 3px;
+  background: var(--rose-light);
+  transition: width 0.3s;
+}
+.api-balance-warn {
+  font-size: 11px; color: var(--rose-deep);
+  margin-top: 6px; text-align: center;
+}
+.api-balance-actions {
+  display: flex; gap: 8px; margin-top: 10px;
+}
+.api-balance-btn {
+  flex: 1; border: none;
+  background: var(--rose-mist);
+  color: var(--rose-deep);
+  font-family: var(--font-sans-zh);
+  font-size: 12px; padding: 8px;
+  border-radius: 8px; cursor: pointer;
+}
+.api-section-title {
+  font-family: var(--font-display);
+  font-size: 11px; color: var(--text-soft);
+  letter-spacing: 0.15em;
+  margin: 20px 0 10px; text-transform: uppercase;
+}
+.api-breakdown {
+  background: var(--bg-card);
+  border-radius: 14px; padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+}
+.api-breakdown-row {
+  display: flex; justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px; color: var(--text-warm);
+}
+.api-breakdown-row + .api-breakdown-row {
+  border-top: 1px solid var(--bg-cream-deep);
+}
+.api-breakdown-label { color: var(--text-mute); }
+.api-breakdown-val {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+.api-day-bar-container {
+  background: var(--bg-card);
+  border-radius: 14px; padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+}
+.api-day-bars {
+  display: flex; align-items: flex-end;
+  gap: 6px; height: 80px;
+  padding-top: 8px;
+}
+.api-day-bar-item {
+  flex: 1; display: flex;
+  flex-direction: column;
+  align-items: center; gap: 4px;
+}
+.api-day-bar {
+  width: 100%; border-radius: 4px 4px 0 0;
+  background: var(--rose-light);
+  min-height: 2px;
+  transition: height 0.3s;
+}
+.api-day-bar-label {
+  font-size: 9px; color: var(--text-soft);
+  font-family: var(--font-display);
+}
+.api-day-bar-val {
+  font-size: 9px; color: var(--text-mute);
+  font-family: var(--font-display);
+}
+.api-pricing-info {
+  background: var(--bg-card);
+  border-radius: 14px; padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+  font-size: 12px; color: var(--text-mute);
+  line-height: 1.8;
+}
+.api-pricing-model {
+  font-size: 13px; color: var(--text-warm);
+  font-weight: 500; margin-bottom: 4px;
+}
 
 /* ═══════════ Diary Page (Dual Tab) ═══════════ */
 .diary-tabs {
@@ -2050,7 +2191,7 @@ body {
       </div>
 
       <!-- API 用量卡片 -->
-      <div class="info-card" style="margin-top:8px;">
+      <div class="info-card" style="margin-top:8px;cursor:pointer;" onclick="navigateTo('apiDetail')">
         <div class="card-eyebrow">
           <div class="card-label">API 用量</div>
           <div class="card-meta" id="apiMonth"></div>
@@ -2071,6 +2212,11 @@ body {
             <div class="api-stat-label">今日 tokens</div>
           </div>
         </div>
+        <div class="api-cost-row">
+          <div class="api-cost-num" id="apiCostDash">¥0.00</div>
+          <div class="api-cost-unit">本月预估</div>
+        </div>
+        <div class="api-detail-link">查看详情 →</div>
       </div>
 
       <div class="app-footer">
@@ -2324,6 +2470,18 @@ body {
     </div>
 
     <!-- ═══ Settings Page ═══ -->
+
+    <!-- ═══ API Detail Page ═══ -->
+    <div class="page" id="page-apiDetail">
+      <div class="sub-page-header">
+        <div class="back-btn" onclick="navigateTo('dashboard')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <div class="sub-page-title">API 用量</div>
+      </div>
+      <div class="api-detail" id="apiDetailContainer"></div>
+    </div>
+
     <div class="page" id="page-settings">
       <div class="sub-page-header">
         <div class="back-btn" onclick="navigateTo('dashboard')">
@@ -2335,6 +2493,9 @@ body {
         <div class="settings-group-title">API</div>
         <div class="settings-item" onclick="openApiSettings()">
           <span>DeepSeek API 配置</span><span class="si-arrow">›</span>
+        </div>
+        <div class="settings-item" onclick="navigateTo('apiDetail')">
+          <span>API 用量详情</span><span class="si-arrow">›</span>
         </div>
         <div class="settings-item" onclick="openGoogleTtsSettings()">
           <span>Google TTS 配置（读音）</span><span class="si-arrow">›</span>
@@ -2622,6 +2783,7 @@ function navigateTo(pageId) {
   if (pageId === 'food') renderFoodDiary();
   if (pageId === 'anniversary') renderAnniversary();
   if (pageId === 'vocab') startVocabReview();
+  if (pageId === 'apiDetail') renderApiDetail();
   if (pageId === 'grammar') renderGrammarList();
   if (pageId === 'translate') renderTranslatePage();
   if (pageId === 'mistakes') renderMistakesPage();
@@ -3164,8 +3326,9 @@ async function callDS(prompt, systemPrompt) {
     });
     const data = await resp.json();
     const text = data.choices?.[0]?.message?.content || '';
-    const tokens = (data.usage?.total_tokens) || 0;
-    if (tokens) trackApiUsage(tokens);
+    const inputTokens = (data.usage?.prompt_tokens) || 0;
+    const outputTokens = (data.usage?.completion_tokens) || 0;
+    if (inputTokens || outputTokens) trackApiUsage(inputTokens, outputTokens);
     return text;
   } catch (e) {
     console.error('DS API error:', e);
@@ -3659,23 +3822,50 @@ function ankiRate(rating) {
 }
 
 // ═══════════ API Usage Tracking ═══════════
+// DeepSeek V4 Flash pricing (RMB per million tokens)
+const DS_PRICING = {
+  input: 1.0,    // ¥1/M tokens (cache miss)
+  output: 2.0,   // ¥2/M tokens
+};
+
 function getApiMonthKey() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
 }
 
-function trackApiUsage(tokens) {
+function trackApiUsage(inputTokens, outputTokens) {
   const mk = getApiMonthKey();
   const tk = todayKey();
-  // Monthly
-  save('api_tokens_' + mk, load('api_tokens_' + mk, 0) + tokens);
+  const totalTokens = inputTokens + outputTokens;
+  // Monthly totals
+  save('api_tokens_' + mk, load('api_tokens_' + mk, 0) + totalTokens);
+  save('api_input_' + mk, load('api_input_' + mk, 0) + inputTokens);
+  save('api_output_' + mk, load('api_output_' + mk, 0) + outputTokens);
   save('api_calls_' + mk, load('api_calls_' + mk, 0) + 1);
-  // Daily
-  save('api_tokens_day_' + tk, load('api_tokens_day_' + tk, 0) + tokens);
+  // Daily totals
+  save('api_tokens_day_' + tk, load('api_tokens_day_' + tk, 0) + totalTokens);
+  save('api_input_day_' + tk, load('api_input_day_' + tk, 0) + inputTokens);
+  save('api_output_day_' + tk, load('api_output_day_' + tk, 0) + outputTokens);
+  save('api_calls_day_' + tk, load('api_calls_day_' + tk, 0) + 1);
+  // Update balance
+  const cost = calcCost(inputTokens, outputTokens);
+  const spent = load('api_spent_' + mk, 0);
+  save('api_spent_' + mk, spent + cost);
   updateApiDisplay();
 }
 
+function calcCost(inputTokens, outputTokens) {
+  return (inputTokens / 1000000) * DS_PRICING.input + (outputTokens / 1000000) * DS_PRICING.output;
+}
+
 function getMonthlyApiUsage() { return load('api_tokens_' + getApiMonthKey(), 0); }
+
+function getMonthlyCost() {
+  const mk = getApiMonthKey();
+  const inp = load('api_input_' + mk, 0);
+  const out = load('api_output_' + mk, 0);
+  return calcCost(inp, out);
+}
 
 function updateApiDisplay() {
   const mk = getApiMonthKey();
@@ -3694,6 +3884,180 @@ function updateApiDisplay() {
 
   const todayEl = document.getElementById('apiTodayTokens');
   if (todayEl) todayEl.textContent = load('api_tokens_day_' + tk, 0).toLocaleString();
+
+  // Cost display on dashboard
+  const costEl = document.getElementById('apiCostDash');
+  if (costEl) costEl.textContent = '¥' + getMonthlyCost().toFixed(4);
+}
+
+// ═══════════ API Detail Page ═══════════
+function renderApiDetail() {
+  const mk = getApiMonthKey();
+  const tk = todayKey();
+  const now = new Date();
+  const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+  const monthInput = load('api_input_' + mk, 0);
+  const monthOutput = load('api_output_' + mk, 0);
+  const monthTotal = load('api_tokens_' + mk, 0);
+  const monthCalls = load('api_calls_' + mk, 0);
+  const monthCost = getMonthlyCost();
+
+  const todayInput = load('api_input_day_' + tk, 0);
+  const todayOutput = load('api_output_day_' + tk, 0);
+  const todayTotal = load('api_tokens_day_' + tk, 0);
+  const todayCalls = load('api_calls_day_' + tk, 0);
+  const todayCost = calcCost(todayInput, todayOutput);
+
+  // Balance
+  const balance = load('api_balance', 0);
+  const remaining = Math.max(0, balance - monthCost);
+  const pct = balance > 0 ? Math.min(100, (monthCost / balance) * 100) : 0;
+  const alertThreshold = load('api_alert_threshold', 1);
+
+  // Last 7 days bars
+  let dayBarsHtml = '';
+  let maxDayTokens = 1;
+  const dayData = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dk = dateKey(d);
+    const t = load('api_tokens_day_' + dk, 0);
+    if (t > maxDayTokens) maxDayTokens = t;
+    dayData.push({ label: (d.getMonth()+1) + '/' + d.getDate(), tokens: t, dk });
+  }
+  dayBarsHtml = dayData.map(dd => {
+    const h = Math.max(2, (dd.tokens / maxDayTokens) * 60);
+    return `<div class="api-day-bar-item">
+      <div class="api-day-bar-val">${dd.tokens > 0 ? (dd.tokens > 9999 ? Math.round(dd.tokens/1000) + 'k' : dd.tokens) : ''}</div>
+      <div class="api-day-bar" style="height:${h}px;${dd.dk === tk ? 'background:var(--rose-deep);' : ''}"></div>
+      <div class="api-day-bar-label">${dd.label}</div>
+    </div>`;
+  }).join('');
+
+  const container = document.getElementById('apiDetailContainer');
+  container.innerHTML = `
+    <div class="api-hero-cost">
+      <div class="api-hero-num">¥${monthCost.toFixed(4)}</div>
+      <div class="api-hero-label">${monthNames[now.getMonth()]} ESTIMATED COST</div>
+    </div>
+
+    ${balance > 0 ? `
+    <div class="api-balance-card">
+      <div class="api-balance-row">
+        <div class="api-balance-label">余额</div>
+        <div class="api-balance-val">¥${remaining.toFixed(2)}</div>
+      </div>
+      <div class="api-balance-bar">
+        <div class="api-balance-fill" style="width:${pct}%;${pct > 80 ? 'background:var(--rose-deep);' : ''}"></div>
+      </div>
+      ${remaining < alertThreshold && balance > 0 ? '<div class="api-balance-warn">⚠️ 余额不足 ¥' + alertThreshold + '，请及时充值</div>' : ''}
+      <div class="api-balance-actions">
+        <button class="api-balance-btn" onclick="setApiBalance()">更新余额</button>
+        <button class="api-balance-btn" onclick="setApiAlertThreshold()">充值提醒线</button>
+      </div>
+    </div>` : `
+    <div class="api-balance-card">
+      <div style="text-align:center;color:var(--text-mute);font-size:13px;padding:4px 0;">
+        设置余额后可以追踪剩余额度
+      </div>
+      <div class="api-balance-actions">
+        <button class="api-balance-btn" onclick="setApiBalance()">设置余额</button>
+      </div>
+    </div>`}
+
+    <div class="api-section-title">DAILY USAGE · LAST 7 DAYS</div>
+    <div class="api-day-bar-container">
+      <div class="api-day-bars">${dayBarsHtml}</div>
+    </div>
+
+    <div class="api-section-title">${monthNames[now.getMonth()]} BREAKDOWN</div>
+    <div class="api-breakdown">
+      <div class="api-breakdown-row">
+        <div class="api-breakdown-label">总 tokens</div>
+        <div class="api-breakdown-val">${monthTotal.toLocaleString()}</div>
+      </div>
+      <div class="api-breakdown-row">
+        <div class="api-breakdown-label">输入 tokens</div>
+        <div class="api-breakdown-val">${monthInput.toLocaleString()}</div>
+      </div>
+      <div class="api-breakdown-row">
+        <div class="api-breakdown-label">输出 tokens</div>
+        <div class="api-breakdown-val">${monthOutput.toLocaleString()}</div>
+      </div>
+      <div class="api-breakdown-row">
+        <div class="api-breakdown-label">调用次数</div>
+        <div class="api-breakdown-val">${monthCalls}</div>
+      </div>
+      <div class="api-breakdown-row">
+        <div class="api-breakdown-label">输入费用</div>
+        <div class="api-breakdown-val">¥${(monthInput / 1000000 * DS_PRICING.input).toFixed(4)}</div>
+      </div>
+      <div class="api-breakdown-row">
+        <div class="api-breakdown-label">输出费用</div>
+        <div class="api-breakdown-val">¥${(monthOutput / 1000000 * DS_PRICING.output).toFixed(4)}</div>
+      </div>
+    </div>
+
+    <div class="api-section-title">TODAY</div>
+    <div class="api-breakdown">
+      <div class="api-breakdown-row">
+        <div class="api-breakdown-label">今日 tokens</div>
+        <div class="api-breakdown-val">${todayTotal.toLocaleString()}</div>
+      </div>
+      <div class="api-breakdown-row">
+        <div class="api-breakdown-label">输入 / 输出</div>
+        <div class="api-breakdown-val">${todayInput.toLocaleString()} / ${todayOutput.toLocaleString()}</div>
+      </div>
+      <div class="api-breakdown-row">
+        <div class="api-breakdown-label">今日调用</div>
+        <div class="api-breakdown-val">${todayCalls}</div>
+      </div>
+      <div class="api-breakdown-row">
+        <div class="api-breakdown-label">今日费用</div>
+        <div class="api-breakdown-val">¥${todayCost.toFixed(4)}</div>
+      </div>
+    </div>
+
+    <div class="api-section-title">PRICING · DEEPSEEK V4 FLASH</div>
+    <div class="api-pricing-info">
+      <div class="api-pricing-model">deepseek-chat → V4 Flash</div>
+      输入：¥${DS_PRICING.input} / 百万 tokens<br>
+      输出：¥${DS_PRICING.output} / 百万 tokens<br>
+      缓存命中：¥0.02 / 百万 tokens<br>
+      <span style="font-size:11px;color:var(--text-soft);">
+        注：此处按 cache miss 计算。<br>
+        实际费用可能更低。以 DeepSeek 账单为准。
+      </span>
+    </div>
+  `;
+}
+
+function setApiBalance() {
+  const current = load('api_balance', 0);
+  const input = prompt('请输入当前 DeepSeek 账户余额（元）：', current || '');
+  if (input !== null && input !== '') {
+    const val = parseFloat(input);
+    if (!isNaN(val) && val >= 0) {
+      save('api_balance', val);
+      renderApiDetail();
+    } else {
+      alert('请输入有效的数字');
+    }
+  }
+}
+
+function setApiAlertThreshold() {
+  const current = load('api_alert_threshold', 1);
+  const input = prompt('余额低于多少元时提醒充值？', current);
+  if (input !== null && input !== '') {
+    const val = parseFloat(input);
+    if (!isNaN(val) && val >= 0) {
+      save('api_alert_threshold', val);
+      renderApiDetail();
+    }
+  }
 }
 
 // ═══════════ Backup Reminder ═══════════
