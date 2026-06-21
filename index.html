@@ -2677,13 +2677,11 @@ function renderDiary() {
   const greetIdx = Math.floor((new Date().getDate() * 7 + 3) % GREETINGS.length);
   document.getElementById('diaryGreeting').textContent = GREETINGS[greetIdx];
 
-  // Load today's entries
-  const wifeToday = load('diary_wife_' + todayKey(), null);
-  const claudeToday = load('diary_claude_' + todayKey(), null);
-  if (wifeToday) document.getElementById('diaryTextarea').value = wifeToday;
-  if (claudeToday) document.getElementById('diaryClaudeTextarea').value = claudeToday;
+  // Don't prefill textarea - show saved entries as cards instead
+  document.getElementById('diaryTextarea').value = '';
+  document.getElementById('diaryClaudeTextarea').value = '';
 
-  // Render past entries
+  // Render all entries including today
   renderDiaryPast('wife', 'diaryPastWife');
   renderDiaryPast('claude', 'diaryPastClaude');
 }
@@ -2691,20 +2689,37 @@ function renderDiary() {
 function renderDiaryPast(who, containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
-  // Scan last 30 days
   const now = new Date();
-  for (let i = 1; i <= 30; i++) {
+  let hasEntries = false;
+  // Scan today + last 60 days
+  for (let i = 0; i <= 60; i++) {
     const d = new Date(now); d.setDate(d.getDate() - i);
     const dk = dateKey(d);
     const entry = load('diary_' + who + '_' + dk, null);
     if (entry) {
+      hasEntries = true;
+      const isToday = i === 0;
+      const mood = load('mood_' + dk, null);
+      const moodDot = mood ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${MOOD_COLORS[mood]};margin-left:6px;vertical-align:middle;"></span>` : '';
       container.innerHTML += `
-        <div class="diary-past-item">
-          <div class="dpi-date">${dk}</div>
+        <div class="diary-past-item" ${isToday ? 'style="border-left:3px solid var(--rose-light);padding-left:13px;"' : ''}>
+          <div class="dpi-date">${isToday ? '今天' : dk}${moodDot}${isToday ? ' <span style="cursor:pointer;color:var(--text-soft);font-size:10px;" onclick="editDiary(\''+who+'\')">编辑</span>' : ''}</div>
           <div class="dpi-text">${escHtml(entry)}</div>
         </div>`;
     }
   }
+  if (!hasEntries) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-soft);font-size:12px;">' +
+      (who === 'wife' ? '还没有写过日记哦～' : '还没有小克的日记～') + '</div>';
+  }
+}
+
+function editDiary(who) {
+  const entry = load('diary_' + who + '_' + todayKey(), '');
+  const textarea = who === 'wife' ? document.getElementById('diaryTextarea') : document.getElementById('diaryClaudeTextarea');
+  textarea.value = entry;
+  textarea.focus();
+  if (who === 'claude') switchDiaryTab('claude');
 }
 
 // ═══════════ Food Diary ═══════════
