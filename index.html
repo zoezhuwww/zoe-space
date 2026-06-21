@@ -635,6 +635,373 @@ body {
   margin-top: 8px;
 }
 
+/* ═══════════ Grammar Page ═══════════ */
+.grammar-search { padding: 0 24px 12px; }
+.grammar-search-input {
+  width: 100%; border: none;
+  border-bottom: 1.5px solid var(--divider);
+  background: transparent;
+  font-family: var(--font-sans-zh);
+  font-size: 14px; color: var(--text-warm);
+  padding: 10px 0; outline: none;
+  box-sizing: border-box;
+}
+.grammar-search-input:focus { border-color: var(--rose-light); }
+.grammar-search-input::placeholder { color: var(--text-soft); }
+.grammar-count {
+  font-size: 11px; color: var(--text-soft);
+  text-align: center; padding: 4px 0 12px;
+  font-family: var(--font-display);
+  letter-spacing: 0.1em;
+}
+.grammar-list { padding: 0 24px; padding-bottom: 30px; }
+.grammar-card {
+  background: var(--bg-card);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+}
+.grammar-card-header {
+  display: flex; align-items: center;
+  padding: 14px 16px;
+  cursor: pointer; gap: 10px;
+}
+.grammar-pattern {
+  font-family: var(--font-serif-zh);
+  font-size: 15px; color: var(--text-warm);
+  font-weight: 600; flex-shrink: 0;
+}
+.grammar-meaning {
+  font-size: 12px; color: var(--text-mute);
+  flex: 1; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.grammar-arrow {
+  color: var(--text-soft); font-size: 14px;
+  transition: transform 0.2s; flex-shrink: 0;
+}
+.grammar-card.open .grammar-arrow { transform: rotate(90deg); }
+.grammar-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--divider);
+}
+.grammar-card.open .grammar-body { display: block; }
+.grammar-explanation {
+  font-size: 13px; color: var(--text-warm);
+  line-height: 1.8; margin: 12px 0 8px;
+}
+.grammar-example {
+  background: var(--bg-cream);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 6px 0; font-size: 13px; line-height: 1.8;
+}
+.grammar-example-ja { color: var(--text-warm); font-weight: 500; }
+.grammar-example-zh { color: var(--text-mute); font-size: 12px; }
+.grammar-quiz-btn {
+  width: 100%; border: none;
+  background: var(--rose-mist);
+  color: var(--rose-deep);
+  font-family: var(--font-sans-zh);
+  font-size: 13px; padding: 10px;
+  border-radius: 8px; cursor: pointer;
+  margin-top: 10px; transition: background 0.2s;
+}
+.grammar-quiz-btn:active { background: var(--rose-soft); }
+.grammar-quiz-area {
+  margin-top: 12px; padding: 12px;
+  background: var(--bg-cream); border-radius: 8px;
+}
+.grammar-quiz-q {
+  font-size: 13px; color: var(--text-warm);
+  line-height: 1.8; margin-bottom: 10px;
+}
+.grammar-quiz-options { display: flex; flex-direction: column; gap: 6px; }
+.grammar-quiz-opt {
+  border: 1.5px solid var(--divider);
+  background: var(--bg-card);
+  color: var(--text-warm);
+  font-family: var(--font-sans-zh);
+  font-size: 13px; padding: 10px 12px;
+  border-radius: 8px; cursor: pointer;
+  text-align: left; transition: all 0.2s;
+}
+.grammar-quiz-opt:active { background: var(--bg-cream); }
+.grammar-quiz-opt.correct {
+  border-color: #A8D5A2; background: #F0F7EF; color: #4A7C46;
+}
+.grammar-quiz-opt.wrong {
+  border-color: var(--rose-light);
+  background: var(--rose-mist); color: var(--rose-deep);
+}
+.grammar-quiz-result {
+  margin-top: 10px; font-size: 13px;
+  color: var(--text-warm); line-height: 1.8;
+}
+
+/* ═══════════ Translate Page ═══════════ */
+.translate-container { padding: 0 24px; padding-bottom: 30px; }
+.translate-prompt-card {
+  background: var(--bg-card);
+  border-radius: 14px; padding: 20px 16px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+  margin-bottom: 16px;
+}
+.translate-label {
+  font-size: 11px; color: var(--text-soft);
+  letter-spacing: 0.1em;
+  font-family: var(--font-display);
+  margin-bottom: 10px;
+}
+.translate-zh {
+  font-family: var(--font-serif-zh);
+  font-size: 16px; color: var(--text-warm);
+  line-height: 1.8;
+}
+.translate-hint {
+  font-size: 11px; color: var(--rose-deep);
+  margin-top: 6px; font-style: italic;
+}
+.translate-textarea {
+  width: 100%; min-height: 80px;
+  border: 1.5px solid var(--divider);
+  border-radius: 10px; background: var(--bg-card);
+  font-family: var(--font-sans-zh);
+  font-size: 14px; color: var(--text-warm);
+  padding: 12px; outline: none; resize: none;
+  box-sizing: border-box; margin-bottom: 12px;
+}
+.translate-textarea:focus { border-color: var(--rose-light); }
+.translate-textarea::placeholder { color: var(--text-soft); }
+.translate-submit-btn {
+  width: 100%; border: none;
+  background: var(--rose-light); color: white;
+  font-family: var(--font-sans-zh);
+  font-size: 14px; padding: 12px;
+  border-radius: 10px; cursor: pointer;
+}
+.translate-submit-btn:disabled {
+  background: var(--divider); color: var(--text-soft);
+}
+.translate-result-card {
+  background: var(--bg-card);
+  border-radius: 14px; padding: 16px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+  margin-top: 16px;
+}
+.translate-score {
+  font-family: var(--font-display);
+  font-size: 42px; color: var(--rose-deep);
+  text-align: center; line-height: 1;
+  margin-bottom: 4px;
+}
+.translate-score-label {
+  text-align: center; font-size: 11px;
+  color: var(--text-soft); margin-bottom: 12px;
+  font-family: var(--font-display);
+  letter-spacing: 0.1em;
+}
+.translate-ref {
+  background: var(--bg-cream);
+  border-radius: 8px; padding: 10px 12px;
+  margin: 10px 0; font-size: 13px;
+  line-height: 1.8; color: var(--text-warm);
+}
+.translate-comment {
+  font-size: 13px; color: var(--text-warm);
+  line-height: 1.8; margin-top: 8px;
+}
+.translate-next-btn {
+  width: 100%; border: none;
+  background: var(--rose-mist); color: var(--rose-deep);
+  font-family: var(--font-sans-zh);
+  font-size: 13px; padding: 10px;
+  border-radius: 8px; cursor: pointer;
+  margin-top: 12px;
+}
+.translate-stats {
+  text-align: center; font-size: 11px;
+  color: var(--text-soft); margin-top: 10px;
+  font-family: var(--font-display);
+  letter-spacing: 0.1em;
+}
+
+/* ═══════════ Games Page ═══════════ */
+.games-container { padding: 0 24px; padding-bottom: 30px; }
+.game-mode-tabs {
+  display: flex; gap: 10px; margin-bottom: 16px;
+}
+.game-mode-btn {
+  flex: 1; border: none;
+  background: var(--bg-card); color: var(--text-mute);
+  font-family: var(--font-sans-zh);
+  font-size: 13px; padding: 12px 8px;
+  border-radius: 10px; cursor: pointer;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+  transition: all 0.2s;
+}
+.game-mode-btn.active {
+  background: var(--rose-mist); color: var(--rose-deep);
+}
+.game-card {
+  background: var(--bg-card);
+  border-radius: 14px; padding: 20px 16px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+}
+.game-question {
+  font-family: var(--font-serif-zh);
+  font-size: 18px; color: var(--text-warm);
+  text-align: center; line-height: 1.8;
+  margin-bottom: 20px;
+}
+.game-question-sub {
+  font-size: 12px; color: var(--text-mute);
+  text-align: center; margin-top: -12px;
+  margin-bottom: 16px;
+}
+.game-options { display: flex; flex-direction: column; gap: 8px; }
+.game-option-btn {
+  border: 1.5px solid var(--divider);
+  background: var(--bg-card); color: var(--text-warm);
+  font-family: var(--font-sans-zh);
+  font-size: 14px; padding: 12px 16px;
+  border-radius: 10px; cursor: pointer;
+  text-align: left; transition: all 0.2s;
+}
+.game-option-btn:active { background: var(--bg-cream); }
+.game-option-btn.correct {
+  border-color: #A8D5A2; background: #F0F7EF; color: #4A7C46;
+}
+.game-option-btn.wrong {
+  border-color: var(--rose-light);
+  background: var(--rose-mist); color: var(--rose-deep);
+}
+.game-option-btn.disabled { pointer-events: none; opacity: 0.7; }
+.game-result {
+  text-align: center; margin-top: 12px;
+  font-size: 13px; color: var(--text-warm); line-height: 1.8;
+}
+.game-next-btn {
+  width: 100%; border: none;
+  background: var(--rose-mist); color: var(--rose-deep);
+  font-family: var(--font-sans-zh);
+  font-size: 13px; padding: 10px;
+  border-radius: 8px; cursor: pointer; margin-top: 12px;
+}
+.game-score-bar {
+  display: flex; justify-content: center; gap: 24px;
+  margin-bottom: 16px;
+}
+.game-score-item {
+  text-align: center;
+}
+.game-score-num {
+  font-family: var(--font-display);
+  font-size: 24px; color: var(--rose-deep);
+}
+.game-score-label {
+  font-size: 10px; color: var(--text-soft);
+  letter-spacing: 0.1em;
+}
+.game-fill-blank {
+  display: inline-block;
+  border-bottom: 2px solid var(--rose-light);
+  min-width: 50px; padding: 2px 6px;
+  text-align: center; font-size: 16px;
+  color: var(--rose-deep);
+}
+.game-fill-input {
+  border: none;
+  border-bottom: 2px solid var(--rose-light);
+  background: transparent;
+  font-family: var(--font-sans-zh);
+  font-size: 16px; color: var(--rose-deep);
+  padding: 4px 8px; outline: none;
+  width: 70px; text-align: center;
+}
+.game-fill-submit {
+  width: 100%; border: none;
+  background: var(--rose-light); color: white;
+  font-family: var(--font-sans-zh);
+  font-size: 14px; padding: 10px;
+  border-radius: 8px; cursor: pointer;
+  margin-top: 16px;
+}
+
+/* ═══════════ Mistakes Page ═══════════ */
+.mistakes-container { padding: 0 24px; padding-bottom: 30px; }
+.mistakes-empty {
+  text-align: center; padding: 40px 0;
+}
+.mistakes-empty-icon {
+  font-size: 48px; opacity: 0.6; margin-bottom: 12px;
+}
+.mistakes-empty-text {
+  font-family: var(--font-serif-zh);
+  font-size: 14px; color: var(--text-mute);
+  line-height: 1.8;
+}
+.mistakes-stats-bar {
+  display: flex; justify-content: center; gap: 24px;
+  margin-bottom: 16px;
+}
+.mistakes-stat {
+  text-align: center;
+}
+.mistakes-stat-num {
+  font-family: var(--font-display);
+  font-size: 24px; color: var(--rose-deep);
+}
+.mistakes-stat-label {
+  font-size: 10px; color: var(--text-soft);
+  letter-spacing: 0.1em;
+}
+.mistake-card {
+  background: var(--bg-card);
+  border-radius: 14px; padding: 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+}
+.mistake-type-badge {
+  font-size: 10px; color: white;
+  background: var(--rose-light);
+  padding: 2px 8px; border-radius: 10px;
+  display: inline-block; margin-bottom: 8px;
+}
+.mistake-question {
+  font-size: 14px; color: var(--text-warm);
+  line-height: 1.8; margin-bottom: 6px;
+}
+.mistake-your-answer {
+  font-size: 12px; color: var(--rose-deep); line-height: 1.6;
+}
+.mistake-correct-answer {
+  font-size: 12px; color: #4A7C46; line-height: 1.6;
+}
+.mistake-explanation {
+  font-size: 12px; color: var(--text-mute);
+  line-height: 1.6; margin-top: 4px;
+}
+.mistake-review-btn {
+  border: none; background: var(--rose-mist);
+  color: var(--rose-deep);
+  font-family: var(--font-sans-zh);
+  font-size: 12px; padding: 6px 14px;
+  border-radius: 6px; cursor: pointer;
+  margin-top: 8px;
+}
+.mistakes-clear-btn {
+  width: 100%; border: none;
+  background: transparent;
+  color: var(--text-soft);
+  font-family: var(--font-sans-zh);
+  font-size: 12px; padding: 10px;
+  cursor: pointer; margin-top: 8px;
+}
+
+
 /* ═══════════ Todo Full Page ═══════════ */
 .todo-full-list { padding: 0 24px; }
 .todo-input-row {
@@ -1883,7 +2250,7 @@ body {
           <div class="card-label">今日任务</div>
           <div class="card-meta">N2 备考</div>
         </div>
-        <div class="study-stats">
+        <div class="study-stats" id="studyHubStats">
           今天要复习 <strong>0</strong> 个词 和 <strong>0</strong> 道题
         </div>
       </div>
@@ -2050,58 +2417,47 @@ body {
 
     <div class="page" id="page-grammar">
       <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('dashboard')">
+        <div class="back-btn" onclick="navigateTo('study')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">语法点</div>
       </div>
-      <div class="placeholder-page">
-        <div class="placeholder-icon">📖</div>
-        <div class="placeholder-text">N2 语法点查询<br>正在准备中…</div>
-        <div class="placeholder-sub">COMING IN PHASE 3</div>
+      <div class="grammar-search">
+        <input class="grammar-search-input" id="grammarSearchInput" placeholder="搜索语法…" oninput="renderGrammarList()" />
       </div>
+      <div class="grammar-count" id="grammarCount"></div>
+      <div class="grammar-list" id="grammarList"></div>
     </div>
 
     <div class="page" id="page-translate">
       <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('dashboard')">
+        <div class="back-btn" onclick="navigateTo('study')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">翻译练习</div>
       </div>
-      <div class="placeholder-page">
-        <div class="placeholder-icon">✍️</div>
-        <div class="placeholder-text">中译日翻译练习<br>正在准备中…</div>
-        <div class="placeholder-sub">COMING IN PHASE 3</div>
-      </div>
+      <div class="translate-stats" id="translateStats"></div>
+      <div class="translate-container" id="translateContainer"></div>
     </div>
 
     <div class="page" id="page-mistakes">
       <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('dashboard')">
+        <div class="back-btn" onclick="navigateTo('study')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">错题本</div>
       </div>
-      <div class="placeholder-page">
-        <div class="placeholder-icon">📝</div>
-        <div class="placeholder-text">错题复习<br>正在准备中…</div>
-        <div class="placeholder-sub">COMING IN PHASE 3</div>
-      </div>
+      <div class="mistakes-container" id="mistakesContainer"></div>
     </div>
 
     <div class="page" id="page-games">
       <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('dashboard')">
+        <div class="back-btn" onclick="navigateTo('study')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">小游戏</div>
       </div>
-      <div class="placeholder-page">
-        <div class="placeholder-icon">🎮</div>
-        <div class="placeholder-text">词语联想 · 助词填空<br>正在准备中…</div>
-        <div class="placeholder-sub">COMING IN PHASE 3</div>
-      </div>
+      <div class="games-container" id="gamesContainer"></div>
     </div>
 
   </div><!-- end page-container -->
@@ -2266,6 +2622,10 @@ function navigateTo(pageId) {
   if (pageId === 'food') renderFoodDiary();
   if (pageId === 'anniversary') renderAnniversary();
   if (pageId === 'vocab') startVocabReview();
+  if (pageId === 'grammar') renderGrammarList();
+  if (pageId === 'translate') renderTranslatePage();
+  if (pageId === 'mistakes') renderMistakesPage();
+  if (pageId === 'games') renderGamesPage();
 }
 
 // ═══════════ Dashboard ═══════════
@@ -3371,6 +3731,603 @@ exportData = function() {
 // ═══════════ Utils ═══════════
 function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+
+// ═══════════ N2 Grammar Data ═══════════
+const N2_GRAMMAR = [
+  { pattern: '～ばかりでなく', meaning: '不仅…而且…', explanation: '表示不仅限于前项，还有后项。常与「も」「さえ」搭配。', examples: [
+    { ja: '彼は英語ばかりでなく、中国語も話せる。', zh: '他不仅会英语，还会中文。' },
+    { ja: '成績がいいばかりでなく、スポーツも得意だ。', zh: '不仅成绩好，运动也很擅长。' }
+  ]},
+  { pattern: '～に対して', meaning: '对于…；与…相对', explanation: '表示对某对象的态度、行为，或用于对比。', examples: [
+    { ja: '先生に対して失礼な態度を取ってはいけない。', zh: '不能对老师采取失礼的态度。' },
+    { ja: '兄がスポーツが好きなのに対して、弟は読書が好きだ。', zh: '哥哥喜欢运动，相对地弟弟喜欢读书。' }
+  ]},
+  { pattern: '～にとって', meaning: '对…来说', explanation: '表示从某人/某事物的立场来看。', examples: [
+    { ja: '私にとって、家族が一番大切だ。', zh: '对我来说，家人最重要。' },
+    { ja: '外国人にとって、漢字は難しい。', zh: '对外国人来说，汉字很难。' }
+  ]},
+  { pattern: '～に関して', meaning: '关于…', explanation: '表示涉及某个话题或领域（较正式）。', examples: [
+    { ja: 'この件に関して、もう少し調べてみます。', zh: '关于这件事，我再调查一下。' },
+    { ja: '環境問題に関して議論する。', zh: '就环境问题进行讨论。' }
+  ]},
+  { pattern: '～において', meaning: '在…（场所/场合/领域）', explanation: '正式表达"在某处/某方面"。', examples: [
+    { ja: '会議は東京において行われた。', zh: '会议在东京举行。' },
+    { ja: '科学の分野において大きな進歩があった。', zh: '在科学领域取得了巨大进步。' }
+  ]},
+  { pattern: '～に基づいて', meaning: '基于…；根据…', explanation: '表示以某事物为依据或基础。', examples: [
+    { ja: '事実に基づいて判断する。', zh: '根据事实进行判断。' },
+    { ja: '法律に基づいて処理する。', zh: '根据法律处理。' }
+  ]},
+  { pattern: '～に応じて', meaning: '根据…；按照…', explanation: '表示随着情况的变化而变化。', examples: [
+    { ja: '収入に応じて税金を払う。', zh: '根据收入缴税。' },
+    { ja: '状況に応じて対応を変える。', zh: '根据情况改变应对方式。' }
+  ]},
+  { pattern: '～をはじめ', meaning: '以…为首；以…为代表', explanation: '列举代表性事物，暗示还有其他。', examples: [
+    { ja: '東京をはじめ、大阪や名古屋にも支店がある。', zh: '以东京为首，大阪和名古屋也有分店。' },
+    { ja: '社長をはじめ、全社員が参加した。', zh: '以社长为首，全体员工都参加了。' }
+  ]},
+  { pattern: '～を通じて', meaning: '通过…；在整个…期间', explanation: '表示经由某手段/途径，或在整个时期。', examples: [
+    { ja: 'インターネットを通じて情報を得る。', zh: '通过互联网获取信息。' },
+    { ja: '一年を通じて暖かい気候だ。', zh: '全年都是温暖的气候。' }
+  ]},
+  { pattern: '～に伴って', meaning: '随着…；伴随着…', explanation: '表示前项变化时后项也跟着变化。', examples: [
+    { ja: '人口の増加に伴って、住宅問題が深刻になった。', zh: '随着人口增加，住房问题变得严峻。' },
+    { ja: '経済の発展に伴い、環境問題も増えた。', zh: '伴随经济发展，环境问题也增多了。' }
+  ]},
+  { pattern: '～つつ', meaning: '一边…一边…', explanation: '表示同时进行两个动作（较文学）。也可表"虽然…却…"。', examples: [
+    { ja: '音楽を聴きつつ、勉強する。', zh: '一边听音乐一边学习。' },
+    { ja: '悪いと知りつつ、食べすぎてしまう。', zh: '虽然知道不好，却还是吃太多了。' }
+  ]},
+  { pattern: '～次第', meaning: '…之后立刻；取决于…', explanation: '①「V-ます＋次第」：一…就…。②「N＋次第」：取决于…。', examples: [
+    { ja: '届き次第、ご連絡します。', zh: '一到就联系您。' },
+    { ja: '結果は努力次第だ。', zh: '结果取决于努力。' }
+  ]},
+  { pattern: '～わけがない', meaning: '不可能…', explanation: '表示从道理上讲绝不可能。', examples: [
+    { ja: 'そんな簡単な問題、間違えるわけがない。', zh: '那么简单的问题，不可能答错。' },
+    { ja: '彼がそんなことを言うわけがない。', zh: '他不可能说那种话。' }
+  ]},
+  { pattern: '～わけではない', meaning: '并不是…', explanation: '部分否定。表示并非完全如此。', examples: [
+    { ja: '嫌いなわけではないが、あまり食べない。', zh: '并不是讨厌，只是不太吃。' },
+    { ja: '日本語が話せるわけではない。', zh: '并不是会说日语。' }
+  ]},
+  { pattern: '～ものの', meaning: '虽然…但是…', explanation: '承认前项为事实，但后项情况与预期不同。', examples: [
+    { ja: '買ったものの、一度も使っていない。', zh: '虽然买了，但一次也没用过。' },
+    { ja: '日本に来たものの、まだ友達ができない。', zh: '虽然来了日本，但还没交到朋友。' }
+  ]},
+  { pattern: '～にもかかわらず', meaning: '尽管…；不顾…', explanation: '表示不受前项影响，后项照样发生（较强烈）。', examples: [
+    { ja: '雨にもかかわらず、試合は行われた。', zh: '尽管下雨，比赛还是进行了。' },
+    { ja: '何度注意したにもかかわらず、直らない。', zh: '尽管提醒了很多次，还是没改。' }
+  ]},
+  { pattern: '～一方で', meaning: '一方面…另一方面…', explanation: '表示同一主体有两个不同侧面，或对比两件事。', examples: [
+    { ja: '彼は厳しい一方で、優しい面もある。', zh: '他一方面很严格，另一方面也有温柔的一面。' },
+    { ja: '都市の人口が増える一方で、地方は減っている。', zh: '城市人口增加的同时，地方在减少。' }
+  ]},
+  { pattern: '～に比べて', meaning: '与…相比', explanation: '将两个事物进行比较。', examples: [
+    { ja: '去年に比べて、今年は暖かい。', zh: '与去年相比，今年更暖和。' },
+    { ja: '兄に比べて、弟は背が高い。', zh: '和哥哥相比，弟弟更高。' }
+  ]},
+  { pattern: '～上で', meaning: '在…之后；在…方面', explanation: '①「V-た＋上で」：做完之后再…。②「N/V＋上で」：在某方面。', examples: [
+    { ja: 'よく考えた上で、決めてください。', zh: '请仔细考虑之后再决定。' },
+    { ja: '仕事の上で困っていることはありますか。', zh: '工作方面有什么困扰的吗？' }
+  ]},
+  { pattern: '～際に', meaning: '在…的时候', explanation: '正式表达"当…时"，常用于书面。', examples: [
+    { ja: 'お帰りの際に、受付にお声がけください。', zh: '回去的时候，请跟前台说一声。' },
+    { ja: '申し込みの際に、身分証明書が必要です。', zh: '申请时需要身份证明。' }
+  ]},
+  { pattern: '～限り', meaning: '只要…就…', explanation: '表示条件持续时结果不变。', examples: [
+    { ja: '生きている限り、夢を持ち続けたい。', zh: '只要活着，就想一直怀有梦想。' },
+    { ja: '努力する限り、成功の可能性はある。', zh: '只要努力，就有成功的可能。' }
+  ]},
+  { pattern: '～からには', meaning: '既然…就…', explanation: '既然已经决定/已经是这种情况，就一定要…。', examples: [
+    { ja: '約束したからには、守らなければならない。', zh: '既然承诺了，就必须遵守。' },
+    { ja: '留学するからには、しっかり勉強したい。', zh: '既然留学了，就想好好学习。' }
+  ]},
+  { pattern: '～ことから', meaning: '因为…所以…', explanation: '表示原因、理由（较客观的叙述方式）。', examples: [
+    { ja: '形が星に似ていることから、「星草」と名付けられた。', zh: '因为形状像星星，所以被命名为"星草"。' },
+    { ja: '日本語が上手なことから、通訳を頼まれた。', zh: '因为日语好，所以被拜托做翻译。' }
+  ]},
+  { pattern: '～たびに', meaning: '每次…', explanation: '每当前项发生时，后项就跟着发生。', examples: [
+    { ja: 'この曲を聴くたびに、学生時代を思い出す。', zh: '每次听到这首曲子，就想起学生时代。' },
+    { ja: '会うたびに元気になる。', zh: '每次见面都会变得有精神。' }
+  ]},
+  { pattern: '～恐れがある', meaning: '有…的可能/危险', explanation: '表示有不好的事情发生的可能性。', examples: [
+    { ja: '台風が上陸する恐れがある。', zh: '有台风登陆的可能性。' },
+    { ja: '事故が起きる恐れがある。', zh: '有发生事故的危险。' }
+  ]},
+  { pattern: '～ざるを得ない', meaning: '不得不…', explanation: '表示出于情况不得已而做某事。', examples: [
+    { ja: '体調が悪いので、仕事を休まざるを得ない。', zh: '因为身体不舒服，不得不请假。' },
+    { ja: '事実を認めざるを得ない。', zh: '不得不承认事实。' }
+  ]},
+  { pattern: '～てたまらない', meaning: '…得受不了', explanation: '表示某种感觉/情绪强烈到无法忍受。', examples: [
+    { ja: '暑くてたまらない。', zh: '热得受不了。' },
+    { ja: '合格の知らせが嬉しくてたまらない。', zh: '听到合格的消息高兴得不得了。' }
+  ]},
+  { pattern: '～っぽい', meaning: '有…的倾向；像…', explanation: '表示带有某种特质或倾向（口语）。', examples: [
+    { ja: '彼女は怒りっぽい性格だ。', zh: '她是容易生气的性格。' },
+    { ja: '最近忘れっぽくなった。', zh: '最近变得容易忘事了。' }
+  ]},
+  { pattern: '～がちだ', meaning: '容易…；往往…', explanation: '表示某种（通常不好的）倾向容易发生。', examples: [
+    { ja: '冬は風邪をひきがちだ。', zh: '冬天容易感冒。' },
+    { ja: '忙しいと、食事を抜きがちだ。', zh: '一忙起来，往往会跳过吃饭。' }
+  ]},
+  { pattern: '～てならない', meaning: '非常…；…得不得了', explanation: '表示某种感情/感觉自然地、不由自主地产生。', examples: [
+    { ja: '彼の将来が心配でならない。', zh: '非常担心他的未来。' },
+    { ja: '故郷が懐かしくてならない。', zh: '非常怀念故乡。' }
+  ]},
+];
+
+// ═══════════ Translate Prompts ═══════════
+const TRANSLATE_PROMPTS = [
+  { zh: '尽管天气很差，比赛还是照常进行了。', hint: '～にもかかわらず', level: 'N2' },
+  { zh: '关于这个问题，我们需要再讨论一下。', hint: '～に関して', level: 'N2' },
+  { zh: '随着科技的发展，我们的生活变得更加便利了。', hint: '～に伴って', level: 'N2' },
+  { zh: '对我来说，学日语是一件快乐的事。', hint: '～にとって', level: 'N2' },
+  { zh: '既然决定了要去日本留学，就要好好准备。', hint: '～からには', level: 'N2' },
+  { zh: '不仅会做日本料理，连法国菜也会做。', hint: '～ばかりでなく', level: 'N2' },
+  { zh: '根据调查结果来制定新的计划。', hint: '～に基づいて', level: 'N2' },
+  { zh: '每次看到这张照片，就会想起在日本的日子。', hint: '～たびに', level: 'N2' },
+  { zh: '虽然买了很多书，但一本都没看完。', hint: '～ものの', level: 'N2' },
+  { zh: '他一方面很严格，另一方面也很温柔。', hint: '～一方で', level: 'N2' },
+  { zh: '与去年相比，今年的销售额增长了百分之二十。', hint: '～に比べて', level: 'N2' },
+  { zh: '只要活着，就想一直学习新东西。', hint: '～限り', level: 'N2' },
+  { zh: '请仔细确认合同内容之后再签字。', hint: '～上で', level: 'N2' },
+  { zh: '因为身体不舒服，不得不取消今天的约会。', hint: '～ざるを得ない', level: 'N2' },
+  { zh: '通过这次旅行，我学到了很多。', hint: '～を通じて', level: 'N2' },
+  { zh: '报名的时候需要填写这份表格。', hint: '～際に', level: 'N2' },
+  { zh: '这座城市以美丽的夜景而闻名。', hint: '～ことから', level: 'N2' },
+  { zh: '冬天容易生病，所以要注意保暖。', hint: '～がちだ', level: 'N2' },
+  { zh: '以东京为首，全国各地都举办了活动。', hint: '～をはじめ', level: 'N2' },
+  { zh: '有发生地震的可能性，请做好准备。', hint: '～恐れがある', level: 'N2' },
+];
+
+// ═══════════ Particle Questions ═══════════
+const PARTICLE_QUESTIONS = [
+  { sentence: '友達（　）電話をかける。', answer: 'に', options: ['に','を','で','が'], hint: '给朋友打电话' },
+  { sentence: '学校（　）行く途中で雨が降った。', answer: 'へ', options: ['へ','に','を','で'], hint: '去学校的路上下雨了' },
+  { sentence: '日本語（　）上手になりたい。', answer: 'が', options: ['が','を','に','は'], hint: '想变得擅长日语' },
+  { sentence: '公園（　）散歩する。', answer: 'を', options: ['を','に','で','が'], hint: '在公园散步' },
+  { sentence: '彼女（　）プレゼントをあげた。', answer: 'に', options: ['に','を','が','で'], hint: '给了她礼物' },
+  { sentence: '電車（　）会社に通っている。', answer: 'で', options: ['で','に','を','が'], hint: '坐电车上班' },
+  { sentence: '明日（　）天気がいいといいな。', answer: 'は', options: ['は','が','に','も'], hint: '明天天气好就好了' },
+  { sentence: '先生の話（　）よく聞いてください。', answer: 'を', options: ['を','に','が','は'], hint: '请好好听老师说的话' },
+  { sentence: '東京（　）大阪まで新幹線で行く。', answer: 'から', options: ['から','まで','に','を'], hint: '从东京到大阪坐新干线' },
+  { sentence: 'この映画（　）面白かった。', answer: 'は', options: ['は','が','を','に'], hint: '这部电影很有趣' },
+  { sentence: '窓（　）開けてください。', answer: 'を', options: ['を','が','に','で'], hint: '请打开窗户' },
+  { sentence: '図書館（　）本を借りた。', answer: 'で', options: ['で','に','を','が'], hint: '在图书馆借了书' },
+  { sentence: 'コーヒー（　）紅茶（　）どちらがいいですか。', answer: 'と', options: ['と','か','や','も'], hint: '咖啡和红茶哪个好？' },
+  { sentence: '彼は医者（　）なりたいそうだ。', answer: 'に', options: ['に','が','を','と'], hint: '他好像想当医生' },
+  { sentence: '日曜日（　）友達と映画を見に行く。', answer: 'に', options: ['に','は','で','を'], hint: '星期天和朋友去看电影' },
+  { sentence: '駅の前（　）花屋がある。', answer: 'に', options: ['に','で','が','を'], hint: '车站前面有花店' },
+  { sentence: '猫（　）魚が好きだ。', answer: 'は', options: ['は','が','を','に'], hint: '猫喜欢鱼' },
+  { sentence: '母（　）料理を教えてもらった。', answer: 'に', options: ['に','を','が','から'], hint: '妈妈教了我做菜' },
+  { sentence: '冬休み（　）北海道に行きたい。', answer: 'に', options: ['に','は','で','を'], hint: '寒假想去北海道' },
+  { sentence: '昨日買った本（　）もう読んでしまった。', answer: 'を', options: ['を','は','が','に'], hint: '昨天买的书已经读完了' },
+];
+
+// ═══════════ Mistakes System ═══════════
+function getMistakes() { return load('mistakes', []); }
+function saveMistakes(m) { save('mistakes', m); }
+
+function addMistake(type, question, userAnswer, correctAnswer, explanation) {
+  const mistakes = getMistakes();
+  mistakes.unshift({
+    type, question, userAnswer, correctAnswer, explanation,
+    timestamp: todayKey(),
+    reviewed: false,
+    srsNextReview: todayKey(),
+    srsInterval: 0,
+  });
+  // Keep max 200 mistakes
+  if (mistakes.length > 200) mistakes.length = 200;
+  saveMistakes(mistakes);
+}
+
+function getTodayMistakeReviewCount() {
+  const today = todayKey();
+  return getMistakes().filter(m => !m.reviewed && m.srsNextReview <= today).length;
+}
+
+// ═══════════ Grammar Page ═══════════
+function renderGrammarList() {
+  const search = (document.getElementById('grammarSearchInput')?.value || '').toLowerCase();
+  const filtered = N2_GRAMMAR.filter(g =>
+    g.pattern.toLowerCase().includes(search) ||
+    g.meaning.includes(search) ||
+    g.explanation.includes(search)
+  );
+  document.getElementById('grammarCount').textContent = `共 ${filtered.length} 个语法点`;
+
+  const list = document.getElementById('grammarList');
+  list.innerHTML = filtered.map((g, i) => `
+    <div class="grammar-card" id="gc_${i}">
+      <div class="grammar-card-header" onclick="toggleGrammarCard(${i})">
+        <div class="grammar-pattern">${escHtml(g.pattern)}</div>
+        <div class="grammar-meaning">${escHtml(g.meaning)}</div>
+        <div class="grammar-arrow">›</div>
+      </div>
+      <div class="grammar-body">
+        <div class="grammar-explanation">${escHtml(g.explanation)}</div>
+        ${g.examples.map(ex => `
+          <div class="grammar-example">
+            <div class="grammar-example-ja">${escHtml(ex.ja)}</div>
+            <div class="grammar-example-zh">${escHtml(ex.zh)}</div>
+          </div>
+        `).join('')}
+        <button class="grammar-quiz-btn" onclick="grammarQuiz(${N2_GRAMMAR.indexOf(g)})">💡 考考我</button>
+        <div class="grammar-quiz-area" id="gqa_${N2_GRAMMAR.indexOf(g)}" style="display:none;"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleGrammarCard(idx) {
+  const card = document.getElementById('gc_' + idx);
+  if (card) card.classList.toggle('open');
+}
+
+function grammarQuiz(grammarIdx) {
+  const g = N2_GRAMMAR[grammarIdx];
+  const area = document.getElementById('gqa_' + grammarIdx);
+  if (!area) return;
+
+  // Generate a quiz: pick the correct grammar + 3 random wrong ones
+  const correctPattern = g.pattern;
+  const otherPatterns = N2_GRAMMAR
+    .filter((_, i) => i !== grammarIdx)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3)
+    .map(x => x.pattern);
+  const options = [correctPattern, ...otherPatterns].sort(() => Math.random() - 0.5);
+
+  // Use one of the examples as the question
+  const ex = g.examples[Math.floor(Math.random() * g.examples.length)];
+
+  area.style.display = 'block';
+  area.innerHTML = `
+    <div class="grammar-quiz-q">下面的句子使用了哪个语法？<br><strong>${escHtml(ex.ja)}</strong></div>
+    <div class="grammar-quiz-options">
+      ${options.map((opt, oi) => `
+        <button class="grammar-quiz-opt" onclick="checkGrammarQuiz(${grammarIdx}, this, '${opt.replace(/'/g,"\\'")}', '${correctPattern.replace(/'/g,"\\'")}')">
+          ${escHtml(opt)}
+        </button>
+      `).join('')}
+    </div>
+    <div class="grammar-quiz-result" id="gqr_${grammarIdx}"></div>
+  `;
+}
+
+function checkGrammarQuiz(grammarIdx, btn, selected, correct) {
+  const area = document.getElementById('gqa_' + grammarIdx);
+  const buttons = area.querySelectorAll('.grammar-quiz-opt');
+  buttons.forEach(b => {
+    b.style.pointerEvents = 'none';
+    const btnText = b.textContent.trim();
+    if (btnText === correct) b.classList.add('correct');
+  });
+
+  const resultEl = document.getElementById('gqr_' + grammarIdx);
+  if (selected === correct) {
+    btn.classList.add('correct');
+    resultEl.innerHTML = '✅ 正确！';
+  } else {
+    btn.classList.add('wrong');
+    resultEl.innerHTML = `❌ 正确答案是 <strong>${escHtml(correct)}</strong>`;
+    const g = N2_GRAMMAR[grammarIdx];
+    const ex = g.examples[0];
+    addMistake('语法', ex.ja + ' — 使用了哪个语法？', selected, correct, g.meaning);
+  }
+}
+
+// ═══════════ Translate Page ═══════════
+let currentTranslateIdx = -1;
+let translateSessionScore = { total: 0, done: 0 };
+
+function renderTranslatePage() {
+  // Pick a random prompt not recently done
+  const done = load('translate_done_today', []);
+  const available = TRANSLATE_PROMPTS.map((p, i) => i).filter(i => !done.includes(i));
+  if (available.length === 0) {
+    // All done today
+    const container = document.getElementById('translateContainer');
+    container.innerHTML = `
+      <div style="text-align:center;padding:40px 0;">
+        <div style="font-size:48px;opacity:0.6;margin-bottom:12px;">🎉</div>
+        <div style="font-family:var(--font-serif-zh);font-size:14px;color:var(--text-mute);line-height:1.8;">
+          今天的翻译练习全部完成啦！<br>明天再来哦 ❀
+        </div>
+        <button class="translate-next-btn" onclick="save('translate_done_today',[]);renderTranslatePage();" style="margin-top:20px;">
+          🔄 重新开始
+        </button>
+      </div>`;
+    document.getElementById('translateStats').textContent = `今日已完成 ${done.length} / ${TRANSLATE_PROMPTS.length}`;
+    return;
+  }
+
+  currentTranslateIdx = available[Math.floor(Math.random() * available.length)];
+  const prompt = TRANSLATE_PROMPTS[currentTranslateIdx];
+  document.getElementById('translateStats').textContent = `今日已完成 ${done.length} / ${TRANSLATE_PROMPTS.length}`;
+
+  const container = document.getElementById('translateContainer');
+  container.innerHTML = `
+    <div class="translate-prompt-card">
+      <div class="translate-label">TRANSLATE TO JAPANESE</div>
+      <div class="translate-zh">${escHtml(prompt.zh)}</div>
+      ${prompt.hint ? `<div class="translate-hint">💡 提示：${escHtml(prompt.hint)}</div>` : ''}
+    </div>
+    <textarea class="translate-textarea" id="translateInput" placeholder="用日语翻译这句话…"></textarea>
+    <button class="translate-submit-btn" id="translateSubmitBtn" onclick="submitTranslation()">
+      📝 提交给小豆点评
+    </button>
+    <div id="translateResult"></div>
+  `;
+}
+
+async function submitTranslation() {
+  const input = document.getElementById('translateInput');
+  const userAnswer = input?.value?.trim();
+  if (!userAnswer) { alert('请先写翻译哦～'); return; }
+
+  const prompt = TRANSLATE_PROMPTS[currentTranslateIdx];
+  const btn = document.getElementById('translateSubmitBtn');
+  btn.textContent = '⏳ 小豆正在看…';
+  btn.disabled = true;
+
+  const dsPrompt = `用户正在练习中译日翻译。
+原文（中文）：${prompt.zh}
+${prompt.hint ? '提示语法：' + prompt.hint : ''}
+用户翻译：${userAnswer}
+
+请评分并给出参考答案。只输出纯JSON，格式：
+{"score":85,"reference":"参考日文翻译","comment":"简短点评，指出优点和需要改进的地方，不超过80字"}`;
+
+  const result = await callDS(dsPrompt, '你是小豆，日语翻译练习的评分助手。只输出纯JSON，不要markdown代码块。评分0-100分。');
+  btn.textContent = '📝 提交给小豆点评';
+  btn.disabled = false;
+
+  const resultDiv = document.getElementById('translateResult');
+  if (result) {
+    try {
+      const data = JSON.parse(result);
+      resultDiv.innerHTML = `
+        <div class="translate-result-card">
+          <div class="translate-score">${data.score}</div>
+          <div class="translate-score-label">SCORE</div>
+          <div class="translate-ref">
+            <div style="font-size:11px;color:var(--text-soft);margin-bottom:4px;">参考翻译</div>
+            ${escHtml(data.reference || '')}
+          </div>
+          <div class="translate-comment">${escHtml(data.comment || '')}</div>
+          <button class="translate-next-btn" onclick="markTranslateDone()">下一题 →</button>
+        </div>`;
+
+      // Track mistakes if score < 70
+      if (data.score < 70) {
+        addMistake('翻译', prompt.zh, userAnswer, data.reference || '', data.comment || '');
+      }
+    } catch {
+      resultDiv.innerHTML = `<div class="translate-result-card">
+        <div class="translate-comment">${escHtml(result)}</div>
+        <button class="translate-next-btn" onclick="markTranslateDone()">下一题 →</button>
+      </div>`;
+    }
+  } else {
+    resultDiv.innerHTML = `<div class="translate-result-card">
+      <div class="translate-comment">小豆暂时不在线，请检查 API Key 设置</div>
+    </div>`;
+  }
+}
+
+function markTranslateDone() {
+  const done = load('translate_done_today', []);
+  if (!done.includes(currentTranslateIdx)) done.push(currentTranslateIdx);
+  save('translate_done_today', done);
+  renderTranslatePage();
+}
+
+// ═══════════ Games Page ═══════════
+let currentGameMode = 'vocab'; // 'vocab' or 'particle'
+let gameScore = { correct: 0, total: 0 };
+let currentGameAnswered = false;
+
+function renderGamesPage() {
+  gameScore = load('game_score_today', { correct: 0, total: 0 });
+  const container = document.getElementById('gamesContainer');
+  container.innerHTML = `
+    <div class="game-mode-tabs">
+      <button class="game-mode-btn ${currentGameMode === 'vocab' ? 'active' : ''}" onclick="switchGameMode('vocab')">📇 词语联想</button>
+      <button class="game-mode-btn ${currentGameMode === 'particle' ? 'active' : ''}" onclick="switchGameMode('particle')">✏️ 助词填空</button>
+    </div>
+    <div class="game-score-bar">
+      <div class="game-score-item">
+        <div class="game-score-num" id="gameCorrectNum">${gameScore.correct}</div>
+        <div class="game-score-label">CORRECT</div>
+      </div>
+      <div class="game-score-item">
+        <div class="game-score-num" id="gameTotalNum">${gameScore.total}</div>
+        <div class="game-score-label">TOTAL</div>
+      </div>
+    </div>
+    <div id="gameArea"></div>
+  `;
+  if (currentGameMode === 'vocab') renderVocabGame();
+  else renderParticleGame();
+}
+
+function switchGameMode(mode) {
+  currentGameMode = mode;
+  renderGamesPage();
+}
+
+function renderVocabGame() {
+  const vocab = getVocabList();
+  if (vocab.length < 4) {
+    document.getElementById('gameArea').innerHTML = `
+      <div style="text-align:center;padding:20px;color:var(--text-mute);font-size:13px;">
+        词书里至少需要4个词才能玩～
+      </div>`;
+    return;
+  }
+
+  // Pick a random word as the question
+  const idx = Math.floor(Math.random() * vocab.length);
+  const target = vocab[idx];
+  // Pick 3 wrong options
+  const wrongs = vocab.filter((_, i) => i !== idx)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+  const options = [target, ...wrongs].sort(() => Math.random() - 0.5);
+
+  currentGameAnswered = false;
+  document.getElementById('gameArea').innerHTML = `
+    <div class="game-card">
+      <div class="game-question">${escHtml(target.word)}</div>
+      <div class="game-question-sub">${escHtml(target.reading)}</div>
+      <div class="game-options">
+        ${options.map((opt, oi) => `
+          <button class="game-option-btn" onclick="checkVocabAnswer(this, '${escHtml(opt.meaning).replace(/'/g,"\\'")}', '${escHtml(target.meaning).replace(/'/g,"\\'")}', '${escHtml(target.word).replace(/'/g,"\\'")}')">
+            ${escHtml(opt.meaning)}
+          </button>
+        `).join('')}
+      </div>
+      <div class="game-result" id="vocabGameResult"></div>
+    </div>`;
+}
+
+function checkVocabAnswer(btn, selected, correct, word) {
+  if (currentGameAnswered) return;
+  currentGameAnswered = true;
+
+  const buttons = btn.parentElement.querySelectorAll('.game-option-btn');
+  buttons.forEach(b => {
+    b.classList.add('disabled');
+    if (b.textContent.trim() === correct) b.classList.add('correct');
+  });
+
+  gameScore.total++;
+  const resultEl = document.getElementById('vocabGameResult');
+  if (selected === correct) {
+    btn.classList.add('correct');
+    gameScore.correct++;
+    resultEl.innerHTML = '✅ 正确！';
+  } else {
+    btn.classList.add('wrong');
+    resultEl.innerHTML = `❌ "${word}" 的意思是 <strong>${correct}</strong>`;
+    addMistake('小游戏', word + ' 的意思是？', selected, correct, '词语联想');
+  }
+
+  save('game_score_today', gameScore);
+  document.getElementById('gameCorrectNum').textContent = gameScore.correct;
+  document.getElementById('gameTotalNum').textContent = gameScore.total;
+
+  resultEl.innerHTML += `<br><button class="game-next-btn" onclick="renderVocabGame()">下一题 →</button>`;
+}
+
+function renderParticleGame() {
+  const idx = Math.floor(Math.random() * PARTICLE_QUESTIONS.length);
+  const q = PARTICLE_QUESTIONS[idx];
+  const options = q.options.sort(() => Math.random() - 0.5);
+
+  currentGameAnswered = false;
+  document.getElementById('gameArea').innerHTML = `
+    <div class="game-card">
+      <div class="game-question">${escHtml(q.sentence)}</div>
+      <div class="game-question-sub">${escHtml(q.hint)}</div>
+      <div class="game-options">
+        ${options.map(opt => `
+          <button class="game-option-btn" onclick="checkParticleAnswer(this, '${opt}', '${q.answer}', '${escHtml(q.sentence).replace(/'/g,"\\'")}')">
+            ${escHtml(opt)}
+          </button>
+        `).join('')}
+      </div>
+      <div class="game-result" id="particleGameResult"></div>
+    </div>`;
+}
+
+function checkParticleAnswer(btn, selected, correct, sentence) {
+  if (currentGameAnswered) return;
+  currentGameAnswered = true;
+
+  const buttons = btn.parentElement.querySelectorAll('.game-option-btn');
+  buttons.forEach(b => {
+    b.classList.add('disabled');
+    if (b.textContent.trim() === correct) b.classList.add('correct');
+  });
+
+  gameScore.total++;
+  const resultEl = document.getElementById('particleGameResult');
+  if (selected === correct) {
+    btn.classList.add('correct');
+    gameScore.correct++;
+    resultEl.innerHTML = `✅ 正确！答案是「${correct}」`;
+  } else {
+    btn.classList.add('wrong');
+    resultEl.innerHTML = `❌ 正确答案是「${correct}」`;
+    addMistake('小游戏', sentence, selected, correct, '助词填空');
+  }
+
+  save('game_score_today', gameScore);
+  document.getElementById('gameCorrectNum').textContent = gameScore.correct;
+  document.getElementById('gameTotalNum').textContent = gameScore.total;
+
+  resultEl.innerHTML += `<br><button class="game-next-btn" onclick="renderParticleGame()">下一题 →</button>`;
+}
+
+// ═══════════ Mistakes Page ═══════════
+function renderMistakesPage() {
+  const mistakes = getMistakes();
+  const container = document.getElementById('mistakesContainer');
+
+  if (mistakes.length === 0) {
+    container.innerHTML = `
+      <div class="mistakes-empty">
+        <div class="mistakes-empty-icon">📝</div>
+        <div class="mistakes-empty-text">还没有错题哦～<br>做语法、翻译、小游戏时<br>答错的题目会自动收集在这里</div>
+      </div>`;
+    return;
+  }
+
+  const today = todayKey();
+  const dueCount = mistakes.filter(m => !m.reviewed && m.srsNextReview <= today).length;
+  const typeCounts = {};
+  mistakes.forEach(m => { typeCounts[m.type] = (typeCounts[m.type] || 0) + 1; });
+
+  container.innerHTML = `
+    <div class="mistakes-stats-bar">
+      <div class="mistakes-stat">
+        <div class="mistakes-stat-num">${mistakes.length}</div>
+        <div class="mistakes-stat-label">TOTAL</div>
+      </div>
+      <div class="mistakes-stat">
+        <div class="mistakes-stat-num">${dueCount}</div>
+        <div class="mistakes-stat-label">DUE TODAY</div>
+      </div>
+    </div>
+    ${mistakes.slice(0, 50).map((m, i) => `
+      <div class="mistake-card">
+        <div class="mistake-type-badge">${escHtml(m.type)}</div>
+        <div class="mistake-question">${escHtml(m.question)}</div>
+        <div class="mistake-your-answer">✗ 你的答案：${escHtml(m.userAnswer)}</div>
+        <div class="mistake-correct-answer">✓ 正确答案：${escHtml(m.correctAnswer)}</div>
+        ${m.explanation ? `<div class="mistake-explanation">💡 ${escHtml(m.explanation)}</div>` : ''}
+      </div>
+    `).join('')}
+    <button class="mistakes-clear-btn" onclick="if(confirm('确定要清空错题本吗？')){saveMistakes([]);renderMistakesPage();}">
+      清空错题本
+    </button>
+  `;
+}
+
+// Update study hub stats
+function updateStudyHubStats() {
+  const reviewCount = getTodayReviewCards().length;
+  const mistakeCount = getTodayMistakeReviewCount();
+  const el = document.getElementById('studyHubStats');
+  if (el) el.innerHTML = `今天要复习 <strong>${reviewCount}</strong> 个词 和 <strong>${mistakeCount}</strong> 道题`;
+  const dashEl = document.getElementById('studyStats');
+  if (dashEl) dashEl.innerHTML = `今天要复习 <strong>${reviewCount}</strong> 个词 和 <strong>${mistakeCount}</strong> 道题`;
+}
+
+
 // ═══════════ Init ═══════════
 refreshDashboard();
 initMood();
@@ -3379,8 +4336,15 @@ checkBackupReminder();
 updateVocabCount();
 
 // Update study stats on dashboard
-const reviewCount = getTodayReviewCards().length;
-document.getElementById('studyStats').innerHTML = `今天要复习 <strong>${reviewCount}</strong> 个词`;
+updateStudyHubStats();
+
+// Reset daily translate/game data if new day
+const lastStudyDay = load('last_study_day', '');
+if (lastStudyDay !== todayKey()) {
+  save('translate_done_today', []);
+  save('game_score_today', { correct: 0, total: 0 });
+  save('last_study_day', todayKey());
+}
 
 // Register Service Worker
 if ('serviceWorker' in navigator) {
