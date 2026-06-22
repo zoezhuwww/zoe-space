@@ -253,6 +253,23 @@ function initMood() {
 function getTodos() { return load('todos', []); }
 function saveTodos(t) { save('todos', t); }
 
+function getDeadlineTag(deadline) {
+  if (!deadline) return '';
+  const now = new Date();
+  const dl = new Date(deadline);
+  const diffMs = dl - now;
+  const diffMins = Math.ceil(diffMs / (1000*60));
+  const diffHours = Math.ceil(diffMs / (1000*60*60));
+  const diffDays = Math.ceil(diffMs / (1000*60*60*24));
+  let cls = 'normal', text = '';
+  if (diffMs < 0) { cls = 'overdue'; text = '已过期'; }
+  else if (diffMins <= 60) { cls = 'urgent'; text = diffMins + '分钟后'; }
+  else if (diffHours <= 24) { cls = 'urgent'; text = diffHours + '小时后'; }
+  else if (diffDays <= 3) { cls = 'soon'; text = diffDays + '天后'; }
+  else { cls = 'normal'; text = diffDays + '天后'; }
+  return `<span class="todo-countdown ${cls}">${text}</span>`;
+}
+
 function renderTodoDash() {
   const todos = getTodos();
   const undone = todos.filter(t => !t.done);
@@ -260,12 +277,20 @@ function renderTodoDash() {
   document.getElementById('todoSummary').textContent = `${undone.length} 项待办`;
   const list = document.getElementById('todoDashList');
   list.innerHTML = '';
-  undone.slice(0, 5).forEach((t) => {
+  // Sort by deadline (urgent first)
+  const sorted = [...undone].sort((a, b) => {
+    if (a.deadline && !b.deadline) return -1;
+    if (!a.deadline && b.deadline) return 1;
+    if (a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
+    return 0;
+  });
+  sorted.slice(0, 5).forEach((t) => {
     const idx = todos.indexOf(t);
     list.innerHTML += `
       <div class="todo-item">
         <div class="todo-check" onclick="toggleTodoDash(${idx})"></div>
         <div class="todo-text">${escHtml(t.text)}</div>
+        ${getDeadlineTag(t.deadline)}
       </div>`;
   });
   if (undone.length === 0) {
@@ -287,12 +312,21 @@ function renderTodoFull() {
   const undone = todos.filter(t => !t.done);
   const done = todos.filter(t => t.done);
 
+  // Sort undone by deadline
+  undone.sort((a, b) => {
+    if (a.deadline && !b.deadline) return -1;
+    if (!a.deadline && b.deadline) return 1;
+    if (a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
+    return 0;
+  });
+
   undone.forEach((t) => {
     const i = todos.indexOf(t);
     list.innerHTML += `
       <div class="todo-full-item">
         <div class="todo-check" onclick="toggleTodo(${i})"></div>
         <div class="tfi-text" onclick="editTodo(${i})">${escHtml(t.text)}</div>
+        ${getDeadlineTag(t.deadline)}
         <div class="todo-delete" onclick="deleteTodo(${i})">×</div>
       </div>`;
   });
@@ -313,11 +347,13 @@ function renderTodoFull() {
 
 function addTodo() {
   const input = document.getElementById('todoInput');
+  const deadlineInput = document.getElementById('todoDeadline');
   const text = input.value.trim();
   if (!text) return;
   const todos = getTodos();
-  todos.unshift({ text, done: false, date: todayKey(), created: Date.now() });
-  saveTodos(todos); input.value = ''; renderTodoFull();
+  const deadline = deadlineInput.value || null;
+  todos.unshift({ text, done: false, date: todayKey(), created: Date.now(), deadline });
+  saveTodos(todos); input.value = ''; deadlineInput.value = ''; renderTodoFull();
 }
 function toggleTodo(i) {
   const todos = getTodos();

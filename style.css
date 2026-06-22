@@ -454,6 +454,7 @@ body {
   transform: translate(-50%, -50%); line-height: 1;
 }
 .todo-item.done { color: var(--text-soft); }
+.todo-text { flex: 1; }
 .todo-item.done .todo-text { text-decoration: line-through; }
 
 /* Study summary */
@@ -1036,6 +1037,45 @@ body {
   color: var(--text-soft);
   padding: 16px 0 4px;
   border-bottom: 1px solid var(--divider);
+}
+.todo-deadline-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 24px 12px;
+}
+.todo-deadline-label {
+  font-size: 11px; color: var(--text-mute);
+  white-space: nowrap;
+}
+.todo-deadline-input {
+  font-family: var(--font-sans-zh);
+  font-size: 12px; color: var(--text-warm);
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  padding: 4px 8px;
+  background: transparent;
+}
+.todo-countdown {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-left: auto;
+}
+.todo-countdown.urgent {
+  background: #FDE8E8;
+  color: #C96B6B;
+}
+.todo-countdown.soon {
+  background: #FFF3E0;
+  color: #C49A7A;
+}
+.todo-countdown.normal {
+  background: var(--rose-mist);
+  color: var(--rose-deep);
+}
+.todo-countdown.overdue {
+  background: #F4DDDD;
+  color: #B55555;
 }
 
 /* ═══════════ Fund Full Page ═══════════ */
