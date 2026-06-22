@@ -84,6 +84,7 @@ body {
 .page-container {
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
@@ -2063,6 +2064,7 @@ body {
 
 .speak-result-section {
   padding: 0 0 24px;
+  overflow-x: hidden;
 }
 .speak-playback {
   margin: 0 24px 14px;
@@ -2099,29 +2101,31 @@ body {
   background: var(--bg-card);
   border-radius: 14px;
   box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+  overflow: hidden;
 }
 .speak-review-content {
   font-family: var(--font-sans-zh);
   font-size: 13px;
-  line-height: 1.8;
+  line-height: 1.6;
   color: var(--text-warm);
   white-space: pre-wrap;
+  word-break: break-word;
 }
 .speak-review-content .review-score {
   font-family: var(--font-display);
   font-size: 28px;
   color: var(--rose-deep);
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .speak-review-content .review-section {
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 .speak-review-content .review-label {
   font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--rose-light);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .speak-daily-stats {

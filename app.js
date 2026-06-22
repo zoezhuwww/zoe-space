@@ -2101,6 +2101,15 @@ let speakTimeLeft = 120;
 let speakRecognition = null;
 let speakTranscriptText = '';
 let speakAudioBlob = null;
+let speakMimeType = '';
+
+function getSupportedAudioMime() {
+  const types = ['audio/mp4', 'audio/webm', 'audio/ogg'];
+  for (const t of types) {
+    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(t)) return t;
+  }
+  return '';
+}
 
 function renderSpeakingPage() {
   shuffleTopic();
@@ -2145,7 +2154,9 @@ async function startRecording() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     speakAudioChunks = [];
     speakTranscriptText = '';
-    speakMediaRecorder = new MediaRecorder(stream);
+    speakMimeType = getSupportedAudioMime();
+    const recorderOptions = speakMimeType ? { mimeType: speakMimeType } : {};
+    speakMediaRecorder = new MediaRecorder(stream, recorderOptions);
 
     speakMediaRecorder.ondataavailable = e => {
       if (e.data.size > 0) speakAudioChunks.push(e.data);
@@ -2153,7 +2164,7 @@ async function startRecording() {
 
     speakMediaRecorder.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
-      speakAudioBlob = new Blob(speakAudioChunks, { type: 'audio/webm' });
+      speakAudioBlob = new Blob(speakAudioChunks, { type: speakMimeType || 'audio/mp4' });
       const url = URL.createObjectURL(speakAudioBlob);
       const audioEl = document.getElementById('speakAudio');
       audioEl.src = url;
