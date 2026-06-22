@@ -1941,3 +1941,192 @@ body {
   padding: 8px 16px;
 }
 .celebration-dismiss:active { color: var(--rose-deep); }
+
+/* ═══════════ Study Section Divider ═══════════ */
+.study-section-divider {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--text-soft);
+  padding: 12px 0 6px;
+  text-align: center;
+}
+
+/* ═══════════ Speaking Practice Page ═══════════ */
+.speak-lang-toggle {
+  display: flex; gap: 8px;
+  padding: 0 24px 16px;
+}
+.speak-lang-btn {
+  flex: 1; padding: 8px 0;
+  border: 1.5px solid var(--divider);
+  border-radius: 10px;
+  background: transparent;
+  font-family: var(--font-sans-zh);
+  font-size: 12px; color: var(--text-mute);
+  cursor: pointer; transition: all 0.2s;
+}
+.speak-lang-btn.active {
+  border-color: var(--rose-light);
+  background: var(--rose-mist);
+  color: var(--rose-deep);
+}
+
+.speak-topic-card {
+  margin: 0 24px 12px;
+  padding: 28px 24px;
+  background: var(--bg-card);
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(196,123,123,0.06);
+  text-align: center;
+  min-height: 100px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.speak-topic-category {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--rose-light);
+  margin-bottom: 12px;
+}
+.speak-topic-text {
+  font-family: var(--font-serif-zh);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-warm);
+  margin-bottom: 8px;
+}
+.speak-topic-hint {
+  font-size: 11px;
+  color: var(--text-soft);
+  font-style: italic;
+}
+
+.speak-shuffle-btn {
+  display: block;
+  margin: 0 auto 24px;
+  padding: 8px 24px;
+  border: 1.5px dashed var(--rose-soft);
+  border-radius: 20px;
+  background: transparent;
+  font-family: var(--font-sans-zh);
+  font-size: 12px;
+  color: var(--rose-deep);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.speak-shuffle-btn:active { transform: scale(0.95); }
+
+.speak-record-section {
+  text-align: center;
+  padding: 0 24px 24px;
+}
+.speak-timer {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--text-warm);
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+.speak-record-btn-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 10px;
+}
+.speak-record-btn {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 3px solid var(--rose-light);
+  background: var(--rose-mist);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.speak-record-btn:active { transform: scale(0.93); }
+.speak-record-btn.recording {
+  border-color: #E07070;
+  background: #FDE8E8;
+  animation: pulse-record 1.5s infinite;
+}
+@keyframes pulse-record {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(224,112,112,0.3); }
+  50% { box-shadow: 0 0 0 12px rgba(224,112,112,0); }
+}
+.speak-record-icon {
+  font-size: 28px;
+}
+.speak-record-label {
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+.speak-result-section {
+  padding: 0 0 24px;
+}
+.speak-playback {
+  margin: 0 24px 14px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+}
+.speak-playback audio {
+  border-radius: 8px;
+}
+.speak-playback audio::-webkit-media-controls-panel {
+  background: var(--rose-mist);
+}
+
+.speak-transcript-box {
+  margin: 0 24px 14px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+}
+.speak-transcript-text {
+  font-family: var(--font-sans-zh);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-warm);
+  white-space: pre-wrap;
+}
+
+.speak-review-box {
+  margin: 12px 24px 0;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(90,74,74,0.04);
+}
+.speak-review-content {
+  font-family: var(--font-sans-zh);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-warm);
+  white-space: pre-wrap;
+}
+.speak-review-content .review-score {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--rose-deep);
+  text-align: center;
+  margin-bottom: 8px;
+}
+.speak-review-content .review-section {
+  margin-bottom: 10px;
+}
+.speak-review-content .review-label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--rose-light);
+  margin-bottom: 4px;
+}
+
+.speak-daily-stats {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-soft);
+  padding: 12px 24px 24px;
+}

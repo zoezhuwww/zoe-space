@@ -69,6 +69,9 @@
         <div class="sidebar-item" data-page="games">
           <span class="si-icon">🎮</span><span class="si-label">小游戏</span>
         </div>
+        <div class="sidebar-item" data-page="speaking">
+          <span class="si-icon">🎤</span><span class="si-label">口语练习</span>
+        </div>
       </div>
     </div>
 
@@ -497,6 +500,15 @@
           </div>
           <div class="study-hub-arrow">›</div>
         </div>
+        <div class="study-section-divider">ENGLISH</div>
+        <div class="study-hub-card" onclick="navigateTo('speaking')">
+          <div class="study-hub-icon">🎤</div>
+          <div class="study-hub-info">
+            <div class="study-hub-name">口语练习</div>
+            <div class="study-hub-desc">话题卡 · 录音 · 小豆点评</div>
+          </div>
+          <div class="study-hub-arrow">›</div>
+        </div>
       </div>
       <div style="padding:12px 24px 0;">
         <button class="food-action-btn" onclick="importVocabFile()" style="margin-bottom:4px;">
@@ -675,6 +687,79 @@
         <div class="sub-page-title">小游戏</div>
       </div>
       <div class="games-container" id="gamesContainer"></div>
+    </div>
+
+    <!-- ═══ Speaking Practice Page ═══ -->
+    <div class="page" id="page-speaking">
+      <div class="sub-page-header">
+        <div class="back-btn" onclick="navigateTo('study')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <div class="sub-page-title">口语练习</div>
+      </div>
+
+      <!-- 语言切换 -->
+      <div class="speak-lang-toggle">
+        <button class="speak-lang-btn active" id="langBtnEn" onclick="switchSpeakLang('en')">English</button>
+        <button class="speak-lang-btn" id="langBtnZh" onclick="switchSpeakLang('zh')">中文出题</button>
+      </div>
+
+      <!-- 话题卡 -->
+      <div class="speak-topic-card" id="speakTopicCard">
+        <div class="speak-topic-category" id="speakCategory">DAILY LIFE</div>
+        <div class="speak-topic-text" id="speakTopicText">Describe your morning routine.</div>
+        <div class="speak-topic-hint" id="speakTopicHint">Try to speak for 2 minutes!</div>
+      </div>
+
+      <button class="speak-shuffle-btn" onclick="shuffleTopic()">🔄 换一题</button>
+
+      <!-- 录音控制 -->
+      <div class="speak-record-section">
+        <div class="speak-timer" id="speakTimer">2:00</div>
+        <div class="speak-record-btn-wrap">
+          <button class="speak-record-btn" id="speakRecordBtn" onclick="toggleRecording()">
+            <div class="speak-record-icon" id="speakRecordIcon">🎤</div>
+          </button>
+          <div class="speak-record-label" id="speakRecordLabel">点击开始录音</div>
+        </div>
+      </div>
+
+      <!-- 录音结果 -->
+      <div class="speak-result-section" id="speakResultSection" style="display:none;">
+        <!-- 回放 -->
+        <div class="speak-playback">
+          <div class="card-eyebrow" style="padding:0;margin-bottom:8px;">
+            <div class="card-label">录音回放</div>
+            <div class="card-meta" id="speakDuration">0:00</div>
+          </div>
+          <audio id="speakAudio" controls style="width:100%;height:36px;"></audio>
+        </div>
+
+        <!-- 语音转文字 -->
+        <div class="speak-transcript-box">
+          <div class="card-eyebrow" style="padding:0;margin-bottom:8px;">
+            <div class="card-label">语音识别</div>
+            <div class="card-meta" id="speakTranscriptStatus">识别中…</div>
+          </div>
+          <div class="speak-transcript-text" id="speakTranscript">（等待语音识别结果…）</div>
+        </div>
+
+        <!-- 小豆点评 -->
+        <button class="food-action-btn" id="speakReviewBtn" onclick="getSpeakingReview()" style="margin:0 24px;">
+          🎓 让小豆点评我的口语
+        </button>
+        <div class="speak-review-box" id="speakReviewBox" style="display:none;">
+          <div class="card-eyebrow" style="padding:0;margin-bottom:8px;">
+            <div class="card-label">小豆点评</div>
+          </div>
+          <div class="speak-review-content" id="speakReviewContent"></div>
+        </div>
+      </div>
+
+      <!-- 今日统计 -->
+      <div class="speak-daily-stats" id="speakDailyStats">
+        今日已练习 <strong>0</strong> 次
+      </div>
     </div>
 
   </div><!-- end page-container -->
