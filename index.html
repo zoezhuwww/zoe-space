@@ -591,13 +591,16 @@
         <div class="back-btn" onclick="navigateTo('study')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
-        <div class="sub-page-title">单词卡</div>
+        <div class="sub-page-title">単語帳</div>
       </div>
 
-      <!-- Review stats -->
-      <div class="vocab-stats">
-        <span id="vocabRemaining">0 张待复习</span>
-        <span id="vocabProgress"></span>
+      <!-- Progress bar -->
+      <div class="vocab-progress-wrap">
+        <div class="vocab-progress-bar"><div class="vocab-progress-fill" id="vocabProgressFill"></div></div>
+        <div class="vocab-stats">
+          <span id="vocabRemaining">0 張待復習</span>
+          <span id="vocabProgress"></span>
+        </div>
       </div>
 
       <!-- Empty state -->
@@ -610,15 +613,37 @@
       <!-- Flashcard -->
       <div class="flashcard-container" id="flashcardContainer">
         <div class="flashcard" id="flashcard" onclick="flipCard()">
+          <!-- Front: word only -->
           <div class="flashcard-front" id="cardFront">
             <div class="card-word" id="cardWord">単語</div>
             <div class="card-hint" id="cardHint">点击翻转</div>
           </div>
+
+          <!-- Back: full details -->
           <div class="flashcard-back" id="cardBack" style="display:none;">
-            <div class="card-reading" id="cardReading">たんご</div>
-            <div class="card-speak-btn" onclick="event.stopPropagation();speakWord()">🔊</div>
-            <div class="card-meaning" id="cardMeaning">词语、单词</div>
-            <div class="card-example" id="cardExample"></div>
+            <div class="card-word-back" id="cardWordBack">単語</div>
+            <div class="card-reading-row">
+              <span class="card-reading" id="cardReading">たんご</span>
+              <span class="card-romaji" id="cardRomaji">tango</span>
+            </div>
+
+            <div class="card-tts-row">
+              <button class="card-tts-btn" onclick="event.stopPropagation();speakWord()">🔊 発音</button>
+              <button class="card-tts-btn" onclick="event.stopPropagation();speakWordSlow()">🐢 慢速</button>
+            </div>
+
+            <div class="card-divider"></div>
+
+            <div class="card-info-row">
+              <span class="card-pos" id="cardPos"></span>
+              <span class="card-meaning" id="cardMeaning">词语、单词</span>
+            </div>
+
+            <div class="card-example-section" id="cardExampleSection">
+              <div class="card-example-label">例句</div>
+              <div class="card-example-jp" id="cardExampleJp"></div>
+              <div class="card-example-cn" id="cardExampleCn"></div>
+            </div>
           </div>
         </div>
       </div>

@@ -1547,65 +1547,165 @@ body {
 }
 
 /* ═══════════ Vocab Flashcard ═══════════ */
+.vocab-progress-wrap {
+  padding: 0 24px 12px;
+}
+.vocab-progress-bar {
+  height: 4px; border-radius: 2px;
+  background: var(--divider);
+  overflow: hidden; margin-bottom: 8px;
+}
+.vocab-progress-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--rose-light);
+  transition: width 0.3s;
+}
 .vocab-stats {
   display: flex; justify-content: space-between;
-  padding: 0 24px 16px;
   font-family: var(--font-display);
   font-style: italic; font-size: 12px;
   color: var(--text-mute); letter-spacing: 0.05em;
 }
 .flashcard-container {
-  padding: 0 24px; margin-bottom: 20px;
+  padding: 0 24px; margin-bottom: 16px;
 }
 .flashcard {
   background: var(--bg-card);
-  border-radius: 24px;
-  min-height: 220px;
-  padding: 32px 24px;
-  box-shadow: 0 4px 20px rgba(196, 123, 123, 0.1);
+  border-radius: 20px;
+  min-height: 200px;
+  padding: 28px 24px;
+  box-shadow: 0 2px 12px rgba(196,123,123,0.08);
   cursor: pointer;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center;
   transition: transform 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .flashcard:active { transform: scale(0.98); }
+
+/* Front */
+.flashcard-front {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 160px; text-align: center;
+}
 .card-word {
-  font-family: var(--font-serif-zh);
-  font-size: 36px; font-weight: 400;
+  font-size: 42px; font-weight: 400;
   color: var(--text-warm);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
 }
 .card-hint {
   font-family: var(--font-display);
   font-style: italic; font-size: 11px;
   color: var(--text-soft); letter-spacing: 0.15em;
 }
-.card-reading {
-  font-family: var(--font-sans-zh);
-  font-size: 20px; color: var(--rose-deep);
-  margin-bottom: 4px;
+
+/* Back */
+.card-word-back {
+  font-size: 36px; font-weight: 400;
+  color: var(--text-warm);
+  text-align: center;
+  margin-bottom: 6px;
 }
-.card-speak-btn {
-  font-size: 20px; cursor: pointer;
-  padding: 4px 12px; margin-bottom: 8px;
+.card-reading-row {
+  text-align: center;
+  margin-bottom: 12px;
+}
+.card-reading {
+  font-size: 16px;
+  color: var(--rose-deep);
+}
+.card-romaji {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-mute);
+  margin-left: 6px;
+}
+
+.card-tts-row {
+  display: flex; justify-content: center;
+  gap: 8px; margin-bottom: 14px;
+}
+.card-tts-btn {
+  border: 1.5px solid var(--divider);
   border-radius: 20px;
-  transition: background 0.15s;
+  background: transparent;
+  padding: 5px 14px;
+  font-family: var(--font-sans-zh);
+  font-size: 12px;
+  color: var(--text-mute);
+  cursor: pointer;
+  transition: all 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
-.card-speak-btn:active { background: var(--rose-mist); }
+.card-tts-btn:active {
+  background: var(--rose-mist);
+  border-color: var(--rose-light);
+  color: var(--rose-deep);
+}
+
+.card-divider {
+  height: 1px;
+  background: var(--divider);
+  margin-bottom: 14px;
+}
+
+.card-info-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.card-pos {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--rose-mist);
+  color: var(--rose-deep);
+  font-family: var(--font-sans-zh);
+  white-space: nowrap;
+}
 .card-meaning {
   font-family: var(--font-serif-zh);
-  font-size: 16px; color: var(--text-warm);
-  margin-bottom: 12px; line-height: 1.6;
+  font-size: 16px;
+  color: var(--text-warm);
+  line-height: 1.6;
 }
-.card-example {
+
+.card-example-section {
+  background: var(--bg-cream);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.card-example-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-soft);
+  margin-bottom: 8px;
+}
+.card-example-jp {
+  font-size: 18px;
+  line-height: 2.2;
+  color: var(--text-warm);
+  margin-bottom: 6px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.card-example-jp ruby {
+  ruby-position: over;
+}
+.card-example-jp rt {
+  font-size: 9px;
+  color: var(--text-mute);
+  font-weight: 300;
+}
+.card-example-cn {
   font-family: var(--font-sans-zh);
-  font-size: 12px; color: var(--text-mute);
-  line-height: 1.7; margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--divider);
+  font-size: 12px;
+  color: var(--text-mute);
+  line-height: 1.5;
 }
 
 .anki-buttons {

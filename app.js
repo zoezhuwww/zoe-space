@@ -866,6 +866,57 @@ function getVocabList() {
   return load('custom_vocab', SAMPLE_VOCAB);
 }
 
+// Hiragana to Romaji converter
+function toRomaji(kana) {
+  const map = {
+    'きゃ':'kya','きゅ':'kyu','きょ':'kyo','しゃ':'sha','しゅ':'shu','しょ':'sho',
+    'ちゃ':'cha','ちゅ':'chu','ちょ':'cho','にゃ':'nya','にゅ':'nyu','にょ':'nyo',
+    'ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo','みゃ':'mya','みゅ':'myu','みょ':'myo',
+    'りゃ':'rya','りゅ':'ryu','りょ':'ryo','ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo',
+    'じゃ':'ja','じゅ':'ju','じょ':'jo','びゃ':'bya','びゅ':'byu','びょ':'byo',
+    'ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo',
+    'あ':'a','い':'i','う':'u','え':'e','お':'o',
+    'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
+    'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so',
+    'た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
+    'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no',
+    'は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
+    'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo',
+    'や':'ya','ゆ':'yu','よ':'yo',
+    'ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
+    'わ':'wa','を':'wo','ん':'n',
+    'が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go',
+    'ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
+    'だ':'da','ぢ':'di','づ':'du','で':'de','ど':'do',
+    'ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo',
+    'ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po','ー':'-',
+  };
+  let result = '', i = 0;
+  while (i < kana.length) {
+    if (i + 1 < kana.length) {
+      const two = kana[i] + kana[i + 1];
+      if (map[two]) { result += map[two]; i += 2; continue; }
+    }
+    if (kana[i] === 'っ' && i + 1 < kana.length) {
+      const next = kana[i + 1];
+      const nxt2 = (i + 2 < kana.length) ? kana[i + 1] + kana[i + 2] : '';
+      const rom = map[nxt2] || map[next] || '';
+      if (rom) result += rom[0];
+      i++; continue;
+    }
+    result += map[kana[i]] || kana[i];
+    i++;
+  }
+  return result;
+}
+
+// Parse furigana: 漢字[かんじ] → <ruby>漢字<rt>かんじ</rt></ruby>
+function parseFurigana(text) {
+  if (!text) return '';
+  return escHtml(text).replace(/([一-龥々]+)\[([^\]]+)\]/g,
+    '<ruby>$1<rt>$2</rt></ruby>');
+}
+
 // ═══════════ Speech (TTS) ═══════════
 async function speakWord() {
   const card = currentReviewCards[currentCardIdx];
@@ -917,6 +968,21 @@ function speakWithBrowserTTS(text) {
   }
 }
 
+function speakWordSlow() {
+  const card = currentReviewCards[currentCardIdx];
+  if (!card) return;
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(card.word);
+    u.lang = 'ja-JP';
+    u.rate = 0.45;
+    const voices = window.speechSynthesis.getVoices();
+    const jaVoice = voices.find(v => v.lang.startsWith('ja'));
+    if (jaVoice) u.voice = jaVoice;
+    window.speechSynthesis.speak(u);
+  }
+}
+
 // Preload browser voices
 if ('speechSynthesis' in window) {
   window.speechSynthesis.getVoices();
@@ -951,6 +1017,8 @@ function importVocabFile() {
               reading: item.reading || item.読み || item.kana || item.hiragana || '',
               meaning: item.meaning || item.意味 || item.中文 || item.translation || '',
               example: item.example || item.例文 || item.sentence || '',
+              example_meaning: item.example_meaning || item.例文翻訳 || item.sentence_cn || '',
+              pos: item.pos || item.品詞 || item.part_of_speech || '',
             })).filter(v => v.word);
           }
         } else {
@@ -967,6 +1035,8 @@ function importVocabFile() {
                 reading: parts[1] || '',
                 meaning: parts[2] || '',
                 example: parts[3] || '',
+                example_meaning: parts[4] || '',
+                pos: parts[5] || '',
               });
             }
           }
@@ -1070,27 +1140,57 @@ function showCard() {
     document.getElementById('flashcardContainer').style.display = 'none';
     document.getElementById('ankiButtons').style.display = 'none';
     document.getElementById('vocabRemaining').textContent = '全部完成 🎉';
+    document.getElementById('vocabProgressFill').style.width = '100%';
     return;
   }
 
   const card = currentReviewCards[currentCardIdx];
+  const romaji = toRomaji(card.reading);
+
+  // Front
   document.getElementById('cardWord').textContent = card.word;
   document.getElementById('cardHint').textContent = card.isNew ? '新词 · 点击翻转' : '点击翻转';
+
+  // Back
+  document.getElementById('cardWordBack').textContent = card.word;
   document.getElementById('cardReading').textContent = card.reading;
+  document.getElementById('cardRomaji').textContent = romaji;
   document.getElementById('cardMeaning').textContent = card.meaning;
-  document.getElementById('cardExample').textContent = card.example || '';
+
+  // Part of speech
+  const posEl = document.getElementById('cardPos');
+  if (card.pos) {
+    posEl.textContent = card.pos;
+    posEl.style.display = 'inline-block';
+  } else {
+    posEl.style.display = 'none';
+  }
+
+  // Example sentence
+  const exSection = document.getElementById('cardExampleSection');
+  const example = card.example || '';
+  if (example) {
+    document.getElementById('cardExampleJp').innerHTML = parseFurigana(example);
+    document.getElementById('cardExampleCn').textContent = card.example_meaning || '';
+    exSection.style.display = 'block';
+  } else {
+    exSection.style.display = 'none';
+  }
 
   document.getElementById('cardFront').style.display = 'flex';
   document.getElementById('cardBack').style.display = 'none';
   document.getElementById('ankiButtons').style.display = 'none';
   cardFlipped = false;
 
-  document.getElementById('vocabRemaining').textContent = (currentReviewCards.length - currentCardIdx) + ' 张待复习';
+  // Stats
+  const remaining = currentReviewCards.length - currentCardIdx;
+  document.getElementById('vocabRemaining').textContent = remaining + ' 張待復習';
   document.getElementById('vocabProgress').textContent = currentCardIdx + ' / ' + currentReviewCards.length;
+  const pct = Math.round((currentCardIdx / currentReviewCards.length) * 100);
+  document.getElementById('vocabProgressFill').style.width = pct + '%';
 
   // Update interval hints
-  const card_data = currentReviewCards[currentCardIdx];
-  const interval = card_data.interval || 1;
+  const interval = card.interval || 1;
   document.getElementById('intervalHard').textContent = formatInterval(Math.max(1, Math.round(interval * 1.2)));
   document.getElementById('intervalGood').textContent = formatInterval(Math.round(interval * 2));
   document.getElementById('intervalEasy').textContent = formatInterval(Math.round(interval * 2.5));
@@ -1108,9 +1208,7 @@ function flipCard() {
   if (cardFlipped) return;
   cardFlipped = true;
   document.getElementById('cardFront').style.display = 'none';
-  document.getElementById('cardBack').style.display = 'flex';
-  document.getElementById('cardBack').style.flexDirection = 'column';
-  document.getElementById('cardBack').style.alignItems = 'center';
+  document.getElementById('cardBack').style.display = 'block';
   document.getElementById('ankiButtons').style.display = 'flex';
 }
 
