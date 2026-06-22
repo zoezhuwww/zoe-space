@@ -2097,7 +2097,7 @@ body {
 
 .speak-review-box {
   margin: 12px 24px 0;
-  padding: 14px 16px;
+  padding: 12px 14px;
   background: var(--bg-card);
   border-radius: 14px;
   box-shadow: 0 1px 4px rgba(90,74,74,0.04);
@@ -2106,9 +2106,8 @@ body {
 .speak-review-content {
   font-family: var(--font-sans-zh);
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--text-warm);
-  white-space: pre-wrap;
   word-break: break-word;
 }
 .speak-review-content .review-score {
@@ -2116,16 +2115,16 @@ body {
   font-size: 28px;
   color: var(--rose-deep);
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 .speak-review-content .review-section {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .speak-review-content .review-label {
   font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--rose-light);
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .speak-daily-stats {
