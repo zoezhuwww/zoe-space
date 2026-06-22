@@ -2332,7 +2332,13 @@ async function getSpeakingReview() {
   if (!result) return;
 
   try {
-    const clean = result.replace(/```json|```/g, '').trim();
+    let clean = result.replace(/```json|```/g, '').trim();
+    // 提取第一个 { 到最后一个 } 之间的内容
+    const startIdx = clean.indexOf('{');
+    const endIdx = clean.lastIndexOf('}');
+    if (startIdx !== -1 && endIdx !== -1) {
+      clean = clean.substring(startIdx, endIdx + 1);
+    }
     const review = JSON.parse(clean);
     const box = document.getElementById('speakReviewBox');
     const content = document.getElementById('speakReviewContent');
