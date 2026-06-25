@@ -2282,3 +2282,325 @@ body {
   color: var(--text-soft);
   padding: 12px 24px 24px;
 }
+
+
+/* ═══════════════════════════════════════════════════
+   🌙 Dark Mode — warm rosewood night palette
+   ═══════════════════════════════════════════════════ */
+:root {
+  /* smooth transition when toggling */
+  --theme-transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+body, .app-header, .sidebar, .info-card, .day-card, .grammar-card,
+.translate-question-card, .translate-result-card, .game-card,
+.mistake-card, .countdown-card, .study-hub-card, .anni-list,
+.flashcard, .anki-btn, .speak-topic-card, .speak-playback,
+.speak-transcript-box, .speak-review-box, .diary-textarea,
+.fund-engraving-card, .dpi-card, .fund-history-card, .modal-sheet,
+.celebration-card, .recipe-content, .api-detail .api-month-card,
+.api-detail .api-breakdown-card, .api-detail .api-day-card,
+.api-detail .api-tip-card, .todo-input, .food-input, .weight-input,
+.todo-deadline-input, .modal-input, .grammar-search-input,
+.diary-claude-greeting, .backup-banner {
+  transition: var(--theme-transition);
+}
+
+html[data-theme="dark"] {
+  --bg-cream:       #1A1416;   /* main background — deep warm */
+  --bg-cream-deep:  #221A1D;   /* slight elevation */
+  --bg-card:        #2A2025;   /* card surface */
+  --rose-mist:      #3A2A2F;   /* hover / active tint */
+  --rose-soft:      #4A333A;
+  --rose-light:     #E0A2A8;   /* primary rose accent */
+  --rose-deep:      #F0BFBF;   /* highlight rose (header italic, links) */
+  --text-warm:      #F0E2DC;   /* main text — warm off-white */
+  --text-mute:      #A89690;
+  --text-soft:      #76665F;
+  --divider:        #3A2D30;
+}
+
+/* Header gradient — pure dark fade so it blends */
+html[data-theme="dark"] .app-header {
+  background: linear-gradient(180deg, var(--bg-cream) 60%, transparent);
+}
+
+/* Sidebar overlay — deeper at night */
+html[data-theme="dark"] .sidebar-overlay {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* Card shadows — use black instead of rose for proper depth on dark */
+html[data-theme="dark"] .info-card,
+html[data-theme="dark"] .grammar-card,
+html[data-theme="dark"] .translate-question-card,
+html[data-theme="dark"] .translate-result-card,
+html[data-theme="dark"] .game-card,
+html[data-theme="dark"] .mistake-card,
+html[data-theme="dark"] .countdown-card,
+html[data-theme="dark"] .study-hub-card,
+html[data-theme="dark"] .speak-playback,
+html[data-theme="dark"] .speak-transcript-box,
+html[data-theme="dark"] .speak-review-box,
+html[data-theme="dark"] .recipe-content,
+html[data-theme="dark"] .dpi-card,
+html[data-theme="dark"] .fund-history-card,
+html[data-theme="dark"] .api-month-card,
+html[data-theme="dark"] .api-breakdown-card,
+html[data-theme="dark"] .api-day-card,
+html[data-theme="dark"] .api-tip-card,
+html[data-theme="dark"] .day-card {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+html[data-theme="dark"] .modal-sheet,
+html[data-theme="dark"] .celebration-card {
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Day cards — recolor from cream tints to subtle warm dark tints */
+html[data-theme="dark"] .day-card.t1 { background: #2D2126; }
+html[data-theme="dark"] .day-card.t2 { background: #2C2025; }
+html[data-theme="dark"] .day-card.t3 { background: #2E2127; }
+html[data-theme="dark"] .day-card.t4 { background: #2B1F24; }
+
+/* Diary textarea + inputs — keep card surface */
+html[data-theme="dark"] .diary-textarea,
+html[data-theme="dark"] .todo-input,
+html[data-theme="dark"] .food-input,
+html[data-theme="dark"] .weight-input,
+html[data-theme="dark"] .todo-deadline-input,
+html[data-theme="dark"] .modal-input,
+html[data-theme="dark"] .grammar-search-input {
+  background: var(--bg-card);
+  color: var(--text-warm);
+  border-color: var(--divider);
+}
+
+/* Todo countdown chips — soften for dark */
+html[data-theme="dark"] .todo-countdown.urgent {
+  background: #3D2629; color: #F0A8A8;
+}
+html[data-theme="dark"] .todo-countdown.soon {
+  background: #3D3424; color: #E8C39A;
+}
+html[data-theme="dark"] .todo-countdown.overdue {
+  background: #4A2A2C; color: #F2B0B0;
+}
+
+/* Anki rating buttons — adapt for dark */
+html[data-theme="dark"] .anki-again { background: #3D2528; color: #F0A8A8; }
+html[data-theme="dark"] .anki-hard  { background: #332926; color: #C9B8AE; }
+html[data-theme="dark"] .anki-good  { background: #243528; color: #A8D5A8; }
+html[data-theme="dark"] .anki-easy  { background: #272838; color: #B0B0E0; }
+
+/* Quiz / game answer states */
+html[data-theme="dark"] .grammar-quiz-opt.correct,
+html[data-theme="dark"] .game-option-btn.correct {
+  border-color: #5A8A52; background: #1F3320; color: #A8D5A2;
+}
+
+/* Mini-cal claude dot — soften */
+html[data-theme="dark"] .mini-cal-dot.claude { background: #C9A89A; }
+
+/* Recording pulse — subtle dark bg */
+html[data-theme="dark"] .speak-record-btn.recording {
+  background: #3D2629;
+}
+
+/* Status indicator dot stays rose */
+
+/* Mood dots — slightly desaturate for night (keep semantic colors) */
+html[data-theme="dark"] .mood-dot {
+  opacity: 0.85;
+}
+html[data-theme="dark"] .mood-dot.active { opacity: 1; }
+
+/* Rose accent text (header italic, group titles) — let it stay bright via --rose-deep */
+
+/* ═══ Theme toggle button (header) ═══ */
+.theme-icon-dark { display: none; }
+html[data-theme="dark"] .theme-icon-light { display: none; }
+html[data-theme="dark"] .theme-icon-dark { display: block; }
+#themeBtn svg { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+#themeBtn:active svg { transform: rotate(-25deg) scale(0.92); }
+
+/* ═══ Theme switch (settings page) ═══ */
+.theme-switch {
+  width: 40px; height: 22px;
+  border-radius: 11px;
+  background: var(--divider);
+  position: relative;
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+}
+.theme-switch-thumb {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+html[data-theme="dark"] .theme-switch {
+  background: var(--rose-light);
+}
+html[data-theme="dark"] .theme-switch-thumb {
+  transform: translateX(18px);
+  background: #FFF;
+}
+.settings-item.theme-toggle-row {
+  cursor: pointer;
+}
+.settings-item.theme-toggle-row .theme-toggle-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--text-soft);
+  font-family: var(--font-display);
+  letter-spacing: 0.15em;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   ✦ Sidebar line icons (replaces emoji)
+   ═══════════════════════════════════════════════════ */
+.sidebar-item .si-icon {
+  width: 20px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sidebar-item .si-icon svg {
+  width: 17px;
+  height: 17px;
+  opacity: 0.62;
+  transition: opacity 0.2s;
+}
+.sidebar-item.active .si-icon svg {
+  opacity: 1;
+}
+/* Slightly stronger icon weight in dark mode for contrast */
+html[data-theme="dark"] .sidebar-item .si-icon svg {
+  opacity: 0.72;
+}
+html[data-theme="dark"] .sidebar-item.active .si-icon svg {
+  opacity: 1;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   ✦ Weight monitoring — sparkline + stats
+   ═══════════════════════════════════════════════════ */
+.weight-chart-wrap {
+  margin-top: 14px;
+  height: 64px;
+  position: relative;
+}
+.weight-chart-wrap svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+.weight-chart-line {
+  fill: none;
+  stroke: var(--rose-light);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.weight-chart-area {
+  fill: var(--rose-mist);
+  opacity: 0.55;
+}
+html[data-theme="dark"] .weight-chart-area {
+  opacity: 0.35;
+}
+.weight-chart-dot {
+  fill: var(--rose-deep);
+  stroke: var(--bg-card);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.weight-chart-goal {
+  stroke: var(--text-soft);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+.weight-chart-goal-label {
+  fill: var(--text-soft);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 9px;
+}
+.weight-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text-soft);
+  letter-spacing: 0.02em;
+}
+.weight-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+.weight-stat {
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.weight-stat-label {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.weight-stat-value {
+  font-family: var(--font-serif-zh);
+  font-size: 15px;
+  color: var(--text-warm);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.weight-stat-value .unit {
+  font-size: 10px;
+  color: var(--text-soft);
+  font-weight: 400;
+  margin-left: 1px;
+}
+.weight-stat-value.dim {
+  color: var(--text-soft);
+  font-weight: 400;
+  font-style: italic;
+  font-family: var(--font-display);
+}
+.weight-stat.goal-stat {
+  cursor: pointer;
+}
+.weight-stat.goal-stat .weight-stat-value {
+  color: var(--rose-deep);
+}
+.weight-stat.goal-stat:active {
+  opacity: 0.6;
+}
+
+/* Trend chip in card-meta — color hint */
+#weightTrend.up { color: var(--rose-deep); }
+#weightTrend.down { color: #7BAF7B; }
+html[data-theme="dark"] #weightTrend.down { color: #A8D5A8; }

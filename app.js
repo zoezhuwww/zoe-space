@@ -76,19 +76,46 @@ function dateKey(d) {
 // ═══════════ Sidebar ═══════════
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
-document.getElementById('menuBtn').addEventListener('click', () => {
-  sidebar.classList.add('open'); sidebarOverlay.classList.add('open');
-});
-sidebarOverlay.addEventListener('click', () => {
-  sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open');
-});
+function openSidebar() {
+  sidebar.classList.add('open');
+  sidebarOverlay.classList.add('open');
+}
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  sidebarOverlay.classList.remove('open');
+}
+document.getElementById('menuBtn').addEventListener('click', openSidebar);
+sidebarOverlay.addEventListener('click', closeSidebar);
+
+// Swipe-left-to-close gesture on the sidebar
+(function() {
+  let sx = null, sy = null, dragging = false;
+  sidebar.addEventListener('touchstart', e => {
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+    dragging = true;
+  }, { passive: true });
+  sidebar.addEventListener('touchmove', e => {
+    if (!dragging || sx === null) return;
+    const dx = e.touches[0].clientX - sx;
+    const dy = e.touches[0].clientY - sy;
+    // Mostly horizontal + left swipe of at least 50px → close
+    if (dx < -50 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+      closeSidebar();
+      dragging = false;
+      sx = sy = null;
+    }
+  }, { passive: true });
+  sidebar.addEventListener('touchend', () => { dragging = false; sx = sy = null; });
+  sidebar.addEventListener('touchcancel', () => { dragging = false; sx = sy = null; });
+})();
 function toggleGroup(titleEl) { titleEl.parentElement.classList.toggle('open'); }
 
 document.querySelectorAll('.sidebar-item').forEach(item => {
   item.addEventListener('click', () => {
     const page = item.dataset.page;
     if (page) navigateTo(page);
-    sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open');
+    closeSidebar();
   });
 });
 
@@ -678,17 +705,151 @@ function renderFoodDiary() {
   // Load weight
   const weight = load('weight_' + todayKey(), null);
   if (weight) document.getElementById('weightInput').value = weight;
+  renderWeightMonitor();
+}
 
-  // Weight trend
-  const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-  const yw = load('weight_' + dateKey(yesterday), null);
-  const trendEl = document.getElementById('weightTrend');
-  if (weight && yw) {
-    const diff = (weight - yw).toFixed(1);
-    trendEl.textContent = diff > 0 ? `+${diff} kg` : `${diff} kg`;
-  } else {
-    trendEl.textContent = '';
+// ═══════════ Weight Monitor (sparkline + stats) ═══════════
+function getAllWeights() {
+  const arr = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith('zoe_weight_')) continue;
+    if (key === 'zoe_weight_goal') continue;
+    const date = key.replace('zoe_weight_', '');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    try {
+      const v = parseFloat(JSON.parse(localStorage.getItem(key)));
+      if (!isNaN(v)) arr.push({ date, value: v });
+    } catch {}
   }
+  arr.sort((a, b) => a.date < b.date ? -1 : 1);
+  return arr;
+}
+
+function renderWeightMonitor() {
+  const all = getAllWeights();
+  const today = todayKey();
+  const todayRec = all.find(r => r.date === today);
+  const todayVal = todayRec ? todayRec.value : null;
+
+  // ─── Trend chip (vs best baseline in last 14 days) ───
+  const trendEl = document.getElementById('weightTrend');
+  trendEl.classList.remove('up', 'down');
+  trendEl.textContent = '';
+  if (todayVal) {
+    // Find most recent prior record within 14 days, preferring 7-day mark
+    let baseline = null, baseDays = 0;
+    for (let d = 7; d <= 14; d++) {
+      const r = all.find(x => x.date === offsetDate(-d));
+      if (r) { baseline = r.value; baseDays = d; break; }
+    }
+    if (!baseline) {
+      for (let d = 1; d <= 6; d++) {
+        const r = all.find(x => x.date === offsetDate(-d));
+        if (r) { baseline = r.value; baseDays = d; break; }
+      }
+    }
+    if (baseline) {
+      const diff = todayVal - baseline;
+      const sign = diff > 0.05 ? '↑' : diff < -0.05 ? '↓' : '·';
+      trendEl.textContent = `${baseDays}天 ${sign} ${Math.abs(diff).toFixed(1)} kg`;
+      if (diff > 0.05) trendEl.classList.add('up');
+      else if (diff < -0.05) trendEl.classList.add('down');
+    }
+  }
+
+  // ─── Sparkline (last 30 days) ───
+  const wrap = document.getElementById('weightChartWrap');
+  const days = 30;
+  const dates = [];
+  for (let i = days - 1; i >= 0; i--) dates.push(offsetDate(-i));
+  const points = dates.map(d => {
+    const r = all.find(x => x.date === d);
+    return r ? r.value : null;
+  });
+  const valid = points.map((v, i) => v === null ? null : { x: i, v }).filter(p => p !== null);
+  const goal = load('weight_goal', null);
+
+  if (valid.length < 2) {
+    wrap.innerHTML = '<div class="weight-chart-empty">' +
+      (valid.length === 0 ? '还没有记录哦～' : '再记一次就有趋势图啦') +
+      '</div>';
+  } else {
+    const vMin = Math.min(...valid.map(p => p.v), goal !== null ? goal : Infinity);
+    const vMax = Math.max(...valid.map(p => p.v), goal !== null ? goal : -Infinity);
+    const range = (vMax - vMin) || 1;
+    const W = 100, H = 100, padTop = 10, padBot = 8;
+    const usableH = H - padTop - padBot;
+    const stepX = W / (days - 1);
+    const toY = v => padTop + usableH * (1 - (v - vMin) / range);
+
+    const coords = valid.map(p => ({
+      x: p.x * stepX,
+      y: toY(p.v)
+    }));
+    const polyline = coords.map(c => `${c.x.toFixed(2)},${c.y.toFixed(2)}`).join(' ');
+    const last = coords[coords.length - 1];
+    const first = coords[0];
+    const area = `M${first.x.toFixed(2)},${H} L${coords.map(c => `${c.x.toFixed(2)},${c.y.toFixed(2)}`).join(' L')} L${last.x.toFixed(2)},${H} Z`;
+
+    let goalEls = '';
+    if (goal !== null && goal >= vMin && goal <= vMax) {
+      const gy = toY(goal).toFixed(2);
+      goalEls = `<line class="weight-chart-goal" x1="0" y1="${gy}" x2="${W}" y2="${gy}"/>` +
+                `<text class="weight-chart-goal-label" x="${W}" y="${(parseFloat(gy) - 2).toFixed(2)}" text-anchor="end">goal ${goal.toFixed(1)}</text>`;
+    }
+
+    wrap.innerHTML = `
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        ${goalEls}
+        <path class="weight-chart-area" d="${area}"/>
+        <polyline class="weight-chart-line" points="${polyline}"/>
+        <circle class="weight-chart-dot" cx="${last.x.toFixed(2)}" cy="${last.y.toFixed(2)}" r="2.5"/>
+      </svg>
+    `;
+  }
+
+  // ─── Stats: START / LOW / GOAL ───
+  const start = all.length ? all[0].value : null;
+  const lowest = all.length ? Math.min(...all.map(r => r.value)) : null;
+  const statsEl = document.getElementById('weightStats');
+  const startTxt = start !== null ? `${start.toFixed(1)}<span class="unit">kg</span>` : '—';
+  const lowTxt = lowest !== null ? `${lowest.toFixed(1)}<span class="unit">kg</span>` : '—';
+  const goalTxt = goal !== null ? `${goal.toFixed(1)}<span class="unit">kg</span>` : '设置';
+  statsEl.innerHTML = `
+    <div class="weight-stat">
+      <div class="weight-stat-label">START</div>
+      <div class="weight-stat-value ${start === null ? 'dim' : ''}">${startTxt}</div>
+    </div>
+    <div class="weight-stat">
+      <div class="weight-stat-label">LOW</div>
+      <div class="weight-stat-value ${lowest === null ? 'dim' : ''}">${lowTxt}</div>
+    </div>
+    <div class="weight-stat goal-stat" onclick="setWeightGoal()">
+      <div class="weight-stat-label">GOAL</div>
+      <div class="weight-stat-value ${goal === null ? 'dim' : ''}">${goalTxt}</div>
+    </div>
+  `;
+}
+
+function offsetDate(deltaDays) {
+  const d = new Date();
+  d.setDate(d.getDate() + deltaDays);
+  return dateKey(d);
+}
+
+function setWeightGoal() {
+  const cur = load('weight_goal', null);
+  const v = prompt('设定目标体重 (kg)\n留空可以清除目标', cur !== null ? cur : '');
+  if (v === null) return;
+  if (v.trim() === '') {
+    save('weight_goal', null);
+  } else {
+    const n = parseFloat(v);
+    if (isNaN(n) || n <= 0 || n > 300) { alert('请输入合理的数字～'); return; }
+    save('weight_goal', n);
+  }
+  renderWeightMonitor();
 }
 
 function saveWeight() {
@@ -2548,6 +2709,46 @@ function updateSpeakDailyStats() {
   if (el) el.innerHTML = `今日已练习 <strong>${count}</strong> 次`;
 }
 
+
+// ═══════════ Theme (Dark / Light) ═══════════
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'dark') {
+    root.setAttribute('data-theme', 'dark');
+  } else {
+    root.removeAttribute('data-theme');
+  }
+  // Update mobile browser chrome color
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#1A1416' : '#F4DDDD');
+  // Update label on settings page
+  const label = document.getElementById('themeStateLabel');
+  if (label) label.textContent = theme === 'dark' ? '夜间' : '日间';
+}
+function getStoredTheme() {
+  return load('theme', null);
+}
+function getInitialTheme() {
+  const stored = getStoredTheme();
+  if (stored === 'dark' || stored === 'light') return stored;
+  // First visit — follow system preference
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+  return 'light';
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  save('theme', next);
+}
+// Apply on load
+applyTheme(getInitialTheme());
+// Follow system change ONLY if user hasn't picked one explicitly
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (getStoredTheme() === null) applyTheme(e.matches ? 'dark' : 'light');
+  });
+}
 
 // ═══════════ Init ═══════════
 refreshDashboard();
