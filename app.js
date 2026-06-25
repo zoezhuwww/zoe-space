@@ -73,6 +73,107 @@ function dateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+// ═══════════ 自动备份（数据保险垫）═══════════
+// 启动时拍一次快照，最多保留最近 7 天；清/导数据前再额外存一份救命快照
+const BACKUP_PREFIX = 'zoe_autobackup_';
+const RESCUE_PREFIX = 'zoe_rescue_';
+
+function _snapshotAllUserData() {
+  const snapshot = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k) continue;
+    if (!k.startsWith('zoe_')) continue;
+    if (k.startsWith(BACKUP_PREFIX) || k.startsWith(RESCUE_PREFIX)) continue;
+    snapshot[k] = localStorage.getItem(k);
+  }
+  return snapshot;
+}
+
+function autoBackup() {
+  try {
+    const key = BACKUP_PREFIX + todayKey();
+    localStorage.setItem(key, JSON.stringify(_snapshotAllUserData()));
+    // 只保留最近 7 个
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(BACKUP_PREFIX)) keys.push(k);
+    }
+    keys.sort();
+    while (keys.length > 7) localStorage.removeItem(keys.shift());
+  } catch (e) { console.warn('autoBackup failed:', e); }
+}
+
+function rescueBackup(reason) {
+  try {
+    const k = RESCUE_PREFIX + Date.now();
+    localStorage.setItem(k, JSON.stringify({ reason, data: _snapshotAllUserData() }));
+    // 救命快照最多保留 5 份
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const kk = localStorage.key(i);
+      if (kk && kk.startsWith(RESCUE_PREFIX)) keys.push(kk);
+    }
+    keys.sort();
+    while (keys.length > 5) localStorage.removeItem(keys.shift());
+  } catch (e) { console.warn('rescueBackup failed:', e); }
+}
+
+function listBackups() {
+  const out = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k) continue;
+    if (k.startsWith(BACKUP_PREFIX)) {
+      out.push({ key: k, label: '每日 · ' + k.slice(BACKUP_PREFIX.length), kind: 'auto' });
+    } else if (k.startsWith(RESCUE_PREFIX)) {
+      const ts = parseInt(k.slice(RESCUE_PREFIX.length));
+      const d = new Date(ts);
+      out.push({
+        key: k,
+        label: '救命 · ' + d.toLocaleString('zh-CN'),
+        kind: 'rescue',
+      });
+    }
+  }
+  return out.sort((a, b) => b.key.localeCompare(a.key));
+}
+
+function restoreBackup(key) {
+  const raw = localStorage.getItem(key);
+  if (!raw) { alert('找不到这份备份'); return; }
+  let data;
+  try {
+    const parsed = JSON.parse(raw);
+    data = key.startsWith(RESCUE_PREFIX) ? parsed.data : parsed;
+  } catch { alert('备份文件损坏，无法恢复'); return; }
+  if (!confirm('确定用这份备份覆盖当前数据吗？\n（会先自动存一份当前状态的救命快照）')) return;
+  rescueBackup('restore-overwrite');
+  // 删掉当前所有 zoe_ 用户数据（保留备份本身）
+  const toRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('zoe_') && !k.startsWith(BACKUP_PREFIX) && !k.startsWith(RESCUE_PREFIX)) {
+      toRemove.push(k);
+    }
+  }
+  toRemove.forEach(k => localStorage.removeItem(k));
+  Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+  alert('恢复成功 ❀');
+  location.reload();
+}
+
+function openRestoreMenu() {
+  const list = listBackups();
+  if (!list.length) { alert('还没有任何备份哦'); return; }
+  const lines = list.map((b, i) => `${i + 1}. ${b.label}`).join('\n');
+  const pick = prompt('选择要恢复的备份编号：\n\n' + lines + '\n\n输入数字后回车');
+  const n = parseInt(pick);
+  if (!n || n < 1 || n > list.length) return;
+  restoreBackup(list[n - 1].key);
+}
+
 // ═══════════ Sidebar ═══════════
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -121,31 +222,52 @@ document.querySelectorAll('.sidebar-item').forEach(item => {
 
 // ═══════════ Navigation ═══════════
 let currentPage = 'dashboard';
-function navigateTo(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+// 页面 → 渲染函数。加新页面只改这张表。
+// 这些函数都定义在文件后面，运行时按名查表，没有 hoist 问题。
+const PAGE_RENDERERS = {
+  dashboard:  () => refreshDashboard(),
+  todo:       () => renderTodoFull(),
+  fund:       () => renderFundPage(),
+  habits:     () => renderHabitsFull(),
+  countdown:  () => renderCountdown(),
+  diary:      () => renderDiary(),
+  food:       () => renderFoodDiary(),
+  anniversary:() => renderAnniversary(),
+  vocab:      () => startVocabReview(),
+  apiDetail:  () => renderApiDetail(),
+  grammar:    () => renderGrammarList(),
+  translate:  () => renderTranslatePage(),
+  mistakes:   () => renderMistakesPage(),
+  games:      () => renderGamesPage(),
+  speaking:   () => renderSpeakingPage(),
+};
+
+function navigateTo(pageId, opts) {
+  opts = opts || {};
   const target = document.getElementById('page-' + pageId);
-  if (target) target.classList.add('active');
+  if (!target) return;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  target.classList.add('active');
   currentPage = pageId;
   document.querySelectorAll('.sidebar-item').forEach(item => {
     item.classList.toggle('active', item.dataset.page === pageId);
   });
   document.getElementById('pageContainer').scrollTop = 0;
-  if (pageId === 'dashboard') refreshDashboard();
-  if (pageId === 'todo') renderTodoFull();
-  if (pageId === 'fund') renderFundPage();
-  if (pageId === 'habits') renderHabitsFull();
-  if (pageId === 'countdown') renderCountdown();
-  if (pageId === 'diary') renderDiary();
-  if (pageId === 'food') renderFoodDiary();
-  if (pageId === 'anniversary') renderAnniversary();
-  if (pageId === 'vocab') startVocabReview();
-  if (pageId === 'apiDetail') renderApiDetail();
-  if (pageId === 'grammar') renderGrammarList();
-  if (pageId === 'translate') renderTranslatePage();
-  if (pageId === 'mistakes') renderMistakesPage();
-  if (pageId === 'games') renderGamesPage();
-  if (pageId === 'speaking') renderSpeakingPage();
+  const render = PAGE_RENDERERS[pageId];
+  if (render) render();
+  // hash 路由：刷新 / Android 返回键 / iOS 上下滑动手势都能恢复正确页面
+  if (!opts.fromPop) {
+    const url = '#' + pageId;
+    if (opts.replace) history.replaceState({ page: pageId }, '', url);
+    else if (location.hash !== url) history.pushState({ page: pageId }, '', url);
+  }
 }
+
+window.addEventListener('popstate', e => {
+  const pageId = (e.state && e.state.page) || location.hash.slice(1) || 'dashboard';
+  if (document.getElementById('page-' + pageId)) navigateTo(pageId, { fromPop: true });
+});
 
 // ═══════════ Dashboard ═══════════
 function refreshDashboard() {
@@ -158,9 +280,10 @@ function refreshDashboard() {
   const term = getSolarTerm(month + 1, day);
   document.getElementById('dateZh').textContent = `${month+1}月${day}日` + (term ? ` · ${term}` : '');
 
-  // Greeting
+  // Greeting：用日期做种子，同一天里看到的是同一句
   if (!window._greetSet) {
-    const gi = Math.floor(Math.random() * GREETINGS.length);
+    const seed = todayKey().split('-').reduce((a, p) => a * 31 + parseInt(p, 10), 7);
+    const gi = Math.abs(seed) % GREETINGS.length;
     document.getElementById('greetingText').textContent = GREETINGS[gi];
     window._greetSet = true;
   }
@@ -1002,8 +1125,10 @@ function importDataPrompt() {
     reader.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result);
+        // 导入前先存一份救命快照
+        rescueBackup('before-import');
         Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
-        alert('导入成功！'); refreshDashboard();
+        alert('导入成功！（导入前的状态已存为救命快照）'); refreshDashboard();
       } catch { alert('文件格式有误'); }
     };
     reader.readAsText(file);
@@ -1011,15 +1136,20 @@ function importDataPrompt() {
   input.click();
 }
 function clearAllData() {
-  if (confirm('确定要清除所有数据吗？')) {
-    const keys = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith('zoe_')) keys.push(key);
+  if (!confirm('确定要清除所有数据吗？\n（会先自动存一份救命快照，可在设置里恢复）')) return;
+  rescueBackup('clear-all-data');
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    // 保留救命快照和每日自动备份，方便后悔
+    if (key && key.startsWith('zoe_') &&
+        !key.startsWith(BACKUP_PREFIX) &&
+        !key.startsWith(RESCUE_PREFIX)) {
+      keys.push(key);
     }
-    keys.forEach(k => localStorage.removeItem(k));
-    alert('已清除'); refreshDashboard();
   }
+  keys.forEach(k => localStorage.removeItem(k));
+  alert('已清除（救命快照保留在设置里）'); refreshDashboard();
 }
 function openApiSettings() {
   const current = load('ds_api_key', '');
@@ -2751,6 +2881,17 @@ if (window.matchMedia) {
 }
 
 // ═══════════ Init ═══════════
+// 先拍一张今日自动快照，再做其它初始化
+autoBackup();
+
+// 根据 URL hash 恢复上次停留的页面
+const _initialHash = location.hash.slice(1);
+if (_initialHash && document.getElementById('page-' + _initialHash)) {
+  navigateTo(_initialHash, { replace: true });
+} else {
+  history.replaceState({ page: 'dashboard' }, '', '#dashboard');
+}
+
 refreshDashboard();
 initMood();
 checkCelebrations();

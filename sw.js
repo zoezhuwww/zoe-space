@@ -1,5 +1,17 @@
-const CACHE_NAME = 'zoe-space-v3';
-const ASSETS = [
+// ═══════════════════════════════════════════════════
+//  zoe-space Service Worker · v4
+//  策略：
+//   - App Shell（本站自家文件）: cache-first，离线优先，最快
+//   - Google Fonts (CSS + woff2):   stale-while-revalidate
+//   - 其它跨域 GET:                  network-first，回退缓存
+//   - API (DeepSeek / TTS):          直通，不缓存
+// ═══════════════════════════════════════════════════
+const CACHE_VERSION = 'v4';
+const SHELL_CACHE = 'zoe-shell-' + CACHE_VERSION;
+const FONT_CACHE  = 'zoe-fonts-' + CACHE_VERSION;
+const RUNTIME_CACHE = 'zoe-runtime-' + CACHE_VERSION;
+
+const SHELL_ASSETS = [
   './',
   './index.html',
   './style.css',
@@ -7,55 +19,89 @@ const ASSETS = [
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+SC:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap'
 ];
 
-// Install - cache assets
+const FONT_URL = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+SC:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap';
+
+// Install: 预缓存自家 shell，字体让运行时去拿
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(ASSETS).catch(err => {
-        console.log('Cache addAll partial fail (fonts may need network):', err);
-      });
-    })
+    caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL_ASSETS))
   );
   self.skipWaiting();
 });
 
-// Activate - clean old caches
+// Activate: 清理旧版本缓存
 self.addEventListener('activate', event => {
+  const keep = new Set([SHELL_CACHE, FONT_CACHE, RUNTIME_CACHE]);
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      );
-    })
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => !keep.has(k)).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch - network first, fallback to cache
+// Fetch 策略
 self.addEventListener('fetch', event => {
-  // Skip non-GET and API calls
   if (event.request.method !== 'GET') return;
-  const url = event.request.url;
-  if (url.includes('api.deepseek.com') || url.includes('texttospeech.googleapis.com')) return;
+  const url = new URL(event.request.url);
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Cache successful responses
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      })
-      .catch(() => {
-        // Offline - serve from cache
-        return caches.match(event.request).then(cached => {
-          return cached || new Response('离线中～', { status: 503 });
-        });
-      })
-  );
+  // API 直通
+  if (url.hostname === 'api.deepseek.com' || url.hostname === 'texttospeech.googleapis.com') {
+    return;
+  }
+
+  // 自家 shell: cache-first
+  if (url.origin === self.location.origin) {
+    event.respondWith(cacheFirst(event.request, SHELL_CACHE));
+    return;
+  }
+
+  // Google Fonts: stale-while-revalidate
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+    event.respondWith(staleWhileRevalidate(event.request, FONT_CACHE));
+    return;
+  }
+
+  // 其它跨域: network-first
+  event.respondWith(networkFirst(event.request, RUNTIME_CACHE));
 });
+
+async function cacheFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  if (cached) {
+    // 后台静默更新一次，下次刷新就拿到新版
+    fetch(request).then(res => { if (res.ok) cache.put(request, res.clone()); }).catch(() => {});
+    return cached;
+  }
+  try {
+    const res = await fetch(request);
+    if (res.ok) cache.put(request, res.clone());
+    return res;
+  } catch {
+    return new Response('离线中～', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  }
+}
+
+async function staleWhileRevalidate(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  const fetchPromise = fetch(request).then(res => {
+    if (res.ok) cache.put(request, res.clone());
+    return res;
+  }).catch(() => cached);
+  return cached || fetchPromise;
+}
+
+async function networkFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  try {
+    const res = await fetch(request);
+    if (res.ok) cache.put(request, res.clone());
+    return res;
+  } catch {
+    const cached = await cache.match(request);
+    return cached || new Response('离线中～', { status: 503 });
+  }
+}
