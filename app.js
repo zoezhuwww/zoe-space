@@ -216,6 +216,35 @@ sidebarOverlay.addEventListener('click', closeSidebar);
   sidebar.addEventListener('touchend', () => { dragging = false; sx = sy = null; });
   sidebar.addEventListener('touchcancel', () => { dragging = false; sx = sy = null; });
 })();
+
+// 从屏幕左边缘右滑开启侧边栏
+(function() {
+  const EDGE = 24;       // 左边缘 24px 内开始才算
+  const THRESHOLD = 60;  // 横向滑动 60px 触发
+  let sx = null, sy = null, tracking = false;
+  document.addEventListener('touchstart', e => {
+    if (sidebar.classList.contains('open')) return; // 已经开了就别再监听
+    const t = e.touches[0];
+    if (t.clientX <= EDGE) {
+      sx = t.clientX;
+      sy = t.clientY;
+      tracking = true;
+    }
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (!tracking || sx === null) return;
+    const t = e.touches[0];
+    const dx = t.clientX - sx;
+    const dy = t.clientY - sy;
+    // 主要是横向 + 向右滑 60px → 开
+    if (dx > THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.3) {
+      openSidebar();
+      tracking = false; sx = sy = null;
+    }
+  }, { passive: true });
+  document.addEventListener('touchend', () => { tracking = false; sx = sy = null; });
+  document.addEventListener('touchcancel', () => { tracking = false; sx = sy = null; });
+})();
 function toggleGroup(titleEl) { titleEl.parentElement.classList.toggle('open'); }
 
 document.querySelectorAll('.sidebar-item').forEach(item => {
