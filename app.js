@@ -1,8 +1,14 @@
 // ═══════════ Core Data ═══════════
+// 本地时区解析 'YYYY-MM-DD'（iOS Safari 会把裸 ISO 字符串当 UTC 零点，会差一天）
+function parseLocalDate(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
 const DATES = {
-  together: new Date('2026-03-13'),
-  married: new Date('2026-06-19'),
-  toJapan: new Date('2028-09-01'),
+  together: parseLocalDate('2026-03-13'),
+  married:  parseLocalDate('2026-06-19'),
+  toJapan:  parseLocalDate('2028-09-01'),
 };
 
 const WEEKDAYS = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
@@ -247,6 +253,10 @@ function navigateTo(pageId, opts) {
   opts = opts || {};
   const target = document.getElementById('page-' + pageId);
   if (!target) return;
+  // 离开 anniversary 页时停掉秒数 interval
+  if (currentPage === 'anniversary' && pageId !== 'anniversary' && typeof anniInterval !== 'undefined' && anniInterval) {
+    clearInterval(anniInterval); anniInterval = null;
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   target.classList.add('active');
   currentPage = pageId;
@@ -293,7 +303,7 @@ function refreshDashboard() {
 
   // Nearest countdown
   const upcoming = getCountdowns()
-    .map(e => ({ ...e, daysLeft: Math.ceil((new Date(e.date) - now) / 86400000) }))
+    .map(e => ({ ...e, daysLeft: Math.ceil((parseLocalDate(e.date) - now) / 86400000) }))
     .filter(e => e.daysLeft > 0)
     .sort((a, b) => a.daysLeft - b.daysLeft);
   if (upcoming.length > 0) {
@@ -579,7 +589,8 @@ function saveHabits(h) { save('habits_' + todayKey(), h); }
 function getHabitStreak(habitId) {
   let streak = 0;
   const now = new Date();
-  for (let i = 0; i < 365; i++) {
+  // 60 天足够炫耀了，避免每次刷 dashboard 都扫 365 次 localStorage
+  for (let i = 0; i < 60; i++) {
     const d = new Date(now);
     d.setDate(d.getDate() - i);
     const dk = dateKey(d);
@@ -657,7 +668,7 @@ function renderCountdown() {
   const list = document.getElementById('countdownList');
   list.innerHTML = '';
   countdowns.forEach((c, i) => {
-    const diff = Math.ceil((new Date(c.date) - now) / 86400000);
+    const diff = Math.ceil((parseLocalDate(c.date) - now) / 86400000);
     const isPast = diff < 0;
     list.innerHTML += `
       <div class="countdown-item">
@@ -988,6 +999,9 @@ document.getElementById('foodInput').addEventListener('keydown', e => { if (e.ke
 async function callDS(prompt, systemPrompt) {
   const apiKey = load('ds_api_key', '');
   if (!apiKey) { alert('请先在设置里配置 DeepSeek API Key'); return null; }
+  // 30s 超时，避免按钮 disabled 永远转圈
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30000);
   try {
     const resp = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
@@ -1000,7 +1014,8 @@ async function callDS(prompt, systemPrompt) {
         ],
         max_tokens: 1000,
         temperature: 0.7,
-      })
+      }),
+      signal: controller.signal,
     });
     const data = await resp.json();
     const text = data.choices?.[0]?.message?.content || '';
@@ -1010,26 +1025,27 @@ async function callDS(prompt, systemPrompt) {
     return text;
   } catch (e) {
     console.error('DS API error:', e);
-    alert('API 调用失败，请检查网络和 API Key');
+    if (e.name === 'AbortError') alert('小豆好像没反应，请再试一次喂～');
+    else alert('API 调用失败，请检查网络和 API Key');
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
-async function estimateCalories() {
+async function estimateCalories(btn) {
   const foods = getFoods();
   if (!foods.length) { alert('今天还没有记录食物哦～'); return; }
   const foodNames = foods.map(f => f.name).join('、');
-  const btn = event.target;
-  btn.textContent = '⏳ 小豆正在估算…';
-  btn.disabled = true;
+  btn = btn || (typeof event !== 'undefined' ? event.target : null);
+  if (btn) { btn.textContent = '⏳ 小豆正在估算…'; btn.disabled = true; }
 
   const result = await callDS(
     `估算以下食物的卡路里：${foodNames}\n请返回JSON数组格式：[{"name":"食物名","cal":数字}]，只返回JSON不要其他文字。`,
     '你是小豆，一个食物卡路里估算助手。只输出纯JSON，不要markdown代码块，不要解释。'
   );
 
-  btn.textContent = '🔍 让小豆估算今天的卡路里';
-  btn.disabled = false;
+  if (btn) { btn.textContent = '🔍 让小豆估算今天的卡路里'; btn.disabled = false; }
 
   if (result) {
     try {
@@ -1048,20 +1064,18 @@ async function estimateCalories() {
   }
 }
 
-async function getRecipeRecommendation() {
+async function getRecipeRecommendation(btn) {
   const foods = getFoods();
   const foodContext = foods.length ? `今天已经吃了：${foods.map(f=>f.name).join('、')}。` : '今天还没吃东西。';
-  const btn = event.target;
-  btn.textContent = '⏳ 小豆正在想…';
-  btn.disabled = true;
+  btn = btn || (typeof event !== 'undefined' ? event.target : null);
+  if (btn) { btn.textContent = '⏳ 小豆正在想…'; btn.disabled = true; }
 
   const result = await callDS(
     `${foodContext}\n请推荐一道适合接下来吃的健康菜，给出菜名、简单做法（3-4步）和大概卡路里。用自然语言回复，简洁温暖。`,
     '你是小豆，一个温暖的饮食小助手。回复简洁，不超过150字，不要用markdown格式。'
   );
 
-  btn.textContent = '🍳 推荐今天吃什么';
-  btn.disabled = false;
+  if (btn) { btn.textContent = '🍳 推荐今天吃什么'; btn.disabled = false; }
 
   if (result) {
     document.getElementById('recipeResult').style.display = 'block';
@@ -1097,7 +1111,7 @@ function renderAnniversary() {
   const list = document.getElementById('anniList');
   list.innerHTML = '';
   ANNIVERSARIES.forEach(a => {
-    const diff = Math.floor((now - new Date(a.date)) / 86400000);
+    const diff = Math.floor((now - parseLocalDate(a.date)) / 86400000);
     list.innerHTML += `
       <div class="anni-item">
         <div class="ai-info"><div class="ai-name">${escHtml(a.name)}</div><div class="ai-date">${a.date}</div></div>
@@ -2870,6 +2884,14 @@ function toggleTheme() {
   const next = current === 'dark' ? 'light' : 'dark';
   applyTheme(next);
   save('theme', next);
+  // iOS Safari 不会就地重读已存在的 theme-color meta，必须重建节点才能触发状态栏颜色刷新
+  const old = document.querySelector('meta[name="theme-color"]');
+  const color = next === 'dark' ? '#1A1416' : '#F4DDDD';
+  if (old) old.remove();
+  const meta = document.createElement('meta');
+  meta.setAttribute('name', 'theme-color');
+  meta.setAttribute('content', color);
+  document.head.appendChild(meta);
 }
 // Apply on load
 applyTheme(getInitialTheme());
