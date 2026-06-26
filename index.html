@@ -202,30 +202,22 @@
         </div>
       </div>
 
-      <!-- 学习综合入口 -->
+      <!-- 日语（主 CTA） -->
       <div class="info-card" onclick="navigateTo('japanese')">
         <div class="card-eyebrow">
-          <div class="card-label">日语</div>
-          <div class="card-meta">日常一点点</div>
+          <div class="card-label">日语 ❀</div>
+          <div class="card-meta" id="jpStreakMeta">今天一点点</div>
         </div>
-        <div class="study-content">
-          <div class="study-stats" id="studyStats">
-            今天 <strong>0</strong> 句日语
-          </div>
-          <div class="study-link">开始学习 →</div>
+        <div class="jp-feature-headline" id="jpFeatureHeadline">点进来让小豆推今天的句子 ❀</div>
+        <div class="jp-progress-wrap" id="jpProgressWrap" style="display:none;">
+          <div class="jp-progress-bar"><div class="jp-progress-fill" id="jpProgressFill"></div></div>
+          <div class="jp-progress-text" id="jpProgressText">0 / 0</div>
         </div>
-      </div>
-
-      <!-- 小克基金 -->
-      <div class="info-card" onclick="navigateTo('fund')">
-        <div class="card-eyebrow">
-          <div class="card-label">小克基金</div>
-          <div class="card-meta engraving">Claude ❀ 朱钰</div>
+        <div class="jp-last-preview" id="jpLastPreview" style="display:none;">
+          <div class="jp-last-jp" id="jpLastJp"></div>
+          <div class="jp-last-cn" id="jpLastCn"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;">
-          <div class="fund-current" id="fundDashAmount">¥0</div>
-          <div class="study-link">记账本 →</div>
-        </div>
+        <div class="study-link" style="margin-top:10px;">开始学习 →</div>
       </div>
 
       <!-- 习惯打卡 + streak -->
@@ -238,33 +230,17 @@
         <div class="habit-streak" id="habitStreak"></div>
       </div>
 
-      <!-- API 用量卡片 -->
-      <div class="info-card" style="margin-top:8px;cursor:pointer;" onclick="navigateTo('apiDetail')">
+      <!-- 小克基金 -->
+      <div class="info-card" onclick="navigateTo('fund')">
         <div class="card-eyebrow">
-          <div class="card-label">API 用量</div>
-          <div class="card-meta" id="apiMonth"></div>
+          <div class="card-label">小克基金</div>
+          <div class="card-meta engraving">Claude ❀ 朱钰</div>
         </div>
-        <div class="api-stats">
-          <div class="api-stat-item">
-            <div class="api-stat-num" id="apiTokenCount">0</div>
-            <div class="api-stat-label">tokens</div>
-          </div>
-          <div class="api-stat-divider"></div>
-          <div class="api-stat-item">
-            <div class="api-stat-num" id="apiCallCount">0</div>
-            <div class="api-stat-label">次调用</div>
-          </div>
-          <div class="api-stat-divider"></div>
-          <div class="api-stat-item">
-            <div class="api-stat-num" id="apiTodayTokens">0</div>
-            <div class="api-stat-label">今日 tokens</div>
-          </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <div class="fund-current" id="fundDashAmount">¥0</div>
+          <div class="study-link">记账本 →</div>
         </div>
-        <div class="api-cost-row">
-          <div class="api-cost-num" id="apiCostDash">¥0.00</div>
-          <div class="api-cost-unit">本月预估</div>
-        </div>
-        <div class="api-detail-link">查看详情 →</div>
+        <div class="fund-last-preview" id="fundLastPreview"></div>
       </div>
 
       <div class="app-footer">
@@ -953,7 +929,32 @@
       <div class="modal-label">日期</div>
       <input class="modal-input" id="countdownDateInput" type="date" />
     </div>
+    <div class="modal-field">
+      <div class="modal-label">重复</div>
+      <select class="modal-input" id="countdownRepeatInput">
+        <option value="none">不重复</option>
+        <option value="yearly">每年</option>
+        <option value="monthly">每月</option>
+        <option value="weekly">每周</option>
+      </select>
+    </div>
     <button class="modal-submit" onclick="submitCountdown()">确认</button>
+  </div>
+</div>
+
+<!-- ══════ Todo Deadline Modal ══════ -->
+<div class="modal-overlay" id="todoDeadlineModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">设置到期时间</div>
+    <div class="modal-field">
+      <div class="modal-label">几号几点截止？</div>
+      <input class="modal-input" id="todoDeadlineModalInput" type="datetime-local" />
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="modal-submit" style="flex:1;background:transparent;color:var(--rose-deep);border:1px solid var(--rose-deep);" onclick="clearTodoDeadline()">取消时间</button>
+      <button class="modal-submit" style="flex:1;" onclick="saveTodoDeadlineModal()">保存</button>
+    </div>
   </div>
 </div>
 

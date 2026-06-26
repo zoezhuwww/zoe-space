@@ -336,7 +336,7 @@ function refreshDashboard() {
 
   // Nearest countdown
   const upcoming = getCountdowns()
-    .map(e => ({ ...e, daysLeft: Math.ceil((parseLocalDate(e.date) - now) / 86400000) }))
+    .map(e => ({ ...e, daysLeft: Math.ceil((effectiveCountdownDate(e) - now) / 86400000) }))
     .filter(e => e.daysLeft > 0)
     .sort((a, b) => a.daysLeft - b.daysLeft);
   if (upcoming.length > 0) {
@@ -520,6 +520,7 @@ function renderTodoFull() {
         <div class="todo-check" onclick="toggleTodo(${i})"></div>
         <div class="tfi-text" onclick="editTodo(${i})">${escHtml(t.text)}</div>
         ${getDeadlineTag(t.deadline)}
+        <div class="todo-clock" title="设置到期时间" onclick="openTodoDeadlineModal(${i})">⏰</div>
         <div class="todo-delete" onclick="deleteTodo(${i})">×</div>
       </div>`;
   });
@@ -555,6 +556,47 @@ function toggleTodo(i) {
 function deleteTodo(i) {
   const todos = getTodos(); todos.splice(i, 1); saveTodos(todos); renderTodoFull();
 }
+// ───── Todo deadline modal ─────
+let _editingTodoIdx = -1;
+function openTodoDeadlineModal(i) {
+  _editingTodoIdx = i;
+  const todos = getTodos();
+  const t = todos[i];
+  if (!t) return;
+  document.getElementById('todoDeadlineModalInput').value = t.deadline || '';
+  document.getElementById('todoDeadlineModal').classList.add('open');
+}
+function closeTodoDeadlineModal() {
+  document.getElementById('todoDeadlineModal').classList.remove('open');
+  _editingTodoIdx = -1;
+}
+function saveTodoDeadlineModal() {
+  if (_editingTodoIdx < 0) return closeTodoDeadlineModal();
+  const v = document.getElementById('todoDeadlineModalInput').value;
+  const todos = getTodos();
+  if (todos[_editingTodoIdx]) {
+    todos[_editingTodoIdx].deadline = v || null;
+    saveTodos(todos);
+    renderTodoFull();
+    if (typeof refreshDashboard === 'function') refreshDashboard();
+  }
+  closeTodoDeadlineModal();
+}
+function clearTodoDeadline() {
+  if (_editingTodoIdx < 0) return closeTodoDeadlineModal();
+  const todos = getTodos();
+  if (todos[_editingTodoIdx]) {
+    todos[_editingTodoIdx].deadline = null;
+    saveTodos(todos);
+    renderTodoFull();
+    if (typeof refreshDashboard === 'function') refreshDashboard();
+  }
+  closeTodoDeadlineModal();
+}
+document.addEventListener('click', e => {
+  if (e.target.id === 'todoDeadlineModal') closeTodoDeadlineModal();
+});
+
 function editTodo(i) {
   const todos = getTodos();
   const newText = prompt('修改待办内容：', todos[i].text);
@@ -695,19 +737,48 @@ function getCountdowns() { return load('countdowns', DEFAULT_COUNTDOWNS); }
 function saveCountdowns(c) { save('countdowns', c); }
 let editingCountdownIdx = -1;
 
+// 计算重复倒数日的"下一次发生"日期（原始 date 作为错）
+function effectiveCountdownDate(c) {
+  const base = parseLocalDate(c.date);
+  if (!c.repeat || c.repeat === 'none') return base;
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  if (base >= now) return base;
+  const d = new Date(base);
+  if (c.repeat === 'yearly') {
+    while (d < now) d.setFullYear(d.getFullYear() + 1);
+  } else if (c.repeat === 'monthly') {
+    while (d < now) d.setMonth(d.getMonth() + 1);
+  } else if (c.repeat === 'weekly') {
+    while (d < now) d.setDate(d.getDate() + 7);
+  }
+  return d;
+}
+function formatDateLocal(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function repeatLabel(r) {
+  return r === 'yearly' ? '每年' : r === 'monthly' ? '每月' : r === 'weekly' ? '每周' : '';
+}
+
 function renderCountdown() {
   const countdowns = getCountdowns();
   const now = new Date();
   const list = document.getElementById('countdownList');
   list.innerHTML = '';
   countdowns.forEach((c, i) => {
-    const diff = Math.ceil((parseLocalDate(c.date) - now) / 86400000);
+    const effDate = effectiveCountdownDate(c);
+    const diff = Math.ceil((effDate - now) / 86400000);
     const isPast = diff < 0;
+    const dateLabel = formatDateLocal(effDate);
+    const rLabel = repeatLabel(c.repeat);
     list.innerHTML += `
       <div class="countdown-item">
         <div>
-          <div class="ci-label">${escHtml(c.name)}</div>
-          <div class="ci-date">${c.date}</div>
+          <div class="ci-label">${escHtml(c.name)}${rLabel ? ` <span style="font-size:10px;color:var(--text-soft);letter-spacing:0.1em;">· ${rLabel}</span>` : ''}</div>
+          <div class="ci-date">${dateLabel}</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <div class="ci-days">
@@ -731,10 +802,12 @@ function openCountdownModal(idx) {
     document.getElementById('countdownModalTitle').textContent = '编辑倒数日';
     document.getElementById('countdownNameInput').value = c.name;
     document.getElementById('countdownDateInput').value = c.date;
+    document.getElementById('countdownRepeatInput').value = c.repeat || 'none';
   } else {
     document.getElementById('countdownModalTitle').textContent = '添加倒数日';
     document.getElementById('countdownNameInput').value = '';
     document.getElementById('countdownDateInput').value = '';
+    document.getElementById('countdownRepeatInput').value = 'none';
   }
   modal.classList.add('open');
 }
@@ -745,17 +818,20 @@ document.getElementById('countdownModal').addEventListener('click', e => {
 function submitCountdown() {
   const name = document.getElementById('countdownNameInput').value.trim();
   const date = document.getElementById('countdownDateInput').value;
+  const repeat = document.getElementById('countdownRepeatInput').value || 'none';
   if (!name || !date) return;
   const countdowns = getCountdowns();
   if (editingCountdownIdx >= 0) {
     countdowns[editingCountdownIdx].name = name;
     countdowns[editingCountdownIdx].date = date;
+    countdowns[editingCountdownIdx].repeat = repeat;
   } else {
-    countdowns.push({ name, date, id: 'c' + Date.now() });
+    countdowns.push({ name, date, repeat, id: 'c' + Date.now() });
   }
   saveCountdowns(countdowns);
   document.getElementById('countdownModal').classList.remove('open');
   renderCountdown();
+  if (typeof refreshDashboard === 'function') refreshDashboard();
 }
 
 function editCountdown(i) { openCountdownModal(i); }
@@ -2519,23 +2595,80 @@ function updateStudyHubStats() {
   const sentCounts = (typeof getTodaySentenceCounts === 'function') ? getTodaySentenceCounts() : { dueReview: 0, total: 0 };
   const el = document.getElementById('studyHubStats');
   if (el) el.innerHTML = `今天 <strong>${sentCounts.dueReview}</strong> 句日语 · <strong>${reviewCount}</strong> 张单词 · <strong>${mistakeCount}</strong> 道错题`;
-  // Dashboard
-  const dashStats = document.getElementById('studyStats');
-  if (dashStats) {
+
+  // ───── 首页 日语 feature 卡 ─────
+  const streak = (typeof getSentenceStreak === 'function') ? getSentenceStreak() : 0;
+  const meta = document.getElementById('jpStreakMeta');
+  if (meta) {
+    if (streak >= 2) meta.innerHTML = `❀ 已经坚持 <strong>${streak}</strong> 天`;
+    else if (streak === 1) meta.textContent = '今天来过了 ❀';
+    else meta.textContent = '今天一点点';
+  }
+
+  const headline = document.getElementById('jpFeatureHeadline');
+  const progressWrap = document.getElementById('jpProgressWrap');
+  const progressFill = document.getElementById('jpProgressFill');
+  const progressText = document.getElementById('jpProgressText');
+  const lastPreview = document.getElementById('jpLastPreview');
+  const lastJp = document.getElementById('jpLastJp');
+  const lastCn = document.getElementById('jpLastCn');
+
+  if (headline && progressWrap && lastPreview) {
+    const all = (typeof getSentences === 'function') ? getSentences() : [];
     if (sentCounts.dueReview > 0) {
-      dashStats.innerHTML = `今天 <strong>${sentCounts.dueReview}</strong> 句日语在等你 ❀`;
+      const totalToday = _sentQueue && _sentQueue.length ? _sentQueue.length : sentCounts.dueReview;
+      const doneToday = Math.max(0, totalToday - sentCounts.dueReview);
+      headline.textContent = `今天还有 ${sentCounts.dueReview} 句在等你 ❀`;
+      progressWrap.style.display = 'flex';
+      const pct = totalToday > 0 ? Math.round(doneToday / totalToday * 100) : 0;
+      progressFill.style.width = pct + '%';
+      progressText.textContent = `${doneToday} / ${totalToday}`;
     } else if (sentCounts.total === 0) {
-      dashStats.innerHTML = `点进来让小豆推今天的句子 ❀`;
+      headline.textContent = '点进来让小豆推今天的句子 ❀';
+      progressWrap.style.display = 'none';
     } else {
-      dashStats.innerHTML = `今天的句子都过完啦 🎉`;
+      headline.textContent = '今天的句子都过完啦 🎉';
+      progressWrap.style.display = 'flex';
+      progressFill.style.width = '100%';
+      progressText.textContent = '完成';
+    }
+    // 最近加的一句预览
+    if (all.length > 0) {
+      const recent = [...all].sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0))[0];
+      if (recent && recent.jp) {
+        lastPreview.style.display = 'block';
+        lastJp.textContent = recent.jp;
+        lastCn.textContent = recent.cn || '';
+      } else {
+        lastPreview.style.display = 'none';
+      }
+    } else {
+      lastPreview.style.display = 'none';
     }
   }
+
+  // ───── 学习中心顶部统计 ─────
   // Sentence hub card desc
   const sInfo = document.getElementById('sentencesInfo');
   if (sInfo) {
     if (sentCounts.dueReview > 0) sInfo.textContent = `今天 ${sentCounts.dueReview} 张待复习`;
     else if (sentCounts.total > 0) sInfo.textContent = `共 ${sentCounts.total} 张 · 今天都过完啦`;
     else sInfo.textContent = '小豆每天推荐 · 也可以自己加';
+  }
+
+  // ───── 基金最近一笔 ─────
+  const fundPrev = document.getElementById('fundLastPreview');
+  if (fundPrev && typeof getFund === 'function') {
+    const fund = getFund();
+    if (fund.history && fund.history.length) {
+      const last = fund.history[0];
+      const sign = last.type === 'income' ? '+' : '−';
+      const when = ((Date.now() - (last.time || 0)) / 86400000) | 0;
+      const whenTxt = when === 0 ? '今天' : when === 1 ? '昨天' : `${when} 天前`;
+      fundPrev.innerHTML = `<span class="flp-amt">${sign}¥${(last.amount || 0).toLocaleString()}</span> · ${escHtml(last.note || '')} · ${whenTxt}`;
+    } else {
+      fundPrev.innerHTML = '';
+    }
   }
 }
 
@@ -3150,8 +3283,39 @@ function rateSentCard(rating) {
   }
   _sentIdx++;
   _sentFlipped = false;
+  // 记录今日活跃，用于学习连续天数
+  markSentenceActiveToday();
   showSentCard();
   updateStudyHubStats();
+  if (typeof refreshDashboard === 'function') refreshDashboard();
+}
+
+// ───── Sentence streak ─────
+function markSentenceActiveToday() {
+  const dates = load('sent_active_dates', []);
+  const today = todayKey();
+  if (!dates.includes(today)) {
+    dates.push(today);
+    save('sent_active_dates', dates.slice(-90)); // 保留最近 90 天
+  }
+}
+function getSentenceStreak() {
+  const dates = new Set(load('sent_active_dates', []));
+  if (!dates.size) return 0;
+  let streak = 0;
+  const d = new Date();
+  // 如果今天还没活跃，从昨天开始数（保留昨天连续的成就感）
+  let key = d.toISOString().slice(0, 10);
+  if (!dates.has(key)) {
+    d.setDate(d.getDate() - 1);
+    key = d.toISOString().slice(0, 10);
+  }
+  while (dates.has(key)) {
+    streak++;
+    d.setDate(d.getDate() - 1);
+    key = d.toISOString().slice(0, 10);
+  }
+  return streak;
 }
 
 // ───── Add (manual) ─────

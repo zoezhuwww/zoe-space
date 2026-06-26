@@ -2706,3 +2706,277 @@ html[data-theme="dark"] .sent-card,
 html[data-theme="dark"] .sent-bd-row,
 html[data-theme="dark"] .sent-grammar,
 html[data-theme="dark"] .sent-action-btn { background: var(--bg-card); }
+
+
+/* ═══════════ Dashboard v2 — visual hierarchy ═══════════ */
+
+/* 在一起 占满宽度，作为感情主角 */
+.day-card-wide {
+  width: 100%; margin-bottom: 10px;
+  padding: 22px 24px;
+  display: flex; align-items: baseline; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+}
+.day-card-wide .day-label {
+  font-size: 12px; letter-spacing: 0.18em; opacity: 0.7;
+}
+.day-card-wide .day-number {
+  font-size: 56px; line-height: 1; font-weight: 300;
+  font-family: var(--font-display, 'Playfair Display'), 'Noto Serif SC', serif;
+}
+.day-card-wide .day-unit { font-size: 14px; opacity: 0.7; }
+
+/* 日语 主 CTA 卡 — 微微的暖色调强调 */
+.info-card-feature {
+  background: linear-gradient(180deg, var(--bg-card), var(--bg-card)) padding-box,
+              linear-gradient(135deg, var(--rose-deep), transparent) border-box;
+  border: 1.5px solid transparent;
+  position: relative;
+  cursor: pointer;
+}
+.info-card-feature::before {
+  content: ''; position: absolute; left: 0; top: 12px; bottom: 12px;
+  width: 3px; border-radius: 0 2px 2px 0;
+  background: var(--rose-deep);
+}
+.info-card-feature .card-label {
+  font-family: var(--font-display, 'Playfair Display'), 'Noto Serif SC', serif;
+  font-size: 17px; color: var(--rose-deep);
+}
+.jp-feature-headline {
+  font-size: 15px; color: var(--text-warm); line-height: 1.6;
+  margin: 8px 0 4px; font-family: 'Noto Serif SC', serif;
+}
+.jp-progress-wrap {
+  display: flex; align-items: center; gap: 10px;
+  margin: 12px 0 6px;
+}
+.jp-progress-bar {
+  flex: 1; height: 6px; background: var(--bg-soft); border-radius: 3px; overflow: hidden;
+}
+.jp-progress-fill {
+  height: 100%; background: var(--rose-deep);
+  border-radius: 3px; transition: width 0.4s ease;
+}
+.jp-progress-text {
+  font-size: 11px; color: var(--text-soft); letter-spacing: 0.05em;
+  min-width: 50px; text-align: right;
+}
+.jp-last-preview {
+  margin-top: 12px; padding: 10px 12px;
+  background: var(--bg-soft); border-radius: 8px;
+  border-left: 2px solid var(--rose-light, var(--rose-deep));
+}
+.jp-last-jp {
+  font-size: 14px; color: var(--text-warm);
+  font-family: 'Noto Serif SC', 'Hiragino Mincho ProN', serif;
+  line-height: 1.5;
+}
+.jp-last-cn {
+  font-size: 11px; color: var(--text-soft); margin-top: 4px; line-height: 1.4;
+}
+
+/* 基金最近一笔 */
+.fund-last-preview {
+  margin-top: 10px; font-size: 11px; color: var(--text-soft);
+  letter-spacing: 0.03em;
+}
+.fund-last-preview:empty { display: none; }
+.fund-last-preview .flp-amt { color: var(--rose-deep); font-weight: 500; }
+
+
+/* ═══════════ 卡片"去卡片化" + 日语字体修正 ═══════════ */
+/* 句子卡 / 单词卡都不再是白色圆角卡，直接铺在页面上，更像词典页 */
+
+:root {
+  --font-jp: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', YuGothic, 'Meiryo', 'Apple SD Gothic Neo', system-ui, -apple-system, sans-serif;
+}
+
+/* 整张卡的容器透明化 */
+.flashcard,
+.flashcard.sent-card {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 8px 4px !important;
+  min-height: 0 !important;
+}
+.flashcard:active { transform: none !important; }
+
+.flashcard-front,
+.flashcard-back {
+  text-align: left !important;
+  align-items: stretch !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+/* ───── 单词卡（vocab）─────  */
+.card-word,
+.card-word-back {
+  font-family: var(--font-jp) !important;
+  font-weight: 500 !important;
+  font-size: 44px !important;
+  letter-spacing: 0.02em;
+  color: var(--text-warm);
+  text-align: left;
+  margin: 4px 0 6px;
+  line-height: 1.2;
+}
+.card-reading-row {
+  text-align: left !important;
+  margin: 0 0 18px !important;
+  display: flex; align-items: baseline; gap: 10px;
+}
+.card-reading {
+  font-family: var(--font-jp) !important;
+  font-size: 17px !important;
+  color: var(--text-soft) !important;
+  font-weight: 400;
+}
+.card-romaji {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  color: var(--text-soft);
+  letter-spacing: 0.04em;
+}
+.card-info-row {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border-soft, rgba(0,0,0,0.06));
+  border-bottom: 1px solid var(--border-soft, rgba(0,0,0,0.06));
+  margin-bottom: 14px;
+}
+.card-meaning { font-size: 17px !important; color: var(--text-warm) !important; }
+
+.card-example-section {
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 4px 0 !important;
+}
+.card-example-jp {
+  font-family: var(--font-jp) !important;
+  font-size: 18px !important;
+  line-height: 2 !important;
+  color: var(--text-warm) !important;
+}
+.card-example-cn {
+  font-size: 13px !important; color: var(--text-soft) !important;
+  margin-top: 6px !important;
+}
+
+/* TTS 按钮排版 */
+.card-tts-row {
+  display: flex; gap: 8px;
+  margin-bottom: 18px;
+}
+
+/* ───── 句子卡（sentences）─────  */
+.sent-card { padding: 8px 4px !important; min-height: 0 !important; }
+.sent-jp,
+.sent-jp-back {
+  font-family: var(--font-jp) !important;
+  font-weight: 500 !important;
+  font-size: 26px !important;
+  line-height: 1.55;
+  color: var(--text-warm);
+  text-align: left !important;
+  padding: 8px 0 12px !important;
+  letter-spacing: 0.01em;
+}
+.sent-source-front {
+  text-align: left !important;
+  margin: 0 0 4px;
+  color: var(--text-soft);
+}
+.sent-reading {
+  font-family: var(--font-jp) !important;
+  font-size: 15px !important;
+  color: var(--text-soft) !important;
+  text-align: left !important;
+  margin: 0 0 14px !important;
+  line-height: 1.5;
+}
+.card-divider {
+  border-top: 1px solid var(--border-soft, rgba(0,0,0,0.06));
+  margin: 8px 0 14px;
+}
+.sent-cn {
+  font-size: 16px !important;
+  color: var(--text-warm) !important;
+  text-align: left !important;
+  margin: 0 0 20px !important;
+  line-height: 1.6;
+}
+
+.sent-section-label {
+  font-size: 10px; color: var(--text-soft);
+  letter-spacing: 0.22em; text-transform: uppercase;
+  margin: 0 0 10px;
+}
+.sent-breakdown { gap: 0 !important; }
+.sent-bd-row {
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 10px 0 !important;
+  border-bottom: 1px solid var(--border-soft, rgba(0,0,0,0.05));
+  display: grid !important;
+  grid-template-columns: auto 1fr;
+  column-gap: 14px;
+  row-gap: 2px;
+  align-items: baseline;
+}
+.sent-bd-word {
+  font-family: var(--font-jp) !important;
+  font-weight: 500 !important;
+  font-size: 17px !important;
+  color: var(--text-warm) !important;
+  min-width: 0 !important;
+  grid-row: 1; grid-column: 1;
+}
+.sent-bd-reading {
+  font-family: var(--font-jp) !important;
+  font-size: 11px !important;
+  color: var(--text-soft) !important;
+  min-width: 0 !important;
+  grid-row: 2; grid-column: 1;
+}
+.sent-bd-meaning {
+  font-size: 14px !important;
+  color: var(--text-mute) !important;
+  grid-row: 1 / span 2; grid-column: 2;
+  align-self: center;
+}
+.sent-grammar {
+  background: transparent !important;
+  padding: 4px 0 !important;
+  font-size: 14px !important;
+  color: var(--text-warm) !important;
+  line-height: 1.7 !important;
+}
+.sent-grammar-wrap { margin-top: 20px; }
+.sent-breakdown-wrap { margin-top: 18px; }
+
+/* hint 文字小一点 */
+.card-hint {
+  font-size: 11px; color: var(--text-soft);
+  letter-spacing: 0.1em; margin-top: 10px;
+  text-align: left;
+}
+
+/* 夜间模式补丁：分隔线再淡一点 */
+html[data-theme="dark"] .sent-bd-row,
+html[data-theme="dark"] .card-info-row {
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+
+/* 待办行的小时钟图标 */
+.todo-clock {
+  font-size: 14px; opacity: 0.45; cursor: pointer;
+  padding: 0 6px; transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.todo-clock:hover, .todo-clock:active { opacity: 0.9; }
+.todo-full-item { gap: 4px; }
