@@ -893,6 +893,7 @@
 <div class="modal-overlay" id="fundModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeFundModal()" aria-label="关闭">✕</button>
     <div class="modal-title" id="fundModalTitle">小克奖金</div>
     <div class="modal-field">
       <div class="modal-label">金额（¥）</div>
@@ -920,6 +921,7 @@
 <div class="modal-overlay" id="countdownModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
+    <button class="modal-close" onclick="document.getElementById('countdownModal').classList.remove('open')" aria-label="关闭">✕</button>
     <div class="modal-title" id="countdownModalTitle">添加倒数日</div>
     <div class="modal-field">
       <div class="modal-label">名称</div>
@@ -946,6 +948,7 @@
 <div class="modal-overlay" id="todoDeadlineModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeTodoDeadlineModal()" aria-label="关闭">✕</button>
     <div class="modal-title">设置到期时间</div>
     <div class="modal-field">
       <div class="modal-label">几号几点截止？</div>
@@ -962,6 +965,7 @@
 <div class="modal-overlay" id="sentenceAddModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeSentenceAddModal()" aria-label="关闭">✕</button>
     <div class="modal-title">加一句日语 ❀</div>
     <div class="modal-field">
       <div class="modal-label">把听到 / 看到的日语粘进来</div>
@@ -982,6 +986,7 @@
 <div class="modal-overlay" id="sentenceSettingsModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeSentenceSettings()" aria-label="关闭">✕</button>
     <div class="modal-title">句子卡设置</div>
     <div class="modal-field">
       <div class="modal-label">每天小豆推几句？</div>

@@ -3348,9 +3348,16 @@ async function submitSentenceAdd() {
 }
 breakdown 只列 2-5 个对 N4 学习者重要的词。只返回JSON，不要markdown代码块。`;
 
-  const result = await callDS(prompt, '你是小豆，温柔的日语学习助手。只输出纯JSON。');
-  btn.textContent = '保存';
-  btn.disabled = false;
+  let result;
+  try {
+    result = await callDS(prompt, '你是小豆，温柔的日语学习助手。只输出纯JSON。');
+  } catch (e) {
+    alert('小豆罢工啦，再试一次？\n' + (e && e.message ? e.message : e));
+    return;
+  } finally {
+    btn.textContent = '保存';
+    btn.disabled = false;
+  }
 
   if (!result) return;
   let data;
@@ -3540,3 +3547,35 @@ document.addEventListener('click', e => {
   if (e.target.id === 'sentenceAddModal') closeSentenceAddModal();
   if (e.target.id === 'sentenceSettingsModal') closeSentenceSettings();
 });
+
+// ═══════════ Global modal safety net ═══════════
+// ESC closes the topmost open modal/popup — last resort if anything ever gets stuck.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  // Priority: celebration > modals (close the visible one user is looking at)
+  const celeb = document.getElementById('celebrationPopup');
+  if (celeb && celeb.classList.contains('open')) {
+    celeb.classList.remove('open');
+    return;
+  }
+  const openModal = document.querySelector('.modal-overlay.open');
+  if (openModal) openModal.classList.remove('open');
+});
+
+// Belt-and-suspenders: if anything triggers a modal to open while a celebration
+// popup is still showing, auto-dismiss the celebration so it can't block input.
+(function() {
+  const obs = new MutationObserver(muts => {
+    for (const m of muts) {
+      if (m.type !== 'attributes' || m.attributeName !== 'class') continue;
+      const t = m.target;
+      if (t.classList.contains('modal-overlay') && t.classList.contains('open')) {
+        const celeb = document.getElementById('celebrationPopup');
+        if (celeb && celeb.classList.contains('open')) celeb.classList.remove('open');
+      }
+    }
+  });
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    obs.observe(m, { attributes: true, attributeFilter: ['class'] });
+  });
+})();

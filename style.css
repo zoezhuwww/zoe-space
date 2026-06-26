@@ -1195,6 +1195,19 @@ body {
   border-radius: 2px;
   margin: 0 auto 16px;
 }
+.modal-close {
+  position: absolute; top: 14px; right: 16px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: transparent;
+  color: var(--text-mute);
+  font-size: 22px; line-height: 1;
+  cursor: pointer; border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 2;
+}
+.modal-close:active { background: var(--rose-mist); color: var(--text-warm); }
+.modal-sheet { position: relative; }
 .modal-title {
   font-family: var(--font-serif-zh);
   font-size: 15px; color: var(--text-warm);
@@ -2045,7 +2058,7 @@ body {
 
 /* ═══════════ Celebration Popup ═══════════ */
 .celebration-overlay {
-  position: fixed; inset: 0; z-index: 400;
+  position: fixed; inset: 0; z-index: 250;
   background: rgba(90, 74, 74, 0.35);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
