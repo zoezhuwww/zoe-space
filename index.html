@@ -55,26 +55,11 @@
     <div class="sidebar-group">
       <div class="sidebar-group-title" onclick="toggleGroup(this)">STUDY <span class="sg-arrow">›</span></div>
       <div class="sidebar-group-items">
-        <div class="sidebar-item" data-page="study">
-          <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-4 10 4-10 4z"/><path d="M6 11v4.5c2 1.5 8 1.5 12 0V11"/></svg></span><span class="si-label">学习中心</span>
+        <div class="sidebar-item" data-page="japanese">
+          <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19.5" cy="18" r="2"/></svg></span><span class="si-label">日语</span>
         </div>
-        <div class="sidebar-item" data-page="vocab">
-          <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 4h12a2 2 0 0 1 2 2v12"/></svg></span><span class="si-label">单词卡</span>
-        </div>
-        <div class="sidebar-item" data-page="grammar">
-          <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5c3-1 6-1 9 1 3-2 6-2 9-1v14c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6v13"/></svg></span><span class="si-label">语法点</span>
-        </div>
-        <div class="sidebar-item" data-page="translate">
-          <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l5 5-12 12H4v-5z"/><path d="M14 5l5 5"/></svg></span><span class="si-label">翻译练习</span>
-        </div>
-        <div class="sidebar-item" data-page="mistakes">
-          <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="12" height="16" rx="1.5"/><path d="M9 3h6v3H9z"/><path d="M9 14l2 2 4-4"/></svg></span><span class="si-label">错题本</span>
-        </div>
-        <div class="sidebar-item" data-page="games">
-          <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="20" height="10" rx="3"/><path d="M7 14h3M8.5 12.5v3"/><circle cx="16" cy="13" r="0.9" fill="currentColor"/><circle cx="18" cy="15" r="0.9" fill="currentColor"/></svg></span><span class="si-label">小游戏</span>
-        </div>
-        <div class="sidebar-item" data-page="speaking">
-          <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3M9 21h6"/></svg></span><span class="si-label">口语练习</span>
+        <div class="sidebar-item" data-page="english">
+          <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3M9 21h6"/></svg></span><span class="si-label">英语</span>
         </div>
       </div>
     </div>
@@ -218,14 +203,14 @@
       </div>
 
       <!-- 学习综合入口 -->
-      <div class="info-card" onclick="navigateTo('study')">
+      <div class="info-card" onclick="navigateTo('japanese')">
         <div class="card-eyebrow">
-          <div class="card-label">日语学习</div>
-          <div class="card-meta">N2 备考</div>
+          <div class="card-label">日语</div>
+          <div class="card-meta">日常一点点</div>
         </div>
         <div class="study-content">
           <div class="study-stats" id="studyStats">
-            今天要复习 <strong>0</strong> 个词
+            今天 <strong>0</strong> 句日语
           </div>
           <div class="study-link">开始学习 →</div>
         </div>
@@ -452,26 +437,34 @@
       </div>
     </div>
 
-    <!-- ═══ Study Hub Page ═══ -->
-    <div class="page" id="page-study">
+    <!-- ═══ Japanese Hub Page ═══ -->
+    <div class="page" id="page-japanese">
       <div class="sub-page-header">
         <div class="back-btn" onclick="navigateTo('dashboard')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
-        <div class="sub-page-title">日语学习</div>
+        <div class="sub-page-title">日语</div>
       </div>
       <div class="info-card" style="margin:0 24px 20px;">
         <div class="card-eyebrow">
           <div class="card-label">今日任务</div>
-          <div class="card-meta">N2 备考</div>
+          <div class="card-meta">日常一点点</div>
         </div>
         <div class="study-stats" id="studyHubStats">
-          今天要复习 <strong>0</strong> 个词 和 <strong>0</strong> 道题
+          今天 <strong>0</strong> 句日语 · <strong>0</strong> 张复习
         </div>
       </div>
       <div class="study-hub">
+        <div class="study-hub-card" onclick="navigateTo('sentences')">
+          <div class="study-hub-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19.5" cy="18" r="2"/></svg></div>
+          <div class="study-hub-info">
+            <div class="study-hub-name">句子卡</div>
+            <div class="study-hub-desc" id="sentencesInfo">小豆每天推荐 · 也可以自己加</div>
+          </div>
+          <div class="study-hub-arrow">›</div>
+        </div>
         <div class="study-hub-card" onclick="navigateTo('vocab')">
-          <div class="study-hub-icon">📇</div>
+          <div class="study-hub-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 4h12a2 2 0 0 1 2 2v12"/></svg></div>
           <div class="study-hub-info">
             <div class="study-hub-name">单词卡</div>
             <div class="study-hub-desc" id="vocabBookInfo">SRS 间隔复习</div>
@@ -479,15 +472,15 @@
           <div class="study-hub-arrow">›</div>
         </div>
         <div class="study-hub-card" onclick="navigateTo('grammar')">
-          <div class="study-hub-icon">📖</div>
+          <div class="study-hub-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5c3-1 6-1 9 1 3-2 6-2 9-1v14c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6v13"/></svg></div>
           <div class="study-hub-info">
             <div class="study-hub-name">语法点</div>
-            <div class="study-hub-desc">N2 语法查询</div>
+            <div class="study-hub-desc">语法速查</div>
           </div>
           <div class="study-hub-arrow">›</div>
         </div>
         <div class="study-hub-card" onclick="navigateTo('translate')">
-          <div class="study-hub-icon">✍️</div>
+          <div class="study-hub-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l5 5-12 12H4v-5z"/><path d="M14 5l5 5"/></svg></div>
           <div class="study-hub-info">
             <div class="study-hub-name">翻译练习</div>
             <div class="study-hub-desc">中译日 + 小豆点评</div>
@@ -495,7 +488,7 @@
           <div class="study-hub-arrow">›</div>
         </div>
         <div class="study-hub-card" onclick="navigateTo('mistakes')">
-          <div class="study-hub-icon">📝</div>
+          <div class="study-hub-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="12" height="16" rx="1.5"/><path d="M9 3h6v3H9z"/><path d="M9 14l2 2 4-4"/></svg></div>
           <div class="study-hub-info">
             <div class="study-hub-name">错题本</div>
             <div class="study-hub-desc">复习做错的题</div>
@@ -503,19 +496,10 @@
           <div class="study-hub-arrow">›</div>
         </div>
         <div class="study-hub-card" onclick="navigateTo('games')">
-          <div class="study-hub-icon">🎮</div>
+          <div class="study-hub-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="20" height="10" rx="3"/><path d="M7 14h3M8.5 12.5v3"/><circle cx="16" cy="13" r="0.9" fill="currentColor"/><circle cx="18" cy="15" r="0.9" fill="currentColor"/></svg></div>
           <div class="study-hub-info">
             <div class="study-hub-name">小游戏</div>
             <div class="study-hub-desc">词语联想 · 助词填空</div>
-          </div>
-          <div class="study-hub-arrow">›</div>
-        </div>
-        <div class="study-section-divider">ENGLISH</div>
-        <div class="study-hub-card" onclick="navigateTo('speaking')">
-          <div class="study-hub-icon">🎤</div>
-          <div class="study-hub-info">
-            <div class="study-hub-name">口语练习</div>
-            <div class="study-hub-desc">话题卡 · 录音 · 小豆点评</div>
           </div>
           <div class="study-hub-arrow">›</div>
         </div>
@@ -526,6 +510,35 @@
         </button>
         <div style="font-size:10px;color:var(--text-soft);text-align:center;line-height:1.6;" id="vocabImportHint">
           当前词书：<span id="vocabCount">20</span> 个词 · 支持 JSON 和 CSV 格式
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ English Hub Page ═══ -->
+    <div class="page" id="page-english">
+      <div class="sub-page-header">
+        <div class="back-btn" onclick="navigateTo('dashboard')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <div class="sub-page-title">英语</div>
+      </div>
+      <div class="info-card" style="margin:0 24px 20px;">
+        <div class="card-eyebrow">
+          <div class="card-label">English Daily</div>
+          <div class="card-meta">说起来</div>
+        </div>
+        <div class="study-stats">
+          今天也跟小豆聊几句吧 ❀
+        </div>
+      </div>
+      <div class="study-hub">
+        <div class="study-hub-card" onclick="navigateTo('speaking')">
+          <div class="study-hub-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3M9 21h6"/></svg></div>
+          <div class="study-hub-info">
+            <div class="study-hub-name">口语练习</div>
+            <div class="study-hub-desc">话题卡 · 录音 · 小豆点评</div>
+          </div>
+          <div class="study-hub-arrow">›</div>
         </div>
       </div>
     </div>
@@ -609,7 +622,7 @@
     <!-- ═══ Vocab Flashcard Page ═══ -->
     <div class="page" id="page-vocab">
       <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('study')">
+        <div class="back-btn" onclick="navigateTo('japanese')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">単語帳</div>
@@ -690,9 +703,96 @@
       </div>
     </div>
 
+    <!-- ═══ Sentence Card Page ═══ -->
+    <div class="page" id="page-sentences">
+      <div class="sub-page-header">
+        <div class="back-btn" onclick="navigateTo('japanese')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <div class="sub-page-title">句子卡 ❀</div>
+        <div class="sub-page-action" onclick="openSentenceSettings()" style="margin-left:auto;cursor:pointer;padding:6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+      </div>
+
+      <div class="vocab-progress-wrap">
+        <div class="vocab-progress-bar"><div class="vocab-progress-fill" id="sentProgressFill"></div></div>
+        <div class="vocab-stats">
+          <span id="sentRemaining">0 张待复习</span>
+          <span id="sentProgress"></span>
+        </div>
+      </div>
+
+      <!-- Empty state with actions -->
+      <div class="sent-empty" id="sentEmpty" style="display:none;">
+        <div class="placeholder-icon">❀</div>
+        <div class="placeholder-text" id="sentEmptyTitle">今天的句子还没准备好</div>
+        <div class="placeholder-sub">让小豆推今天的，或者把你听到的一句加进来</div>
+        <div class="sent-empty-actions">
+          <button class="sent-action-btn primary" onclick="fetchDailySentences()" id="sentFetchBtn">
+            🌱 让小豆推今天的 10 句
+          </button>
+          <button class="sent-action-btn" onclick="openSentenceAddModal()">
+            ＋ 自己加一句
+          </button>
+        </div>
+      </div>
+
+      <!-- Sentence flashcard -->
+      <div class="flashcard-container" id="sentCardContainer">
+        <div class="flashcard sent-card" id="sentCard" onclick="flipSentCard()">
+          <!-- Front -->
+          <div class="flashcard-front" id="sentFront">
+            <div class="sent-jp" id="sentJp">日本語の文</div>
+            <div class="sent-source-front" id="sentSourceFront"></div>
+            <div class="card-hint">点击翻转 · 看读音和翻译</div>
+          </div>
+          <!-- Back -->
+          <div class="flashcard-back" id="sentBack" style="display:none;">
+            <div class="sent-jp-back" id="sentJpBack">日本語の文</div>
+            <div class="sent-reading" id="sentReading">にほんご</div>
+            <div class="card-tts-row">
+              <button class="card-tts-btn" onclick="event.stopPropagation();speakSentence()">🔊 発音</button>
+              <button class="card-tts-btn" onclick="event.stopPropagation();speakSentenceSlow()">🐢 慢速</button>
+            </div>
+            <div class="card-divider"></div>
+            <div class="sent-cn" id="sentCn">中文翻译</div>
+            <div class="sent-breakdown-wrap" id="sentBreakdownWrap">
+              <div class="sent-section-label">词语拆解</div>
+              <div class="sent-breakdown" id="sentBreakdown"></div>
+            </div>
+            <div class="sent-grammar-wrap" id="sentGrammarWrap" style="display:none;">
+              <div class="sent-section-label">语法点</div>
+              <div class="sent-grammar" id="sentGrammar"></div>
+            </div>
+            <div class="sent-source" id="sentSource"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SRS Anki buttons -->
+      <div class="anki-buttons" id="sentAnkiButtons" style="display:none;">
+        <button class="anki-btn anki-again" onclick="rateSentCard(0)">
+          <span class="anki-label">再次</span><span class="anki-interval">今天</span>
+        </button>
+        <button class="anki-btn anki-hard" onclick="rateSentCard(1)">
+          <span class="anki-label">困难</span><span class="anki-interval">1天</span>
+        </button>
+        <button class="anki-btn anki-good" onclick="rateSentCard(2)">
+          <span class="anki-label">良好</span><span class="anki-interval">3天</span>
+        </button>
+        <button class="anki-btn anki-easy" onclick="rateSentCard(3)">
+          <span class="anki-label">简单</span><span class="anki-interval">7天</span>
+        </button>
+      </div>
+
+      <!-- Floating add button -->
+      <button class="sent-fab" onclick="openSentenceAddModal()" id="sentFab" title="加一句">＋</button>
+    </div>
+
     <div class="page" id="page-grammar">
       <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('study')">
+        <div class="back-btn" onclick="navigateTo('japanese')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">语法点</div>
@@ -706,7 +806,7 @@
 
     <div class="page" id="page-translate">
       <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('study')">
+        <div class="back-btn" onclick="navigateTo('japanese')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">翻译练习</div>
@@ -717,7 +817,7 @@
 
     <div class="page" id="page-mistakes">
       <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('study')">
+        <div class="back-btn" onclick="navigateTo('japanese')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">错题本</div>
@@ -727,7 +827,7 @@
 
     <div class="page" id="page-games">
       <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('study')">
+        <div class="back-btn" onclick="navigateTo('japanese')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">小游戏</div>
@@ -738,7 +838,7 @@
     <!-- ═══ Speaking Practice Page ═══ -->
     <div class="page" id="page-speaking">
       <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('study')">
+        <div class="back-btn" onclick="navigateTo('english')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">口语练习</div>
@@ -854,6 +954,55 @@
       <input class="modal-input" id="countdownDateInput" type="date" />
     </div>
     <button class="modal-submit" onclick="submitCountdown()">确认</button>
+  </div>
+</div>
+
+<!-- ══════ Sentence Add Modal ══════ -->
+<div class="modal-overlay" id="sentenceAddModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">加一句日语 ❀</div>
+    <div class="modal-field">
+      <div class="modal-label">把听到 / 看到的日语粘进来</div>
+      <textarea class="modal-input" id="sentJpInput" rows="3" placeholder="例：今日はちょっと疲れた〜"></textarea>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">出处（可选）</div>
+      <input class="modal-input" id="sentSourceInput" placeholder="例：《silent》EP3 / 朋友说的 / 推特" />
+    </div>
+    <div class="sent-add-hint" id="sentAddHint" style="font-size:11px;color:var(--text-soft);text-align:center;padding:0 0 8px;line-height:1.6;">
+      点保存后，小豆会自动补假名、翻译、词语拆解 ❀
+    </div>
+    <button class="modal-submit" id="sentAddSubmit" onclick="submitSentenceAdd()">保存</button>
+  </div>
+</div>
+
+<!-- ══════ Sentence Settings Modal ══════ -->
+<div class="modal-overlay" id="sentenceSettingsModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">句子卡设置</div>
+    <div class="modal-field">
+      <div class="modal-label">每天小豆推几句？</div>
+      <input class="modal-input" id="sentDailyCountInput" type="number" min="3" max="30" placeholder="10" />
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">难度</div>
+      <select class="modal-input" id="sentLevelInput">
+        <option value="N5-N4">N5–N4（入门）</option>
+        <option value="N4-N3">N4–N3（日常）</option>
+        <option value="N3-N2">N3–N2（进阶）</option>
+        <option value="N2-N1">N2–N1（高级）</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">想偏什么主题？（可不填，让小豆随便挑）</div>
+      <input class="modal-input" id="sentThemesInput" placeholder="例：日剧台词、职场、旅行、SNS流行语" />
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="modal-submit" style="flex:1;background:transparent;color:var(--rose-deep);border:1px solid var(--rose-deep);" onclick="resetTodaySentences()">重抽今天的</button>
+      <button class="modal-submit" style="flex:1;" onclick="submitSentenceSettings()">保存</button>
+    </div>
   </div>
 </div>
 

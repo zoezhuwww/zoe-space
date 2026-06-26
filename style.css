@@ -1554,7 +1554,13 @@ body {
   cursor: pointer; transition: transform 0.15s;
 }
 .study-hub-card:active { transform: scale(0.98); }
-.study-hub-icon { font-size: 20px; width: 28px; text-align: center; }
+.study-hub-icon {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--rose-deep, var(--text-warm));
+  font-size: 20px; text-align: center;
+}
+.study-hub-icon svg { width: 22px; height: 22px; }
 .study-hub-info { flex: 1; }
 .study-hub-name {
   font-family: var(--font-serif-zh);
@@ -2604,3 +2610,99 @@ html[data-theme="dark"] .weight-chart-area {
 #weightTrend.up { color: var(--rose-deep); }
 #weightTrend.down { color: #7BAF7B; }
 html[data-theme="dark"] #weightTrend.down { color: #A8D5A8; }
+
+
+/* ═══════════ Sentence Card Page ═══════════ */
+.sent-card { padding: 28px 22px; min-height: 280px; position: relative; }
+.sent-jp {
+  font-family: var(--font-display, 'Playfair Display'), 'Noto Serif SC', 'Hiragino Mincho ProN', serif;
+  font-size: 26px; line-height: 1.55; color: var(--text-warm);
+  text-align: center; font-weight: 500;
+  padding: 8px 4px 18px;
+}
+.sent-source-front {
+  font-size: 11px; color: var(--text-soft);
+  letter-spacing: 0.06em; margin-bottom: 8px; text-align: center;
+}
+.sent-source-front:empty { display: none; }
+.sent-jp-back {
+  font-family: 'Noto Serif SC', 'Hiragino Mincho ProN', serif;
+  font-size: 21px; line-height: 1.5; color: var(--text-warm);
+  text-align: center; font-weight: 500; padding: 4px 0 6px;
+}
+.sent-reading {
+  font-size: 14px; color: var(--text-soft); text-align: center;
+  margin-bottom: 12px; line-height: 1.5;
+}
+.sent-cn {
+  font-size: 15px; color: var(--text-mute); text-align: center;
+  margin: 4px 0 16px; line-height: 1.55;
+}
+.sent-section-label {
+  font-size: 10px; color: var(--text-soft); letter-spacing: 0.18em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.sent-breakdown-wrap, .sent-grammar-wrap { margin-top: 14px; }
+.sent-breakdown {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sent-bd-row {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 6px 10px; background: var(--bg-soft);
+  border-radius: 8px; font-size: 13px;
+}
+.sent-bd-word {
+  font-weight: 500; color: var(--text-warm);
+  font-family: 'Noto Serif SC', 'Hiragino Mincho ProN', serif;
+  min-width: 50px;
+}
+.sent-bd-reading { font-size: 11px; color: var(--text-soft); min-width: 60px; }
+.sent-bd-meaning { color: var(--text-mute); flex: 1; }
+.sent-grammar {
+  font-size: 13px; color: var(--text-mute); line-height: 1.6;
+  padding: 8px 10px; background: var(--bg-soft); border-radius: 8px;
+}
+.sent-source {
+  margin-top: 14px; font-size: 11px; color: var(--text-soft);
+  text-align: center; letter-spacing: 0.05em;
+}
+.sent-source:empty { display: none; }
+
+.sent-empty { padding: 40px 24px; text-align: center; }
+.sent-empty-actions {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-top: 24px; padding: 0 16px;
+}
+.sent-action-btn {
+  width: 100%; padding: 14px 18px; border-radius: 12px;
+  border: 1px solid var(--border-soft, rgba(0,0,0,0.08));
+  background: var(--bg-card); color: var(--text-warm);
+  font-size: 14px; cursor: pointer; transition: transform 0.15s;
+  font-family: inherit;
+}
+.sent-action-btn.primary {
+  background: var(--rose-deep); color: #fff; border-color: var(--rose-deep);
+}
+.sent-action-btn:active { transform: scale(0.98); }
+
+.sent-fab {
+  position: fixed; right: 20px; bottom: 24px;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--rose-deep); color: #fff;
+  font-size: 26px; line-height: 1; font-weight: 300;
+  border: none; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  z-index: 50; display: none;
+  transition: transform 0.15s;
+  font-family: inherit;
+}
+.sent-fab:active { transform: scale(0.92); }
+#page-sentences.active .sent-fab { display: block; }
+
+textarea.modal-input { resize: vertical; min-height: 60px; font-family: inherit; }
+select.modal-input { appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--text-soft) 50%), linear-gradient(135deg, var(--text-soft) 50%, transparent 50%); background-position: calc(100% - 18px) center, calc(100% - 12px) center; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 36px; }
+
+html[data-theme="dark"] .sent-card,
+html[data-theme="dark"] .sent-bd-row,
+html[data-theme="dark"] .sent-grammar,
+html[data-theme="dark"] .sent-action-btn { background: var(--bg-card); }
