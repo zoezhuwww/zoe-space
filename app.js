@@ -1029,12 +1029,13 @@ function saveWeight() {
 document.getElementById('foodInput').addEventListener('keydown', e => { if (e.key === 'Enter') addFood(); });
 
 // DS API helper
-async function callDS(prompt, systemPrompt) {
+async function callDS(prompt, systemPrompt, opts) {
+  opts = opts || {};
   const apiKey = load('ds_api_key', '');
   if (!apiKey) { alert('请先在设置里配置 DeepSeek API Key'); return null; }
-  // 30s 超时，避免按钮 disabled 永远转圈
+  // 60s 超时（推荐句子量大）
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 30000);
+  const timer = setTimeout(() => controller.abort(), opts.timeoutMs || 60000);
   try {
     const resp = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
@@ -1045,8 +1046,8 @@ async function callDS(prompt, systemPrompt) {
           { role: 'system', content: systemPrompt || '你是小豆，一个简洁友好的助手。只输出JSON，不要markdown。' },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 1000,
-        temperature: 0.7,
+        max_tokens: opts.maxTokens || 1000,
+        temperature: opts.temperature ?? 0.7,
       }),
       signal: controller.signal,
     });
@@ -3248,7 +3249,7 @@ async function fetchDailySentences() {
   }
 ]`;
 
-  const result = await callDS(prompt, '你是小豆，温柔的日语老师。只输出纯JSON数组。');
+  const result = await callDS(prompt, '你是小豆，温柔的日语老师。只输出纯JSON数组。', { maxTokens: 4000, timeoutMs: 90000 });
   if (btn) { btn.textContent = `🌱 让小豆推今天的 ${settings.dailyCount} 句`; btn.disabled = false; }
   if (!result) return;
 
