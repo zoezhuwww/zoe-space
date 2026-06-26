@@ -3261,49 +3261,47 @@ async function fetchDailySentences() {
   const btn = document.getElementById('sentFetchBtn');
   if (btn) { btn.textContent = '⏳ 小豆在挑句子…'; btn.disabled = true; }
 
+  // 分批，每批 5 句，避开 DeepSeek 输出 token 上限
+  const total = settings.dailyCount;
+  const batchSize = 5;
+  const batches = [];
+  let remaining = total;
+  while (remaining > 0) {
+    batches.push(Math.min(batchSize, remaining));
+    remaining -= batchSize;
+  }
+
   const themeHint = settings.themes ? `偏好主题：${settings.themes}。` : '主题随机，覆盖日常各种场景。';
-  const prompt = `请为日语水平 ${settings.level} 的学习者推荐 ${settings.dailyCount} 个实用日常日语句子。${themeHint}
+  const buildPrompt = (n, batchIdx) => `请为日语水平 ${settings.level} 的学习者推荐 ${n} 个实用日常日语句子。${themeHint}（这是第 ${batchIdx + 1} 批，请和其他批的句子在场景上尽量不重复）
 
 要求：
 - 真实日本人会说的口语，不要教科书句
-- 涵盖不同生活场景（寒暄/购物/吃饭/工作/出行/SNS/日剧台词等）
-- 难度匹配 ${settings.level}
-- 每句配一个简短的场景标签
+- 涵盖不同生活场景
+- 每句配一个简短场景标签
+- breakdown 只挑 2-3 个对 ${settings.level} 重要的词，meaning 用中文，控制简短
 
-返回 JSON 数组（只返回数组，不要其他文字、不要markdown）：
-[
-  {
-    "jp": "日本語の文",
-    "reading": "完整假名读音",
-    "cn": "自然中文翻译",
-    "breakdown": [{"word":"词","reading":"假名","meaning":"中文"}],
-    "grammar": "核心语法点（一句话，没有就空字符串）",
-    "scene": "场景标签（如：日常寒暄）"
-  }
-]`;
+只返回 JSON 数组，不要markdown，不要其他文字：
+[{"jp":"日本語の文","reading":"假名","cn":"中文","breakdown":[{"word":"","reading":"","meaning":""}],"grammar":"一句话或空字符串","scene":"场景标签"}]`;
 
-  const result = await callDS(prompt, '你是小豆，温柔的日语老师。只输出纯JSON数组。', { maxTokens: 8000, timeoutMs: 120000 });
+  // 并发发请求
+  const promises = batches.map((n, i) =>
+    callDS(buildPrompt(n, i), '你是小豆，温柔的日语老师。只输出纯JSON数组，简短。', { maxTokens: 3000, timeoutMs: 90000 })
+      .then(r => r ? salvageSentenceArray(r) : [])
+      .catch(() => [])
+  );
+
+  const results = await Promise.all(promises);
   if (btn) { btn.textContent = `🌱 让小豆推今天的 ${settings.dailyCount} 句`; btn.disabled = false; }
-  if (!result) return;
 
-  let arr;
-  try {
-    const clean = result.replace(/```json|```/g, '').trim();
-    arr = JSON.parse(clean);
-    if (!Array.isArray(arr)) throw new Error('not array');
-  } catch(e) {
-    // 兜底：宽容解析 — 即使 JSON 被截断也尽量捞出完整的句子对象
-    arr = salvageSentenceArray(result);
-    if (!arr.length) {
-      alert('小豆这次没推好，再点一次试试？\n' + e.message);
-      return;
-    }
-    console.warn('salvaged ' + arr.length + ' sentences from truncated JSON');
+  const merged = [].concat(...results);
+  if (!merged.length) {
+    alert('小豆这次一句都没推回来，看看 API 余额够不够？\n或者去设置里把数量调小再试试');
+    return;
   }
 
   const all = getSentences();
   const baseTime = Date.now();
-  arr.forEach((s, i) => {
+  merged.forEach((s, i) => {
     if (!s.jp) return;
     all.push({
       id: 'sent_' + baseTime + '_' + i,
@@ -3321,6 +3319,9 @@ async function fetchDailySentences() {
   save(lastPushKey, true);
   renderSentencesPage();
   updateStudyHubStats();
+  if (merged.length < total) {
+    setTimeout(() => alert(`小豆推回来 ${merged.length} 句（原计划 ${total}）～其余的去设置里"重抽今天的"再来一次就好`), 100);
+  }
 }
 
 function resetTodaySentences() {
