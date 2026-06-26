@@ -3217,6 +3217,39 @@ breakdown 只列 2-5 个对 N4 学习者重要的词。只返回JSON，不要mar
 }
 
 // ───── Daily push from 小豆 ─────
+// 宽容 JSON 解析：扫描字符串里完整的 {...} 对象逐个 JSON.parse，丢掉残缺的最后一个
+function salvageSentenceArray(raw) {
+  if (!raw) return [];
+  const text = raw.replace(/```json|```/g, '');
+  const objects = [];
+  let depth = 0, start = -1, inStr = false, esc = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === '\\') esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') { inStr = true; continue; }
+    if (c === '{') {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (c === '}') {
+      depth--;
+      if (depth === 0 && start !== -1) {
+        const chunk = text.slice(start, i + 1);
+        try {
+          const obj = JSON.parse(chunk);
+          if (obj && obj.jp) objects.push(obj);
+        } catch {}
+        start = -1;
+      }
+    }
+  }
+  return objects;
+}
+
 async function fetchDailySentences() {
   const settings = getSentSettings();
   const today = todayKey();
@@ -3249,7 +3282,7 @@ async function fetchDailySentences() {
   }
 ]`;
 
-  const result = await callDS(prompt, '你是小豆，温柔的日语老师。只输出纯JSON数组。', { maxTokens: 4000, timeoutMs: 90000 });
+  const result = await callDS(prompt, '你是小豆，温柔的日语老师。只输出纯JSON数组。', { maxTokens: 8000, timeoutMs: 120000 });
   if (btn) { btn.textContent = `🌱 让小豆推今天的 ${settings.dailyCount} 句`; btn.disabled = false; }
   if (!result) return;
 
@@ -3259,8 +3292,13 @@ async function fetchDailySentences() {
     arr = JSON.parse(clean);
     if (!Array.isArray(arr)) throw new Error('not array');
   } catch(e) {
-    alert('小豆这次没推好，再点一次试试？\n' + e.message);
-    return;
+    // 兜底：宽容解析 — 即使 JSON 被截断也尽量捞出完整的句子对象
+    arr = salvageSentenceArray(result);
+    if (!arr.length) {
+      alert('小豆这次没推好，再点一次试试？\n' + e.message);
+      return;
+    }
+    console.warn('salvaged ' + arr.length + ' sentences from truncated JSON');
   }
 
   const all = getSentences();
