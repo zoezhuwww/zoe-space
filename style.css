@@ -3,6 +3,7 @@
   --bg-cream: #FBF6F2;
   --bg-cream-deep: #F6EDE7;
   --bg-card: #FFFFFF;
+  --bg-soft: #F3EEEB;
   --rose-mist: #F8E8E8;
   --rose-soft: #F4DDDD;
   --rose-light: #E8B4B8;
@@ -11,6 +12,7 @@
   --text-mute: #A89A95;
   --text-soft: #C4B6B0;
   --divider: #E8DDD7;
+  --border-soft: #E8DDD7;
   --font-display: 'Cormorant Garamond', 'Noto Serif SC', serif;
   --font-serif-zh: 'Noto Serif SC', serif;
   --font-sans-zh: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -359,7 +361,7 @@ body {
   letter-spacing: 0.1em;
 }
 
-/* Daily card */
+/* DEPRECATED: Daily card — old design, no matching HTML elements
 .daily-card {
   margin: 0 24px 20px;
   background: var(--bg-card);
@@ -406,6 +408,7 @@ body {
   letter-spacing: 0.2em;
   margin-top: 10px; text-align: right;
 }
+*/
 
 /* Info cards */
 .info-card {
@@ -457,11 +460,12 @@ body {
 .todo-text { flex: 1; }
 .todo-item.done .todo-text { text-decoration: line-through; }
 
-/* Study summary */
+/* DEPRECATED: .study-content — no matching HTML element
 .study-content {
   display: flex; justify-content: space-between;
   align-items: center;
 }
+*/
 .study-stats {
   font-family: var(--font-sans-zh);
   font-size: 12px; color: var(--text-warm);
@@ -479,7 +483,7 @@ body {
   letter-spacing: 0.05em; cursor: pointer;
 }
 
-/* Fund */
+/* DEPRECATED: old fund page layout — replaced by current fund page design
 .fund-balance {
   display: flex; justify-content: space-between;
   align-items: baseline; margin-bottom: 12px;
@@ -510,6 +514,7 @@ body {
   font-family: var(--font-display);
   letter-spacing: 0.15em; font-style: italic;
 }
+*/
 .engraving { color: var(--rose-deep); font-style: italic; }
 
 /* Habits */
@@ -534,7 +539,7 @@ body {
   font-family: var(--font-sans-zh);
 }
 
-/* Mood */
+/* DEPRECATED: .mood-card/.mood-row/.mood-dots — HTML uses .diary-mood-dots instead
 .mood-card {
   margin: 0 24px 28px;
   background: var(--bg-card);
@@ -547,6 +552,7 @@ body {
   align-items: center;
 }
 .mood-dots { display: flex; gap: 10px; }
+*/
 .mood-dot {
   width: 18px; height: 18px; border-radius: 50%;
   cursor: pointer; transition: all 0.2s;
@@ -1088,6 +1094,7 @@ body {
   font-size: 48px; font-weight: 300;
   color: var(--text-warm);
 }
+/* DEPRECATED: fund page elements with no matching HTML
 .fund-big-goal {
   font-family: var(--font-display);
   font-style: italic; font-size: 14px;
@@ -1103,6 +1110,7 @@ body {
   background: linear-gradient(90deg, var(--rose-light), var(--rose-deep));
   border-radius: 4px; transition: width 0.6s ease;
 }
+*/
 .fund-engraving-card {
   text-align: center;
   padding: 16px;
@@ -2111,7 +2119,7 @@ body {
 }
 .celebration-dismiss:active { color: var(--rose-deep); }
 
-/* ═══════════ Study Section Divider ═══════════ */
+/* DEPRECATED: .study-section-divider — no matching HTML element
 .study-section-divider {
   font-family: var(--font-display);
   font-size: 10px;
@@ -2120,6 +2128,7 @@ body {
   padding: 12px 0 6px;
   text-align: center;
 }
+*/
 
 /* ═══════════ Speaking Practice Page ═══════════ */
 .speak-lang-toggle {
@@ -2311,14 +2320,14 @@ body {
   --theme-transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 body, .app-header, .sidebar, .info-card, .day-card, .grammar-card,
-.translate-question-card, .translate-result-card, .game-card,
-.mistake-card, .countdown-card, .study-hub-card, .anni-list,
+.translate-prompt-card, .translate-result-card, .game-card,
+.mistake-card, .countdown-item, .study-hub-card, .anni-list,
 .flashcard, .anki-btn, .speak-topic-card, .speak-playback,
 .speak-transcript-box, .speak-review-box, .diary-textarea,
-.fund-engraving-card, .dpi-card, .fund-history-card, .modal-sheet,
-.celebration-card, .recipe-content, .api-detail .api-month-card,
-.api-detail .api-breakdown-card, .api-detail .api-day-card,
-.api-detail .api-tip-card, .todo-input, .food-input, .weight-input,
+.fund-engraving-card, .diary-past-item, .fund-history-item, .modal-sheet,
+.celebration-card, .recipe-content, .api-detail .api-balance-card,
+.api-detail .api-breakdown, .api-detail .api-day-bar-container,
+.todo-input, .food-input, .weight-input,
 .todo-deadline-input, .modal-input, .grammar-search-input,
 .diary-claude-greeting, .backup-banner {
   transition: var(--theme-transition);
@@ -2328,6 +2337,7 @@ html[data-theme="dark"] {
   --bg-cream:       #1A1416;   /* main background — deep warm */
   --bg-cream-deep:  #221A1D;   /* slight elevation */
   --bg-card:        #2A2025;   /* card surface */
+  --bg-soft:        #2D2228;   /* softer surface between bg-cream and bg-card */
   --rose-mist:      #3A2A2F;   /* hover / active tint */
   --rose-soft:      #4A333A;
   --rose-light:     #E0A2A8;   /* primary rose accent */
@@ -2336,6 +2346,7 @@ html[data-theme="dark"] {
   --text-mute:      #A89690;
   --text-soft:      #76665F;
   --divider:        #3A2D30;
+  --border-soft:    #3A2D30;
 }
 
 /* Header gradient — pure dark fade so it blends */
@@ -2351,22 +2362,21 @@ html[data-theme="dark"] .sidebar-overlay {
 /* Card shadows — use black instead of rose for proper depth on dark */
 html[data-theme="dark"] .info-card,
 html[data-theme="dark"] .grammar-card,
-html[data-theme="dark"] .translate-question-card,
+html[data-theme="dark"] .translate-prompt-card,
 html[data-theme="dark"] .translate-result-card,
 html[data-theme="dark"] .game-card,
 html[data-theme="dark"] .mistake-card,
-html[data-theme="dark"] .countdown-card,
+html[data-theme="dark"] .countdown-item,
 html[data-theme="dark"] .study-hub-card,
 html[data-theme="dark"] .speak-playback,
 html[data-theme="dark"] .speak-transcript-box,
 html[data-theme="dark"] .speak-review-box,
 html[data-theme="dark"] .recipe-content,
-html[data-theme="dark"] .dpi-card,
-html[data-theme="dark"] .fund-history-card,
-html[data-theme="dark"] .api-month-card,
-html[data-theme="dark"] .api-breakdown-card,
-html[data-theme="dark"] .api-day-card,
-html[data-theme="dark"] .api-tip-card,
+html[data-theme="dark"] .diary-past-item,
+html[data-theme="dark"] .fund-history-item,
+html[data-theme="dark"] .api-balance-card,
+html[data-theme="dark"] .api-breakdown,
+html[data-theme="dark"] .api-day-bar-container,
 html[data-theme="dark"] .day-card {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
@@ -2723,7 +2733,7 @@ html[data-theme="dark"] .sent-action-btn { background: var(--bg-card); }
 
 /* ═══════════ Dashboard v2 — visual hierarchy ═══════════ */
 
-/* 在一起 占满宽度，作为感情主角 */
+/* DEPRECATED: .day-card-wide — dashboard uses .day-card.t1/.t3, not .day-card-wide
 .day-card-wide {
   width: 100%; margin-bottom: 10px;
   padding: 22px 24px;
@@ -2738,8 +2748,9 @@ html[data-theme="dark"] .sent-action-btn { background: var(--bg-card); }
   font-family: var(--font-display, 'Playfair Display'), 'Noto Serif SC', serif;
 }
 .day-card-wide .day-unit { font-size: 14px; opacity: 0.7; }
+*/
 
-/* 日语 主 CTA 卡 — 微微的暖色调强调 */
+/* DEPRECATED: .info-card-feature and children — HTML uses plain .info-card
 .info-card-feature {
   background: linear-gradient(180deg, var(--bg-card), var(--bg-card)) padding-box,
               linear-gradient(135deg, var(--rose-deep), transparent) border-box;
@@ -2788,6 +2799,7 @@ html[data-theme="dark"] .sent-action-btn { background: var(--bg-card); }
 .jp-last-cn {
   font-size: 11px; color: var(--text-soft); margin-top: 4px; line-height: 1.4;
 }
+*/
 
 /* 基金最近一笔 */
 .fund-last-preview {

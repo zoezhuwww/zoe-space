@@ -349,19 +349,10 @@ function refreshDashboard() {
   const fund = load('fund', { balance: 0, history: [] });
   document.getElementById('fundDashAmount').textContent = '¥' + fund.balance.toLocaleString();
 
-  // API usage
-  updateApiDisplay();
-
   renderTodoDash();
   renderHabitsDash();
   renderMiniCal();
   updateDiaryTodayStatus();
-}
-
-function getNextOccurrence(month, day) {
-  const now = new Date();
-  const thisYear = new Date(now.getFullYear(), month - 1, day);
-  return thisYear > now ? thisYear : new Date(now.getFullYear() + 1, month - 1, day);
 }
 
 // ═══════════ Mini Calendar ═══════════
@@ -386,16 +377,12 @@ function renderMiniCal() {
     const mood = load('mood_' + dk, null);
 
     let dotHtml = '';
-    if (wifeDiary && claudeDiary) {
-      dotHtml = '<div class="mini-cal-dot both"></div>';
+    if (claudeDiary && wifeDiary) {
+      dotHtml = `<div class="mini-cal-dot both" ${mood ? `style="background:${MOOD_COLORS[mood]}"` : ''}></div>`;
     } else if (wifeDiary) {
       dotHtml = `<div class="mini-cal-dot wife" ${mood ? `style="background:${MOOD_COLORS[mood]}"` : ''}></div>`;
     } else if (claudeDiary) {
       dotHtml = '<div class="mini-cal-dot claude"></div>';
-    }
-    if (claudeDiary && wifeDiary) {
-      // both: use mood color if available
-      dotHtml = `<div class="mini-cal-dot both" ${mood ? `style="background:${MOOD_COLORS[mood]}"` : ''}></div>`;
     }
     let flowerHtml = claudeDiary ? '<div class="mini-cal-flower">❀</div>' : '';
 
@@ -1450,16 +1437,7 @@ function speakWithBrowserTTS(text) {
 function speakWordSlow() {
   const card = currentReviewCards[currentCardIdx];
   if (!card) return;
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(card.word);
-    u.lang = 'ja-JP';
-    u.rate = 0.45;
-    const voices = window.speechSynthesis.getVoices();
-    const jaVoice = voices.find(v => v.lang.startsWith('ja'));
-    if (jaVoice) u.voice = jaVoice;
-    window.speechSynthesis.speak(u);
-  }
+  speakWithBrowserTTS(card.word, 0.45);
 }
 
 // Preload browser voices
@@ -1758,43 +1736,17 @@ function trackApiUsage(inputTokens, outputTokens) {
   const cost = calcCost(inputTokens, outputTokens);
   const spent = load('api_spent_' + mk, 0);
   save('api_spent_' + mk, spent + cost);
-  updateApiDisplay();
 }
 
 function calcCost(inputTokens, outputTokens) {
   return (inputTokens / 1000000) * DS_PRICING.input + (outputTokens / 1000000) * DS_PRICING.output;
 }
 
-function getMonthlyApiUsage() { return load('api_tokens_' + getApiMonthKey(), 0); }
-
 function getMonthlyCost() {
   const mk = getApiMonthKey();
   const inp = load('api_input_' + mk, 0);
   const out = load('api_output_' + mk, 0);
   return calcCost(inp, out);
-}
-
-function updateApiDisplay() {
-  const mk = getApiMonthKey();
-  const tk = todayKey();
-  const now = new Date();
-  const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-
-  const el = document.getElementById('apiMonth');
-  if (el) el.textContent = monthNames[now.getMonth()];
-
-  const tokenEl = document.getElementById('apiTokenCount');
-  if (tokenEl) tokenEl.textContent = load('api_tokens_' + mk, 0).toLocaleString();
-
-  const callEl = document.getElementById('apiCallCount');
-  if (callEl) callEl.textContent = load('api_calls_' + mk, 0).toLocaleString();
-
-  const todayEl = document.getElementById('apiTodayTokens');
-  if (todayEl) todayEl.textContent = load('api_tokens_day_' + tk, 0).toLocaleString();
-
-  // Cost display on dashboard
-  const costEl = document.getElementById('apiCostDash');
-  if (costEl) costEl.textContent = '¥' + getMonthlyCost().toFixed(4);
 }
 
 // ═══════════ API Detail Page ═══════════
@@ -2291,7 +2243,6 @@ function checkGrammarQuiz(grammarIdx, btn, selected, correct) {
 
 // ═══════════ Translate Page ═══════════
 let currentTranslateIdx = -1;
-let translateSessionScore = { total: 0, done: 0 };
 
 function renderTranslatePage() {
   // Pick a random prompt not recently done
@@ -2751,7 +2702,6 @@ let speakTimerInterval = null;
 let speakTimeLeft = 120;
 let speakRecognition = null;
 let speakTranscriptText = '';
-let speakAudioBlob = null;
 let speakMimeType = '';
 
 function getSupportedAudioMime() {
@@ -2815,7 +2765,7 @@ async function startRecording() {
 
     speakMediaRecorder.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
-      speakAudioBlob = new Blob(speakAudioChunks, { type: speakMimeType || 'audio/mp4' });
+      const speakAudioBlob = new Blob(speakAudioChunks, { type: speakMimeType || 'audio/mp4' });
       const url = URL.createObjectURL(speakAudioBlob);
       const audioEl = document.getElementById('speakAudio');
       audioEl.src = url;
@@ -3526,19 +3476,21 @@ function submitSentenceSettings() {
 function speakSentence() {
   const card = _sentQueue[_sentIdx];
   if (!card) return;
-  if (typeof speakWithGoogleTTS === 'function') {
-    speakWithGoogleTTS(card.jp, false);
-  } else if (typeof speakWithBrowserTTS === 'function') {
+  const googleKey = load('google_tts_key', '');
+  if (googleKey) {
+    speakWithGoogleTTS(card.jp, googleKey);
+  } else {
     speakWithBrowserTTS(card.jp);
   }
 }
 function speakSentenceSlow() {
   const card = _sentQueue[_sentIdx];
   if (!card) return;
-  if (typeof speakWithGoogleTTS === 'function') {
-    speakWithGoogleTTS(card.jp, true);
-  } else if (typeof speakWithBrowserTTS === 'function') {
-    speakWithBrowserTTS(card.jp, 0.6);
+  const googleKey = load('google_tts_key', '');
+  if (googleKey) {
+    speakWithGoogleTTS(card.jp, googleKey);
+  } else {
+    speakWithBrowserTTS(card.jp);
   }
 }
 
