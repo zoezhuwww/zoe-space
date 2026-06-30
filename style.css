@@ -1913,33 +1913,154 @@ body {
 }
 .fi-time { font-size: 10px; color: var(--text-soft); }
 
-.weight-row {
-  display: flex; align-items: center; gap: 8px;
+/* ── Food / Weight Tab switcher ── */
+.food-tabs {
+  display: flex;
+  margin: 0 24px 16px;
+  background: var(--rose-mist);
+  border-radius: 10px;
+  padding: 3px;
 }
-.weight-input {
-  width: 80px; border: none;
+.food-tab {
+  flex: 1; text-align: center;
+  padding: 7px 0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--font-sans-zh);
+  color: var(--text-mute);
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.food-tab.active {
+  background: var(--bg-card);
+  color: var(--rose-deep);
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ── Weight Tab — input group ── */
+.w-input-group {
+  margin: 0 24px 16px;
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 8px rgba(196,123,123,0.05);
+}
+.w-input-row {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 12px;
+}
+.w-date-input {
+  flex: 1; border: none;
+  border-bottom: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--font-sans-zh);
+  font-size: 13px; color: var(--text-warm);
+  outline: none; padding: 4px 0;
+}
+.w-num-input {
+  width: 68px; border: none;
   border-bottom: 1.5px solid var(--divider);
   background: transparent;
   font-family: var(--font-display);
-  font-size: 24px; font-weight: 300;
+  font-size: 26px; font-weight: 300;
   color: var(--text-warm);
-  text-align: center; padding: 4px 0;
-  outline: none;
+  text-align: center; padding: 4px 0; outline: none;
 }
-.weight-input:focus { border-color: var(--rose-light); }
-.weight-input::placeholder { color: var(--text-soft); font-size: 20px; }
-.weight-unit {
+.w-num-input:focus { border-color: var(--rose-light); }
+.w-num-input::placeholder { color: var(--text-soft); font-size: 20px; }
+.w-unit {
   font-family: var(--font-display);
   font-style: italic; font-size: 13px;
   color: var(--text-mute);
 }
-.weight-save-btn {
-  border: none; background: var(--rose-light);
-  color: white; padding: 6px 14px;
-  border-radius: 10px; font-size: 12px;
+.w-note-input {
+  width: 100%; border: none;
+  border-bottom: 1px solid var(--divider);
+  background: transparent;
   font-family: var(--font-sans-zh);
-  cursor: pointer;
+  font-size: 13px; color: var(--text-warm);
+  outline: none; padding: 4px 0; margin-bottom: 14px;
 }
+.w-note-input::placeholder { color: var(--text-soft); }
+.w-save-btn {
+  width: 100%; padding: 10px;
+  background: var(--rose-light); border: none;
+  border-radius: 10px; color: white;
+  font-family: var(--font-sans-zh);
+  font-size: 13px; cursor: pointer;
+  transition: opacity 0.2s;
+}
+.w-save-btn:active { opacity: 0.8; }
+
+/* ── Weight List ── */
+.w-list { padding: 0 24px; margin-bottom: 8px; }
+.w-record-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.w-record-date { font-size: 12px; color: var(--text-mute); }
+.w-record-weight {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 300;
+  color: var(--text-warm);
+}
+.w-record-unit { font-size: 11px; color: var(--text-mute); font-style: italic; }
+.w-record-note {
+  font-size: 11px; color: var(--text-soft);
+  white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; max-width: 80px;
+}
+.w-delete-btn {
+  border: none; background: none;
+  color: var(--text-soft);
+  font-size: 16px; cursor: pointer;
+  padding: 0 4px; line-height: 1;
+}
+.w-empty {
+  text-align: center; padding: 24px;
+  color: var(--text-soft); font-size: 12px;
+}
+
+/* ── Weight Chart ── */
+.w-chart-section { margin: 8px 24px 32px; }
+.w-chart-toggle {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+.w-toggle-btn {
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--text-mute);
+  padding: 4px 14px;
+  border-radius: 8px; font-size: 12px;
+  font-family: var(--font-sans-zh);
+  cursor: pointer; transition: all 0.2s;
+}
+.w-toggle-btn.active {
+  border-color: var(--rose-light);
+  color: var(--rose-deep);
+  background: var(--rose-mist);
+}
+.w-chart-svg { overflow: visible; display: block; }
+.w-chart-line {
+  stroke: var(--rose-deep); stroke-width: 1.5; fill: none;
+  stroke-linejoin: round; stroke-linecap: round;
+}
+.w-chart-dot { fill: var(--rose-deep); }
+.w-chart-grid { stroke: var(--divider); stroke-width: 0.5; }
+.w-chart-label {
+  font-size: 8px; fill: var(--text-soft);
+  font-family: var(--font-sans-zh);
+}
+.w-chart-empty {
+  text-align: center; padding: 32px 0;
+  color: var(--text-soft); font-size: 12px;
+}
+
 .food-action-btn {
   width: 100%; padding: 12px;
   border: 1.5px solid var(--rose-light);
@@ -2327,7 +2448,7 @@ body, .app-header, .sidebar, .info-card, .day-card, .grammar-card,
 .fund-engraving-card, .diary-past-item, .fund-history-item, .modal-sheet,
 .celebration-card, .recipe-content, .api-detail .api-balance-card,
 .api-detail .api-breakdown, .api-detail .api-day-bar-container,
-.todo-input, .food-input, .weight-input,
+.todo-input, .food-input, .w-date-input, .w-num-input, .w-note-input,
 .todo-deadline-input, .modal-input, .grammar-search-input,
 .diary-claude-greeting, .backup-banner {
   transition: var(--theme-transition);
@@ -2396,7 +2517,9 @@ html[data-theme="dark"] .day-card.t4 { background: #2B1F24; }
 html[data-theme="dark"] .diary-textarea,
 html[data-theme="dark"] .todo-input,
 html[data-theme="dark"] .food-input,
-html[data-theme="dark"] .weight-input,
+html[data-theme="dark"] .w-date-input,
+html[data-theme="dark"] .w-num-input,
+html[data-theme="dark"] .w-note-input,
 html[data-theme="dark"] .todo-deadline-input,
 html[data-theme="dark"] .modal-input,
 html[data-theme="dark"] .grammar-search-input {
@@ -2521,118 +2644,27 @@ html[data-theme="dark"] .sidebar-item.active .si-icon svg {
 }
 
 
-/* ═══════════════════════════════════════════════════
-   ✦ Weight monitoring — sparkline + stats
-   ═══════════════════════════════════════════════════ */
-.weight-chart-wrap {
-  margin-top: 14px;
-  height: 64px;
-  position: relative;
-}
-.weight-chart-wrap svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-  overflow: visible;
-}
-.weight-chart-line {
-  fill: none;
-  stroke: var(--rose-light);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-.weight-chart-area {
-  fill: var(--rose-mist);
-  opacity: 0.55;
-}
-html[data-theme="dark"] .weight-chart-area {
-  opacity: 0.35;
-}
-.weight-chart-dot {
-  fill: var(--rose-deep);
-  stroke: var(--bg-card);
-  stroke-width: 1.5;
-  vector-effect: non-scaling-stroke;
-}
-.weight-chart-goal {
-  stroke: var(--text-soft);
-  stroke-width: 1;
-  stroke-dasharray: 3 3;
-  fill: none;
-  vector-effect: non-scaling-stroke;
-}
-.weight-chart-goal-label {
-  fill: var(--text-soft);
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 9px;
-}
-.weight-chart-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 12px;
-  color: var(--text-soft);
-  letter-spacing: 0.02em;
-}
-.weight-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--divider);
-}
-.weight-stat {
-  text-align: center;
-  -webkit-tap-highlight-color: transparent;
-}
-.weight-stat-label {
-  font-family: var(--font-display);
-  font-size: 9px;
-  letter-spacing: 0.22em;
-  color: var(--text-soft);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.weight-stat-value {
-  font-family: var(--font-serif-zh);
-  font-size: 15px;
-  color: var(--text-warm);
-  font-weight: 500;
-  letter-spacing: 0.01em;
-}
-.weight-stat-value .unit {
-  font-size: 10px;
-  color: var(--text-soft);
-  font-weight: 400;
-  margin-left: 1px;
-}
-.weight-stat-value.dim {
-  color: var(--text-soft);
-  font-weight: 400;
-  font-style: italic;
-  font-family: var(--font-display);
-}
-.weight-stat.goal-stat {
-  cursor: pointer;
-}
-.weight-stat.goal-stat .weight-stat-value {
-  color: var(--rose-deep);
-}
-.weight-stat.goal-stat:active {
-  opacity: 0.6;
-}
-
-/* Trend chip in card-meta — color hint */
+/* DEPRECATED: old weight monitoring sparkline + stats — removed in favour of weight tab
+.weight-chart-wrap { margin-top: 14px; height: 64px; position: relative; }
+.weight-chart-wrap svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.weight-chart-line { fill: none; stroke: var(--rose-light); stroke-width: 1.6; }
+.weight-chart-area { fill: var(--rose-mist); opacity: 0.55; }
+html[data-theme="dark"] .weight-chart-area { opacity: 0.35; }
+.weight-chart-dot { fill: var(--rose-deep); stroke: var(--bg-card); stroke-width: 1.5; }
+.weight-chart-goal { stroke: var(--text-soft); stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+.weight-chart-goal-label { fill: var(--text-soft); font-size: 9px; }
+.weight-chart-empty { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 12px; color: var(--text-soft); }
+.weight-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.weight-stat { text-align: center; }
+.weight-stat-label { font-size: 9px; color: var(--text-soft); margin-bottom: 4px; }
+.weight-stat-value { font-size: 15px; color: var(--text-warm); }
+.weight-stat-value .unit { font-size: 10px; color: var(--text-soft); }
+.weight-stat-value.dim { color: var(--text-soft); }
+.weight-stat.goal-stat { cursor: pointer; }
+.weight-stat.goal-stat .weight-stat-value { color: var(--rose-deep); }
 #weightTrend.up { color: var(--rose-deep); }
 #weightTrend.down { color: #7BAF7B; }
-html[data-theme="dark"] #weightTrend.down { color: #A8D5A8; }
+*/
 
 
 /* ═══════════ Sentence Card Page ═══════════ */

@@ -931,162 +931,140 @@ function renderFoodDiary() {
 
   const totalEl = document.getElementById('foodTotalCal');
   if (totalEl) totalEl.textContent = totalCal > 0 ? `~${totalCal} kcal` : '';
-
-  // Load weight
-  const weight = load('weight_' + todayKey(), null);
-  if (weight) document.getElementById('weightInput').value = weight;
-  renderWeightMonitor();
 }
 
-// ═══════════ Weight Monitor (sparkline + stats) ═══════════
-function getAllWeights() {
-  const arr = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (!key || !key.startsWith('zoe_weight_')) continue;
-    if (key === 'zoe_weight_goal') continue;
-    const date = key.replace('zoe_weight_', '');
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
-    try {
-      const v = parseFloat(JSON.parse(localStorage.getItem(key)));
-      if (!isNaN(v)) arr.push({ date, value: v });
-    } catch {}
-  }
-  arr.sort((a, b) => a.date < b.date ? -1 : 1);
-  return arr;
+// ═══════════ Food / Weight Tab Switch ═══════════
+function switchFoodTab(tab) {
+  document.getElementById('panel-food').style.display = tab === 'food' ? '' : 'none';
+  document.getElementById('panel-weight').style.display = tab === 'weight' ? '' : 'none';
+  document.getElementById('tab-food').classList.toggle('active', tab === 'food');
+  document.getElementById('tab-weight').classList.toggle('active', tab === 'weight');
+  if (tab === 'weight') renderWeightTab();
 }
 
-function renderWeightMonitor() {
-  const all = getAllWeights();
-  const today = todayKey();
-  const todayRec = all.find(r => r.date === today);
-  const todayVal = todayRec ? todayRec.value : null;
+// ═══════════ Weight Tab ═══════════
+let _weightChartRange = '3m';
 
-  // ─── Trend chip (vs best baseline in last 14 days) ───
-  const trendEl = document.getElementById('weightTrend');
-  trendEl.classList.remove('up', 'down');
-  trendEl.textContent = '';
-  if (todayVal) {
-    // Find most recent prior record within 14 days, preferring 7-day mark
-    let baseline = null, baseDays = 0;
-    for (let d = 7; d <= 14; d++) {
-      const r = all.find(x => x.date === offsetDate(-d));
-      if (r) { baseline = r.value; baseDays = d; break; }
-    }
-    if (!baseline) {
-      for (let d = 1; d <= 6; d++) {
-        const r = all.find(x => x.date === offsetDate(-d));
-        if (r) { baseline = r.value; baseDays = d; break; }
-      }
-    }
-    if (baseline) {
-      const diff = todayVal - baseline;
-      const sign = diff > 0.05 ? '↑' : diff < -0.05 ? '↓' : '·';
-      trendEl.textContent = `${baseDays}天 ${sign} ${Math.abs(diff).toFixed(1)} kg`;
-      if (diff > 0.05) trendEl.classList.add('up');
-      else if (diff < -0.05) trendEl.classList.add('down');
-    }
-  }
+function getWeightRecords() {
+  return load('weight_records', []);
+}
 
-  // ─── Sparkline (last 30 days) ───
-  const wrap = document.getElementById('weightChartWrap');
-  const days = 30;
-  const dates = [];
-  for (let i = days - 1; i >= 0; i--) dates.push(offsetDate(-i));
-  const points = dates.map(d => {
-    const r = all.find(x => x.date === d);
-    return r ? r.value : null;
-  });
-  const valid = points.map((v, i) => v === null ? null : { x: i, v }).filter(p => p !== null);
-  const goal = load('weight_goal', null);
+function renderWeightTab() {
+  const dateEl = document.getElementById('wDate');
+  if (dateEl && !dateEl.value) dateEl.value = todayKey();
+  const records = getWeightRecords();
+  renderWeightList(records);
+  renderWeightChart(records);
+}
 
-  if (valid.length < 2) {
-    wrap.innerHTML = '<div class="weight-chart-empty">' +
-      (valid.length === 0 ? '还没有记录哦～' : '再记一次就有趋势图啦') +
-      '</div>';
+function saveWeightRecord() {
+  const date = document.getElementById('wDate').value;
+  const val = parseFloat(document.getElementById('wKg').value);
+  const note = document.getElementById('wNote').value.trim();
+  if (!date || isNaN(val) || val <= 0) return;
+
+  const records = getWeightRecords();
+  const idx = records.findIndex(r => r.date === date);
+  if (idx >= 0) {
+    records[idx] = { date, weight: val, note };
   } else {
-    const vMin = Math.min(...valid.map(p => p.v), goal !== null ? goal : Infinity);
-    const vMax = Math.max(...valid.map(p => p.v), goal !== null ? goal : -Infinity);
-    const range = (vMax - vMin) || 1;
-    const W = 100, H = 100, padTop = 10, padBot = 8;
-    const usableH = H - padTop - padBot;
-    const stepX = W / (days - 1);
-    const toY = v => padTop + usableH * (1 - (v - vMin) / range);
+    records.push({ date, weight: val, note });
+  }
+  records.sort((a, b) => (a.date < b.date ? -1 : 1));
+  save('weight_records', records);
 
-    const coords = valid.map(p => ({
-      x: p.x * stepX,
-      y: toY(p.v)
-    }));
-    const polyline = coords.map(c => `${c.x.toFixed(2)},${c.y.toFixed(2)}`).join(' ');
-    const last = coords[coords.length - 1];
-    const first = coords[0];
-    const area = `M${first.x.toFixed(2)},${H} L${coords.map(c => `${c.x.toFixed(2)},${c.y.toFixed(2)}`).join(' L')} L${last.x.toFixed(2)},${H} Z`;
+  document.getElementById('wKg').value = '';
+  document.getElementById('wNote').value = '';
+  renderWeightList(records);
+  renderWeightChart(records);
+}
 
-    let goalEls = '';
-    if (goal !== null && goal >= vMin && goal <= vMax) {
-      const gy = toY(goal).toFixed(2);
-      goalEls = `<line class="weight-chart-goal" x1="0" y1="${gy}" x2="${W}" y2="${gy}"/>` +
-                `<text class="weight-chart-goal-label" x="${W}" y="${(parseFloat(gy) - 2).toFixed(2)}" text-anchor="end">goal ${goal.toFixed(1)}</text>`;
-    }
+function deleteWeightRecord(date) {
+  const records = getWeightRecords().filter(r => r.date !== date);
+  save('weight_records', records);
+  renderWeightList(records);
+  renderWeightChart(records);
+}
 
-    wrap.innerHTML = `
-      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-        ${goalEls}
-        <path class="weight-chart-area" d="${area}"/>
-        <polyline class="weight-chart-line" points="${polyline}"/>
-        <circle class="weight-chart-dot" cx="${last.x.toFixed(2)}" cy="${last.y.toFixed(2)}" r="2.5"/>
-      </svg>
-    `;
+function renderWeightList(records) {
+  const el = document.getElementById('wList');
+  if (!records.length) {
+    el.innerHTML = '<div class="w-empty">还没有记录～</div>';
+    return;
+  }
+  const recent = [...records].reverse().slice(0, 10);
+  el.innerHTML = recent.map(r => `
+    <div class="w-record-item">
+      <div class="w-record-date">${r.date}</div>
+      <div class="w-record-weight">${r.weight}<span class="w-record-unit"> 斤</span></div>
+      ${r.note ? `<div class="w-record-note">${escHtml(r.note)}</div>` : '<div></div>'}
+      <button class="w-delete-btn" onclick="deleteWeightRecord('${r.date}')">×</button>
+    </div>
+  `).join('');
+}
+
+function setWeightChartRange(range) {
+  _weightChartRange = range;
+  document.getElementById('wToggle3m').classList.toggle('active', range === '3m');
+  document.getElementById('wToggleAll').classList.toggle('active', range === 'all');
+  renderWeightChart(getWeightRecords());
+}
+
+function renderWeightChart(records) {
+  const el = document.getElementById('wChart');
+  if (!el) return;
+
+  let data = [...records].sort((a, b) => (a.date < b.date ? -1 : 1));
+  if (_weightChartRange === '3m') {
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - 3);
+    const cutStr = cutoff.toISOString().slice(0, 10);
+    data = data.filter(r => r.date >= cutStr);
   }
 
-  // ─── Stats: START / LOW / GOAL ───
-  const start = all.length ? all[0].value : null;
-  const lowest = all.length ? Math.min(...all.map(r => r.value)) : null;
-  const statsEl = document.getElementById('weightStats');
-  const startTxt = start !== null ? `${start.toFixed(1)}<span class="unit">kg</span>` : '—';
-  const lowTxt = lowest !== null ? `${lowest.toFixed(1)}<span class="unit">kg</span>` : '—';
-  const goalTxt = goal !== null ? `${goal.toFixed(1)}<span class="unit">kg</span>` : '设置';
-  statsEl.innerHTML = `
-    <div class="weight-stat">
-      <div class="weight-stat-label">START</div>
-      <div class="weight-stat-value ${start === null ? 'dim' : ''}">${startTxt}</div>
-    </div>
-    <div class="weight-stat">
-      <div class="weight-stat-label">LOW</div>
-      <div class="weight-stat-value ${lowest === null ? 'dim' : ''}">${lowTxt}</div>
-    </div>
-    <div class="weight-stat goal-stat" onclick="setWeightGoal()">
-      <div class="weight-stat-label">GOAL</div>
-      <div class="weight-stat-value ${goal === null ? 'dim' : ''}">${goalTxt}</div>
-    </div>
-  `;
-}
-
-function offsetDate(deltaDays) {
-  const d = new Date();
-  d.setDate(d.getDate() + deltaDays);
-  return dateKey(d);
-}
-
-function setWeightGoal() {
-  const cur = load('weight_goal', null);
-  const v = prompt('设定目标体重 (kg)\n留空可以清除目标', cur !== null ? cur : '');
-  if (v === null) return;
-  if (v.trim() === '') {
-    save('weight_goal', null);
-  } else {
-    const n = parseFloat(v);
-    if (isNaN(n) || n <= 0 || n > 300) { alert('请输入合理的数字～'); return; }
-    save('weight_goal', n);
+  if (data.length < 2) {
+    el.innerHTML = `<div class="w-chart-empty">${data.length === 0 ? '暂无数据' : '再记一次就有图表啦'}</div>`;
+    return;
   }
-  renderWeightMonitor();
-}
 
-function saveWeight() {
-  const val = parseFloat(document.getElementById('weightInput').value);
-  if (!val) return;
-  save('weight_' + todayKey(), val);
-  renderFoodDiary();
+  const W = 300, H = 140, padL = 38, padR = 10, padT = 10, padB = 28;
+  const usableW = W - padL - padR;
+  const usableH = H - padT - padB;
+
+  const weights = data.map(r => r.weight);
+  const minW = Math.min(...weights);
+  const maxW = Math.max(...weights);
+  const range = (maxW - minW) || 1;
+
+  const toX = i => padL + (i / (data.length - 1)) * usableW;
+  const toY = v => padT + usableH * (1 - (v - minW) / range);
+
+  const pts = data.map((r, i) => ({ x: toX(i), y: toY(r.weight) }));
+  const polyline = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+
+  // Y-axis: 3 grid lines
+  const yVals = [minW, (minW + maxW) / 2, maxW];
+  const yEls = yVals.map(v => {
+    const y = toY(v).toFixed(1);
+    return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" class="w-chart-grid"/>
+            <text x="${padL - 4}" y="${y}" text-anchor="end" dominant-baseline="middle" class="w-chart-label">${v.toFixed(1)}</text>`;
+  }).join('');
+
+  // X-axis: first / mid / last labels
+  const xIdxs = [0, Math.floor((data.length - 1) / 2), data.length - 1];
+  const xEls = xIdxs.map(i => {
+    const x = toX(i).toFixed(1);
+    return `<text x="${x}" y="${H - padB + 14}" text-anchor="middle" class="w-chart-label">${data[i].date.slice(5)}</text>`;
+  }).join('');
+
+  const dots = pts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" class="w-chart-dot"/>`).join('');
+
+  el.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" width="100%" class="w-chart-svg">
+      ${yEls}${xEls}
+      <polyline points="${polyline}" class="w-chart-line"/>
+      ${dots}
+    </svg>`;
 }
 
 document.getElementById('foodInput').addEventListener('keydown', e => { if (e.key === 'Enter') addFood(); });
