@@ -1030,6 +1030,30 @@
   </div>
 </div>
 
-<script src="app.js"></script>
+<!-- ╔════════════════ zoe-space 文件地图 ════════════════╗
+     想改某个功能？先在这儿找它在哪个文件，改完只动那一个文件即可：
+
+       core.js        地基：存储 · 自动备份 · 导出导入 · 时间工具
+       ui.js          框架：侧边栏 · 路由 · 弹窗 · 深浅色主题
+       ai.js          AI：DeepSeek 请求 · 用量统计 · API 详情页
+       life.js        生活：首页 · 待办 · 小克基金 · 习惯 · 倒计时 · 日记 · 纪念日 · 心情
+       health.js      健康：饮食日记 · 体重记录
+       nihongo.js     日语：词汇卡 · 语法 · 翻译 · 助词 · 错题 · 游戏
+       speaking.js    日语：口语练习
+       sentences.js   日语：句子卡
+       init.js        启动（★ 必须放最后，别动顺序）
+
+     ⚠️ 顺序不能乱：init.js 一定在最末。其余按下面顺序加载。
+     ↩︎ 想一键回滚到拆分前？把下面这一整段换回：<script src="app.js"></script>
+   ╚═══════════════════════════════════════════════════╝ -->
+<script src="core.js"></script>
+<script src="ui.js"></script>
+<script src="ai.js"></script>
+<script src="life.js"></script>
+<script src="health.js"></script>
+<script src="nihongo.js"></script>
+<script src="speaking.js"></script>
+<script src="sentences.js"></script>
+<script src="init.js"></script>
 </body>
 </html>

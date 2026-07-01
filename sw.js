@@ -6,7 +6,7 @@
 //   - 其它跨域 GET:                  network-first，回退缓存
 //   - API (DeepSeek / TTS):          直通，不缓存
 // ═══════════════════════════════════════════════════
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';   // 拆分 app.js → 9 个模块，升版本以清掉旧缓存
 const SHELL_CACHE = 'zoe-shell-' + CACHE_VERSION;
 const FONT_CACHE  = 'zoe-fonts-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'zoe-runtime-' + CACHE_VERSION;
@@ -15,7 +15,15 @@ const SHELL_ASSETS = [
   './',
   './index.html',
   './style.css',
-  './app.js',
+  './core.js',
+  './ui.js',
+  './ai.js',
+  './life.js',
+  './health.js',
+  './nihongo.js',
+  './speaking.js',
+  './sentences.js',
+  './init.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
