@@ -370,6 +370,7 @@
       <div class="food-tabs">
         <div class="food-tab active" id="tab-food" onclick="switchFoodTab('food')">饮食</div>
         <div class="food-tab" id="tab-weight" onclick="switchFoodTab('weight')">体重</div>
+        <div class="food-tab" id="tab-trend" onclick="switchFoodTab('trend')">趋势</div>
       </div>
 
       <!-- ── 饮食 面板 ── -->
@@ -429,6 +430,38 @@
             <button class="w-toggle-btn" id="wToggleAll" onclick="setWeightChartRange('all')">全部</button>
           </div>
           <div id="wChart"></div>
+        </div>
+      </div>
+
+      <!-- ── 趋势 面板（体重 + 摄入热量，纯记录可视化）── -->
+      <div id="panel-trend" style="display:none;">
+        <div class="trend-range-toggle" id="trendRangeToggle">
+          <button class="w-toggle-btn" data-range="7" onclick="setTrendRange('7')">近7天</button>
+          <button class="w-toggle-btn active" data-range="30" onclick="setTrendRange('30')">近30天</button>
+          <button class="w-toggle-btn" data-range="90" onclick="setTrendRange('90')">近90天</button>
+          <button class="w-toggle-btn" data-range="all" onclick="setTrendRange('all')">全部</button>
+        </div>
+
+        <div class="trend-legend">
+          <button class="trend-legend-item" id="trendLegendWeight" onclick="toggleTrendSeries('weight')">
+            <span class="trend-dot trend-dot-weight"></span>体重（斤）
+          </button>
+          <button class="trend-legend-item" id="trendLegendCal" onclick="toggleTrendSeries('cal')">
+            <span class="trend-dot trend-dot-cal"></span>摄入（kcal）
+          </button>
+        </div>
+
+        <div class="trend-chart-wrap" id="trendChart"></div>
+
+        <div class="trend-stats">
+          <div class="trend-stat">
+            <div class="trend-stat-num" id="trendWeightDelta">—</div>
+            <div class="trend-stat-label">体重变化</div>
+          </div>
+          <div class="trend-stat">
+            <div class="trend-stat-num" id="trendAvgCal">—</div>
+            <div class="trend-stat-label">平均每日摄入</div>
+          </div>
         </div>
       </div>
     </div>

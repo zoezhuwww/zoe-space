@@ -6,7 +6,7 @@
 //   - 其它跨域 GET:                  network-first，回退缓存
 //   - API (DeepSeek / TTS):          直通，不缓存
 // ═══════════════════════════════════════════════════
-const CACHE_VERSION = 'v7';   // 单词卡改版 + VOICEVOX 发音
+const CACHE_VERSION = 'v8';   // v7 单词卡改版+VOICEVOX · v8 体重饮食趋势图
 const SHELL_CACHE = 'zoe-shell-' + CACHE_VERSION;
 const FONT_CACHE  = 'zoe-fonts-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'zoe-runtime-' + CACHE_VERSION;

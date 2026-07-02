@@ -3233,6 +3233,85 @@ html[data-theme="dark"] .card-info-row {
 }
 
 
+/* ═══════════ 趋势 Tab（体重 + 摄入热量）═══════════ */
+/* 配色沿用主题色系：体重=玫瑰色、热量=淡紫灰，中性平静，无警示色 */
+.trend-range-toggle {
+  display: flex; gap: 6px;
+  padding: 0 24px;
+  margin-bottom: 12px;
+}
+.trend-legend {
+  display: flex; gap: 8px;
+  padding: 0 24px;
+  margin-bottom: 8px;
+}
+.trend-legend-item {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1.5px solid var(--divider);
+  border-radius: 20px;
+  background: transparent;
+  padding: 6px 12px;
+  font-family: var(--font-sans-zh);
+  font-size: 11px;
+  color: var(--text-mute);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+}
+.trend-legend-item.off { opacity: 0.38; }
+.trend-legend-item.off .trend-dot { background: var(--text-soft) !important; }
+.trend-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  display: inline-block;
+}
+.trend-dot-weight { background: var(--rose-deep); }
+.trend-dot-cal { background: #A3A0C4; }
+
+.trend-chart-wrap {
+  margin: 4px 24px 16px;
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 14px 10px 8px;
+  box-shadow: 0 2px 10px rgba(196,123,123,0.06);
+}
+
+.trend-line-weight { stroke: var(--rose-deep); stroke-width: 1.8; stroke-linecap: round; }
+.trend-line-cal { stroke: #A3A0C4; stroke-width: 1.6; stroke-linecap: round; }
+.trend-seg-dashed { stroke-dasharray: 3 4; opacity: 0.75; }
+.trend-dot-svg-weight { fill: var(--rose-deep); }
+.trend-dot-svg-cal { fill: #A3A0C4; }
+.trend-label-weight { fill: var(--rose-deep); opacity: 0.75; }
+.trend-label-cal { fill: #A3A0C4; }
+
+.trend-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 24px 8px;
+}
+.trend-stat {
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 14px 12px;
+  text-align: center;
+  box-shadow: 0 1px 6px rgba(196,123,123,0.05);
+}
+.trend-stat-num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--text-warm);
+  margin-bottom: 4px;
+}
+.trend-stat-label {
+  font-size: 10px;
+  color: var(--text-soft);
+  letter-spacing: 0.12em;
+}
+
+html[data-theme="dark"] .trend-dot-cal,
+html[data-theme="dark"] .trend-dot-svg-cal { background: #9B97C9; fill: #9B97C9; }
+html[data-theme="dark"] .trend-line-cal { stroke: #9B97C9; }
+html[data-theme="dark"] .trend-label-cal { fill: #9B97C9; }
+
 /* 单词卡 v2 微调：释义区首行的顶边框与 card-divider 重复，去掉 */
 #cardMeaningArea .card-info-row {
   border-top: none;

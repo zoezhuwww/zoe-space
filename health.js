@@ -41,13 +41,14 @@ function renderFoodDiary() {
   if (totalEl) totalEl.textContent = totalCal > 0 ? `~${totalCal} kcal` : '';
 }
 
-// ═══════════ Food / Weight Tab Switch ═══════════
+// ═══════════ Food / Weight / Trend Tab Switch ═══════════
 function switchFoodTab(tab) {
-  document.getElementById('panel-food').style.display = tab === 'food' ? '' : 'none';
-  document.getElementById('panel-weight').style.display = tab === 'weight' ? '' : 'none';
-  document.getElementById('tab-food').classList.toggle('active', tab === 'food');
-  document.getElementById('tab-weight').classList.toggle('active', tab === 'weight');
+  ['food', 'weight', 'trend'].forEach(t => {
+    document.getElementById('panel-' + t).style.display = t === tab ? '' : 'none';
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
   if (tab === 'weight') renderWeightTab();
+  if (tab === 'trend') renderTrendTab();
 }
 
 // ═══════════ Weight Tab ═══════════
@@ -172,6 +173,166 @@ function renderWeightChart(records) {
       ${yEls}${xEls}
       <polyline points="${polyline}" class="w-chart-line"/>
       ${dots}
+    </svg>`;
+}
+
+// ═══════════ 趋势 Tab（体重 + 摄入热量，纯记录可视化）═══════════
+// 设计约束：不设目标线/参考线，不做超标警告，不用警示色，只呈现客观数据
+let _trendRange = '30';                      // '7' | '30' | '90' | 'all'
+const _trendShow = { weight: true, cal: true }; // 图例开关
+
+function setTrendRange(range) {
+  _trendRange = range;
+  document.querySelectorAll('#trendRangeToggle .w-toggle-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.range === range));
+  renderTrendChart();
+}
+
+function toggleTrendSeries(series) {
+  _trendShow[series] = !_trendShow[series];
+  renderTrendChart();
+}
+
+// 每日摄入热量：扫 localStorage 里的 zoe_foods_YYYY-MM-DD，汇总已估算的 cal
+function getCaloriesByDate() {
+  const out = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || !k.startsWith('zoe_foods_')) continue;
+    const date = k.slice('zoe_foods_'.length);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    try {
+      const foods = JSON.parse(localStorage.getItem(k)) || [];
+      let total = 0;
+      foods.forEach(f => { if (f.cal) total += f.cal; });
+      if (total > 0) out[date] = total;
+    } catch {}
+  }
+  return out;
+}
+
+function renderTrendTab() {
+  renderTrendChart();
+}
+
+function renderTrendChart() {
+  const el = document.getElementById('trendChart');
+  if (!el) return;
+
+  document.getElementById('trendLegendWeight').classList.toggle('off', !_trendShow.weight);
+  document.getElementById('trendLegendCal').classList.toggle('off', !_trendShow.cal);
+
+  const weightByDate = {};
+  getWeightRecords().forEach(r => { weightByDate[r.date] = r.weight; });
+  const calByDate = getCaloriesByDate();
+
+  // 日期轴：近 N 天到今天；「全部」从最早一条记录开始
+  const today = todayKey();
+  let startStr;
+  if (_trendRange === 'all') {
+    const allDates = [...Object.keys(weightByDate), ...Object.keys(calByDate)].sort();
+    startStr = allDates[0] || today;
+  } else {
+    const d = new Date();
+    d.setDate(d.getDate() - (parseInt(_trendRange) - 1));
+    startStr = dateKey(d);
+  }
+  const days = [];
+  for (let d = parseLocalDate(startStr); dateKey(d) <= today; d.setDate(d.getDate() + 1)) {
+    days.push(dateKey(d));
+  }
+
+  const wPts = [];   // { i, v }（只在有记录的日期取点）
+  const cPts = [];
+  days.forEach((date, i) => {
+    if (weightByDate[date] !== undefined) wPts.push({ i, v: weightByDate[date] });
+    if (calByDate[date] !== undefined) cPts.push({ i, v: calByDate[date] });
+  });
+
+  // ── 底部统计：所选时间段的体重变化 + 平均每日摄入 ──
+  const deltaEl = document.getElementById('trendWeightDelta');
+  if (wPts.length >= 2) {
+    const delta = wPts[wPts.length - 1].v - wPts[0].v;
+    deltaEl.textContent = (delta > 0 ? '+' : delta < 0 ? '−' : '±') + Math.abs(delta).toFixed(1) + ' 斤';
+  } else {
+    deltaEl.textContent = '—';
+  }
+  const avgEl = document.getElementById('trendAvgCal');
+  if (cPts.length > 0) {
+    const avg = cPts.reduce((s, p) => s + p.v, 0) / cPts.length;
+    avgEl.textContent = '~' + Math.round(avg) + ' kcal';
+  } else {
+    avgEl.textContent = '—';
+  }
+
+  const hasWeight = _trendShow.weight && wPts.length > 0;
+  const hasCal = _trendShow.cal && cPts.length > 0;
+  if (!hasWeight && !hasCal) {
+    el.innerHTML = '<div class="w-chart-empty">这个时间段还没有记录～</div>';
+    return;
+  }
+
+  // ── SVG 双 Y 轴折线 ──
+  const W = 340, H = 190, padL = 38, padR = 44, padT = 14, padB = 26;
+  const usableW = W - padL - padR;
+  const usableH = H - padT - padB;
+  const maxI = Math.max(1, days.length - 1);
+  const toX = i => padL + (i / maxI) * usableW;
+
+  // 左轴：体重（斤），上下各留 0.5 呼吸空间
+  let wMin = 0, wMax = 1;
+  if (wPts.length) {
+    const ws = wPts.map(p => p.v);
+    wMin = Math.min(...ws) - 0.5;
+    wMax = Math.max(...ws) + 0.5;
+  }
+  const wRange = (wMax - wMin) || 1;
+  const wToY = v => padT + usableH * (1 - (v - wMin) / wRange);
+
+  // 右轴：热量（kcal），从 0 起，顶值取整到百位
+  let cMax = 1;
+  if (cPts.length) cMax = Math.ceil(Math.max(...cPts.map(p => p.v)) * 1.1 / 100) * 100;
+  const cToY = v => padT + usableH * (1 - v / cMax);
+
+  // 网格 + 双侧刻度（3 条线）
+  let gridHtml = '';
+  for (let g = 0; g < 3; g++) {
+    const frac = g / 2;
+    const y = (padT + usableH * (1 - frac)).toFixed(1);
+    gridHtml += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" class="w-chart-grid"/>`;
+    if (wPts.length && _trendShow.weight) {
+      gridHtml += `<text x="${padL - 4}" y="${y}" text-anchor="end" dominant-baseline="middle" class="w-chart-label trend-label-weight">${(wMin + wRange * frac).toFixed(1)}</text>`;
+    }
+    if (cPts.length && _trendShow.cal) {
+      gridHtml += `<text x="${W - padR + 4}" y="${y}" text-anchor="start" dominant-baseline="middle" class="w-chart-label trend-label-cal">${Math.round(cMax * frac)}</text>`;
+    }
+  }
+
+  // X 轴：首 / 中 / 尾 日期
+  const xIdxs = days.length > 2 ? [0, Math.floor(maxI / 2), maxI] : days.map((_, i) => i);
+  const xHtml = xIdxs.map(i =>
+    `<text x="${toX(i).toFixed(1)}" y="${H - padB + 14}" text-anchor="middle" class="w-chart-label">${days[i].slice(5)}</text>`).join('');
+
+  // 折线：相邻日期实线；跨过缺数据的日期用虚线连接（线不断裂）
+  function seriesHtml(pts, toY, lineClass, dotClass) {
+    let segs = '';
+    for (let k = 1; k < pts.length; k++) {
+      const a = pts[k - 1], b = pts[k];
+      const dashed = (b.i - a.i) > 1 ? ' trend-seg-dashed' : '';
+      segs += `<line x1="${toX(a.i).toFixed(1)}" y1="${toY(a.v).toFixed(1)}" x2="${toX(b.i).toFixed(1)}" y2="${toY(b.v).toFixed(1)}" class="${lineClass}${dashed}"/>`;
+    }
+    const dots = pts.map(p =>
+      `<circle cx="${toX(p.i).toFixed(1)}" cy="${toY(p.v).toFixed(1)}" r="2.5" class="${dotClass}"/>`).join('');
+    return segs + dots;
+  }
+
+  let seriesSvg = '';
+  if (hasCal) seriesSvg += seriesHtml(cPts, cToY, 'trend-line-cal', 'trend-dot-svg-cal');
+  if (hasWeight) seriesSvg += seriesHtml(wPts, wToY, 'trend-line-weight', 'trend-dot-svg-weight');
+
+  el.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" width="100%" class="w-chart-svg">
+      ${gridHtml}${xHtml}${seriesSvg}
     </svg>`;
 }
 
