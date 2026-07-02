@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════
-//  zoe-space Service Worker · v5
+//  zoe-space Service Worker · v8
 //  策略：
 //   - App Shell（本站自家文件）: cache-first，离线优先，最快
 //   - Google Fonts (CSS + woff2):   stale-while-revalidate
