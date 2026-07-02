@@ -7,7 +7,7 @@
 async function callDS(prompt, systemPrompt, opts) {
   opts = opts || {};
   const apiKey = load('ds_api_key', '');
-  if (!apiKey) { alert('请先在设置里配置 DeepSeek API Key'); return null; }
+  if (!apiKey) { if (!opts.silent) alert('请先在设置里配置 DeepSeek API Key'); return null; }
   // 60s 超时（推荐句子量大）
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeoutMs || 60000);
@@ -34,8 +34,10 @@ async function callDS(prompt, systemPrompt, opts) {
     return text;
   } catch (e) {
     console.error('DS API error:', e);
-    if (e.name === 'AbortError') alert('小豆好像没反应，请再试一次喂～');
-    else alert('API 调用失败，请检查网络和 API Key');
+    if (!opts.silent) {
+      if (e.name === 'AbortError') alert('小豆好像没反应，请再试一次喂～');
+      else alert('API 调用失败，请检查网络和 API Key');
+    }
     return null;
   } finally {
     clearTimeout(timer);

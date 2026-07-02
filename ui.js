@@ -93,6 +93,7 @@ const PAGE_RENDERERS = {
   food:       () => renderFoodDiary(),
   anniversary:() => renderAnniversary(),
   vocab:      () => startVocabReview(),
+  vocablist:  () => renderVocabListPage(),
   sentences:  () => renderSentencesPage(),
   japanese:   () => updateStudyHubStats(),
   english:    () => {},
@@ -217,6 +218,22 @@ if (window.matchMedia) {
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
     if (getStoredTheme() === null) applyTheme(e.matches ? 'dark' : 'light');
   });
+}
+
+// ═══════════ Toast（不打扰的轻提示）═══════════
+let _toastTimer = null;
+function showToast(msg) {
+  let el = document.getElementById('zoeToast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'zoeToast';
+    el.className = 'zoe-toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
 }
 
 // ═══════════ Global modal safety net ═══════════

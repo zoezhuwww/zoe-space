@@ -30,6 +30,13 @@ const SAMPLE_VOCAB = [
 function getVocabList() {
   return load('custom_vocab', SAMPLE_VOCAB);
 }
+function saveVocabList(list) { save('custom_vocab', list); }
+function _vocabIdxFromKey(srsKey) { return parseInt(String(srsKey).slice(2), 10); }
+// 复习卡是词条的浅拷贝，生成/收藏后从词库取最新版
+function _freshVocabEntry(card) {
+  if (!card || card.srsKey === undefined) return null;
+  return getVocabList()[_vocabIdxFromKey(card.srsKey)] || null;
+}
 
 // Hiragana to Romaji converter
 function toRomaji(kana) {
@@ -83,16 +90,123 @@ function parseFurigana(text) {
 }
 
 // ═══════════ Speech (TTS) ═══════════
-async function speakWord() {
-  const card = currentReviewCards[currentCardIdx];
-  if (!card) return;
+// 发音链路：VOICEVOX（配了 key）→ Google TTS（配了 key）→ 浏览器自带
+// VOICEVOX 合成结果缓存进 IndexedDB，同一「文本+音色+速度」只请求一次 API
+const VOICEVOX_SPEAKERS = [
+  { id: 8,  name: '春日部つむぎ（自然女声・默认）' },
+  { id: 2,  name: '四国めたん（清爽女声）' },
+  { id: 14, name: '冥鳴ひまり（温柔女声）' },
+  { id: 3,  name: 'ずんだもん（软萌）' },
+  { id: 13, name: '青山龍星（男声）' },
+];
+const VOICEVOX_DEFAULT_SPEAKER = 8;
+
+// ── IndexedDB 音频缓存 ──
+function _ttsDbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('zoe_tts_cache', 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('audio');
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function ttsCacheGet(key) {
+  try {
+    const db = await _ttsDbOpen();
+    return await new Promise((resolve, reject) => {
+      const req = db.transaction('audio', 'readonly').objectStore('audio').get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  } catch { return null; }
+}
+async function ttsCachePut(key, blob) {
+  try {
+    const db = await _ttsDbOpen();
+    await new Promise((resolve, reject) => {
+      const req = db.transaction('audio', 'readwrite').objectStore('audio').put(blob, key);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  } catch (e) { console.warn('ttsCachePut failed:', e); }
+}
+
+let _ttsAudio = null;
+function _playAudioBlob(blob, rate) {
+  if (_ttsAudio) { _ttsAudio.pause(); _ttsAudio = null; }
+  const url = URL.createObjectURL(blob);
+  const audio = new Audio(url);
+  audio.playbackRate = rate || 1;
+  audio.onended = () => URL.revokeObjectURL(url);
+  _ttsAudio = audio;
+  audio.play().catch(() => {});
+}
+
+// ── VOICEVOX WEB 版 API（api.tts.quest v3，异步合成需轮询就绪状态）──
+async function _voicevoxFetchBlob(text, speaker, key) {
+  const params = new URLSearchParams({ text, speaker: String(speaker), key });
+  const resp = await fetch('https://api.tts.quest/v3/voicevox/synthesis?' + params.toString());
+  if (!resp.ok) throw new Error('synthesis http ' + resp.status);
+  const data = await resp.json();
+  if (!data.success || !data.mp3DownloadUrl) throw new Error(data.errorMessage || 'synthesis rejected');
+  if (data.audioStatusUrl) {
+    for (let i = 0; i < 20; i++) {
+      try {
+        const st = await (await fetch(data.audioStatusUrl)).json();
+        if (st.isAudioReady) break;
+        if (st.isAudioError) throw new Error('voicevox audio error');
+      } catch (e) {
+        if (String(e.message).includes('voicevox audio error')) throw e;
+      }
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
+  const audioResp = await fetch(data.mp3DownloadUrl);
+  if (!audioResp.ok) throw new Error('audio http ' + audioResp.status);
+  const blob = await audioResp.blob();
+  if (!blob.size || (blob.type || '').includes('json')) throw new Error('bad audio payload');
+  return blob;
+}
+
+// 统一日语发音入口：opts = { slow: true } 慢速
+async function speakJa(text, opts) {
+  if (!text) return;
+  opts = opts || {};
+  const rate = opts.slow ? 0.6 : 1;
+  const vvKey = load('voicevox_key', '');
+
+  if (vvKey) {
+    const speaker = load('voicevox_speaker', VOICEVOX_DEFAULT_SPEAKER);
+    // 慢速用 playbackRate 实现，音频与常速共用一份缓存
+    const cacheKey = `${text}|${speaker}|1`;
+    let blob = await ttsCacheGet(cacheKey);
+    if (!blob) {
+      try {
+        blob = await _voicevoxFetchBlob(text, speaker, vvKey);
+        ttsCachePut(cacheKey, blob);
+      } catch (e) {
+        console.warn('VOICEVOX failed, fallback:', e);
+        showToast('VOICEVOX 暂时不可用，先用系统语音 ❀');
+        speakWithBrowserTTS(text, opts.slow ? 0.45 : 0.8);
+        return;
+      }
+    }
+    _playAudioBlob(blob, rate);
+    return;
+  }
 
   const googleKey = load('google_tts_key', '');
   if (googleKey) {
-    await speakWithGoogleTTS(card.word, googleKey);
+    await speakWithGoogleTTS(text, googleKey);
   } else {
-    speakWithBrowserTTS(card.word);
+    speakWithBrowserTTS(text, opts.slow ? 0.45 : 0.8);
   }
+}
+
+async function speakWord() {
+  const card = currentReviewCards[currentCardIdx];
+  if (!card) return;
+  await speakJa(card.reading || card.word);
 }
 
 async function speakWithGoogleTTS(text, apiKey) {
@@ -120,12 +234,12 @@ async function speakWithGoogleTTS(text, apiKey) {
   }
 }
 
-function speakWithBrowserTTS(text) {
+function speakWithBrowserTTS(text, rate) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'ja-JP';
-    u.rate = 0.8;
+    u.rate = rate || 0.8;
     const voices = window.speechSynthesis.getVoices();
     const jaVoice = voices.find(v => v.lang.startsWith('ja'));
     if (jaVoice) u.voice = jaVoice;
@@ -133,10 +247,63 @@ function speakWithBrowserTTS(text) {
   }
 }
 
-function speakWordSlow() {
+async function speakWordSlow() {
   const card = currentReviewCards[currentCardIdx];
   if (!card) return;
-  speakWithBrowserTTS(card.word, 0.45);
+  await speakJa(card.reading || card.word, { slow: true });
+}
+
+async function speakCardExample() {
+  const card = currentReviewCards[currentCardIdx];
+  if (!card) return;
+  const sentence = getCardExampleText(card);
+  if (sentence) await speakJa(sentence);
+}
+
+function copyCardExample() {
+  const card = currentReviewCards[currentCardIdx];
+  if (!card) return;
+  const sentence = getCardExampleText(card);
+  if (!sentence) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(sentence).then(
+      () => showToast('例句已复制 📋'),
+      () => showToast('复制失败了…')
+    );
+  } else {
+    showToast('这个浏览器不支持复制');
+  }
+}
+
+// 例句纯文本：新结构从 tokens 拼，旧结构去掉振り仮名标注
+function getCardExampleText(card) {
+  const v = _freshVocabEntry(card) || card;
+  if (v.example && Array.isArray(v.example.tokens)) {
+    return v.example.tokens.map(t => t.surface).join('');
+  }
+  const old = typeof v.example === 'string' ? v.example : '';
+  return old.replace(/\[[^\]]+\]/g, '');
+}
+
+function openVoicevoxSettings() {
+  const modal = document.getElementById('voicevoxModal');
+  document.getElementById('voicevoxKeyInput').value = load('voicevox_key', '');
+  const sel = document.getElementById('voicevoxSpeakerInput');
+  sel.innerHTML = VOICEVOX_SPEAKERS.map(s =>
+    `<option value="${s.id}">${escHtml(s.name)}</option>`).join('');
+  sel.value = String(load('voicevox_speaker', VOICEVOX_DEFAULT_SPEAKER));
+  modal.classList.add('open');
+}
+function closeVoicevoxSettings() {
+  document.getElementById('voicevoxModal').classList.remove('open');
+}
+function submitVoicevoxSettings() {
+  const key = document.getElementById('voicevoxKeyInput').value.trim();
+  const speaker = parseInt(document.getElementById('voicevoxSpeakerInput').value) || VOICEVOX_DEFAULT_SPEAKER;
+  save('voicevox_key', key);
+  save('voicevox_speaker', speaker);
+  closeVoicevoxSettings();
+  showToast(key ? '已保存，发音将使用 VOICEVOX ❀' : '已清除，发音回到系统语音');
 }
 
 // Preload browser voices
@@ -281,6 +448,7 @@ function startVocabReview() {
     document.getElementById('vocabEmpty').style.display = 'block';
     document.getElementById('flashcardContainer').style.display = 'none';
     document.getElementById('ankiButtons').style.display = 'none';
+    document.getElementById('nextWordBtn').style.display = 'none';
     document.getElementById('vocabRemaining').textContent = '全部完成 🎉';
     document.getElementById('vocabProgress').textContent = '';
   } else {
@@ -295,47 +463,28 @@ function showCard() {
     document.getElementById('vocabEmpty').style.display = 'block';
     document.getElementById('flashcardContainer').style.display = 'none';
     document.getElementById('ankiButtons').style.display = 'none';
+    document.getElementById('nextWordBtn').style.display = 'none';
     document.getElementById('vocabRemaining').textContent = '全部完成 🎉';
     document.getElementById('vocabProgressFill').style.width = '100%';
     return;
   }
 
   const card = currentReviewCards[currentCardIdx];
-  const romaji = toRomaji(card.reading);
 
   // Front
   document.getElementById('cardWord').textContent = card.word;
   document.getElementById('cardHint').textContent = card.isNew ? '新词 · 点击翻转' : '点击翻转';
 
-  // Back
-  document.getElementById('cardWordBack').textContent = card.word;
-  document.getElementById('cardReading').textContent = card.reading;
-  document.getElementById('cardRomaji').textContent = romaji;
-  document.getElementById('cardMeaning').textContent = card.meaning;
+  // 缺扩展字段就后台生成（in-flight 标记同步生效，骨架屏能立刻显示）
+  const fresh = _freshVocabEntry(card);
+  if (fresh && !fresh.cardGeneratedAt) ensureCardData(card);
 
-  // Part of speech
-  const posEl = document.getElementById('cardPos');
-  if (card.pos) {
-    posEl.textContent = card.pos;
-    posEl.style.display = 'inline-block';
-  } else {
-    posEl.style.display = 'none';
-  }
-
-  // Example sentence
-  const exSection = document.getElementById('cardExampleSection');
-  const example = card.example || '';
-  if (example) {
-    document.getElementById('cardExampleJp').innerHTML = parseFurigana(example);
-    document.getElementById('cardExampleCn').textContent = card.example_meaning || '';
-    exSection.style.display = 'block';
-  } else {
-    exSection.style.display = 'none';
-  }
+  renderCardBack(card);
 
   document.getElementById('cardFront').style.display = 'flex';
   document.getElementById('cardBack').style.display = 'none';
   document.getElementById('ankiButtons').style.display = 'none';
+  document.getElementById('nextWordBtn').style.display = 'none';
   cardFlipped = false;
 
   // Stats
@@ -352,6 +501,199 @@ function showCard() {
   document.getElementById('intervalEasy').textContent = formatInterval(Math.round(interval * 2.5));
 }
 
+// ── 卡片背面（新版布局：单词区 / 释义区 / 例句区）──
+function renderCardBack(card) {
+  const fresh = _freshVocabEntry(card);
+  const v = fresh ? { ...card, ...fresh } : card;
+  const generating = !v.cardGeneratedAt && !!_cardGenInFlight[_vocabIdxFromKey(card.srsKey)];
+
+  document.getElementById('cardWordBack').textContent = v.word;
+  document.getElementById('cardReading').textContent =
+    (v.reading && v.reading !== v.word) ? v.reading : '';
+  document.getElementById('cardRomaji').textContent = v.romaji || toRomaji(v.reading || v.word);
+  _updateStarBtn(!!v.starred);
+
+  // 释义区
+  const shortMeaning = v.meaning_zh_short || v.meaning || '';
+  let meaningHtml = `
+    <div class="card-info-row">
+      ${v.pos ? `<span class="card-pos">${escHtml(v.pos)}</span>` : ''}
+      <span class="card-meaning">${escHtml(shortMeaning)}</span>
+    </div>`;
+  if (v.meaning_ja) {
+    meaningHtml += `<div class="card-def-row"><span class="card-def-tag">日文</span><span class="card-def-text card-def-ja">${escHtml(v.meaning_ja)}</span></div>`;
+  }
+  if (v.meaning_zh && v.meaning_zh !== shortMeaning) {
+    meaningHtml += `<div class="card-def-row"><span class="card-def-tag">中文</span><span class="card-def-text">${escHtml(v.meaning_zh)}</span></div>`;
+  }
+  if (generating && !v.meaning_ja) meaningHtml += _skeletonRows(2);
+  document.getElementById('cardMeaningArea').innerHTML = meaningHtml;
+
+  // 例句区
+  document.getElementById('cardExampleArea').innerHTML = _cardExampleHtml(v, generating);
+}
+
+function _cardExampleHtml(v, generating) {
+  const hasTokens = v.example && Array.isArray(v.example.tokens) && v.example.tokens.length;
+  const oldExample = typeof v.example === 'string' ? v.example : '';
+  if (!hasTokens && !oldExample && !generating) return '';
+
+  let bodyHtml = '';
+  if (hasTokens) {
+    // 逐词分词：上假名（ruby）、下罗马音，目标词高亮
+    bodyHtml = `<div class="card-tokens">` + v.example.tokens.map(t => `<span class="card-tk${t.isTarget ? ' tk-target' : ''}"><ruby>${escHtml(t.surface)}<rt>${t.kana ? escHtml(t.kana) : '&#8203;'}</rt></ruby><span class="tk-romaji">${escHtml(t.romaji || '')}</span></span>`).join('') + `</div>`;
+    bodyHtml += `<div class="card-example-foot">
+      ${v.example.jlpt ? `<span class="card-jlpt">${escHtml(v.example.jlpt)}</span>` : ''}
+      <span class="card-example-cn">${escHtml(v.example.translation_zh || '')}</span>
+    </div>`;
+  } else if (oldExample) {
+    bodyHtml = `<div class="card-example-jp">${parseFurigana(oldExample)}</div>`;
+    if (v.example_meaning) bodyHtml += `<div class="card-example-cn">${escHtml(v.example_meaning)}</div>`;
+    if (generating) bodyHtml += _skeletonRows(1);
+  } else {
+    bodyHtml = _skeletonRows(2);
+  }
+
+  return `
+    <div class="card-example-section">
+      <div class="card-example-head">
+        <span class="card-example-label">单词例句</span>
+        <span class="card-example-tools">
+          <button class="card-tool-btn" onclick="event.stopPropagation();copyCardExample()" aria-label="复制例句">📋</button>
+          <button class="card-tool-btn" onclick="event.stopPropagation();speakCardExample()" aria-label="朗读例句">🔊</button>
+        </span>
+      </div>
+      ${bodyHtml}
+    </div>`;
+}
+
+function _skeletonRows(n) {
+  let h = '';
+  for (let i = 0; i < n; i++) h += `<div class="card-skeleton" style="width:${72 - i * 18}%"></div>`;
+  return h;
+}
+
+// ── 卡片内容懒加载生成（DeepSeek，每词只生成一次，永久缓存在词库里）──
+const _cardGenInFlight = {};
+
+async function ensureCardData(card) {
+  const idx = _vocabIdxFromKey(card.srsKey);
+  const list = getVocabList();
+  const v = list[idx];
+  if (!v || v.cardGeneratedAt || _cardGenInFlight[idx]) return;
+  if (!load('ds_api_key', '')) return; // 没配 key 就安静地用旧字段
+  _cardGenInFlight[idx] = true;
+  try {
+    const gen = await _generateCardData(v);
+    if (gen) {
+      const freshList = getVocabList();
+      freshList[idx] = { ...freshList[idx], ...gen, cardGeneratedAt: Date.now() };
+      saveVocabList(freshList);
+    } else {
+      showToast('完整卡片没生成出来，先看基础版 ❀');
+    }
+  } finally {
+    delete _cardGenInFlight[idx];
+    // 用户还停在这张卡上就刷新显示
+    const cur = currentReviewCards[currentCardIdx];
+    if (cur && cur.srsKey === card.srsKey) renderCardBack(cur);
+  }
+}
+
+async function _generateCardData(v) {
+  const prompt = `为一个日语单词生成学习卡片数据。
+单词：${v.word}
+读音：${v.reading || ''}
+中文释义：${v.meaning || ''}
+${typeof v.example === 'string' && v.example ? '参考例句：' + v.example : ''}
+
+只输出纯 JSON（不要 markdown 代码块、不要任何解释），结构：
+{"pos":"词性，如 他动词・一类 / 名词 / い形容词","romaji":"单词的罗马音","meaning_zh_short":"中文核心释义，简短","meaning_ja":"用简单日语解释这个词","meaning_zh":"中文详细释义","example":{"tokens":[{"surface":"词","kana":"该词假名读音；surface 本身是假名或读音与 surface 相同时留空字符串","romaji":"罗马音","isTarget":false}],"translation_zh":"例句中文翻译","jlpt":"N5/N4/N3/N2/N1"}}
+
+要求：
+- 例句自然、必须包含目标单词，难度贴合该词等级；逐词分词放入 tokens，目标单词所在 token 的 isTarget 为 true
+- 助词（は/が/を/に 等）单独成 token，kana 留空
+- jlpt 填这个单词本身的 JLPT 等级`;
+
+  // 解析失败重试一次，仍失败则返回 null 走降级
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const raw = await callDS(prompt, '你是日语教学卡片生成助手。只输出纯JSON，不要markdown代码块，不要解释。', { silent: true, maxTokens: 1200, temperature: 0.3 });
+    if (!raw) continue;
+    try {
+      const data = JSON.parse(raw.replace(/```json|```/g, '').trim());
+      if (data && data.example && Array.isArray(data.example.tokens) && data.example.tokens.length) return data;
+    } catch (e) {
+      console.warn('card gen parse failed (attempt ' + (attempt + 1) + '):', e);
+    }
+  }
+  return null;
+}
+
+// ── 收藏 ──
+function _updateStarBtn(starred) {
+  const btn = document.getElementById('cardStarBtn');
+  if (!btn) return;
+  btn.textContent = starred ? '⭐ 已收藏' : '☆ 收藏';
+  btn.classList.toggle('starred', starred);
+}
+
+function toggleCardStar() {
+  const card = currentReviewCards[currentCardIdx];
+  if (!card) return;
+  const idx = _vocabIdxFromKey(card.srsKey);
+  const list = getVocabList();
+  if (!list[idx]) return;
+  list[idx].starred = !list[idx].starred;
+  saveVocabList(list);
+  card.starred = list[idx].starred;
+  _updateStarBtn(card.starred);
+}
+
+// ── 下一词（跳过，不评分不影响 SRS）──
+function nextWord() {
+  currentCardIdx++;
+  showCard();
+}
+
+// ═══════════ 单词本列表页 ═══════════
+let _vocabListStarredOnly = false;
+
+function toggleVocabListFilter() {
+  _vocabListStarredOnly = !_vocabListStarredOnly;
+  renderVocabListPage();
+}
+
+function toggleListStar(idx) {
+  const list = getVocabList();
+  if (!list[idx]) return;
+  list[idx].starred = !list[idx].starred;
+  saveVocabList(list);
+  renderVocabListPage();
+}
+
+function renderVocabListPage() {
+  const list = getVocabList();
+  const rows = list.map((v, i) => ({ v, i })).filter(x => !_vocabListStarredOnly || x.v.starred);
+  const starredCount = list.filter(v => v.starred).length;
+  const container = document.getElementById('vocabListContainer');
+  container.innerHTML = `
+    <div class="vl-toolbar">
+      <button class="vl-filter-btn${_vocabListStarredOnly ? ' active' : ''}" onclick="toggleVocabListFilter()">⭐ 只看收藏（${starredCount}）</button>
+      <span class="vl-count">共 ${rows.length} 个词</span>
+    </div>
+    ${rows.length ? rows.map(({ v, i }) => `
+      <div class="vl-item">
+        <div class="vl-main">
+          <div class="vl-word">${escHtml(v.word)}</div>
+          <div class="vl-sub">${escHtml(v.reading && v.reading !== v.word ? v.reading : '')}${v.pos ? `<span class="vl-pos">${escHtml(v.pos)}</span>` : ''}</div>
+        </div>
+        <div class="vl-meaning">${escHtml(v.meaning_zh_short || v.meaning || '')}</div>
+        <button class="vl-star${v.starred ? ' on' : ''}" onclick="toggleListStar(${i})" aria-label="收藏">${v.starred ? '⭐' : '☆'}</button>
+      </div>`).join('')
+    : `<div class="vl-empty">${_vocabListStarredOnly ? '还没有收藏的词～在卡片上点 ☆ 收藏' : '词书是空的～'}</div>`}
+  `;
+}
+
 function formatInterval(days) {
   if (days === 0) return '今天';
   if (days === 1) return '明天';
@@ -366,6 +708,7 @@ function flipCard() {
   document.getElementById('cardFront').style.display = 'none';
   document.getElementById('cardBack').style.display = 'block';
   document.getElementById('ankiButtons').style.display = 'flex';
+  document.getElementById('nextWordBtn').style.display = 'block';
 }
 
 function ankiRate(rating) {

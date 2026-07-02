@@ -6,7 +6,7 @@
 //   - 其它跨域 GET:                  network-first，回退缓存
 //   - API (DeepSeek / TTS):          直通，不缓存
 // ═══════════════════════════════════════════════════
-const CACHE_VERSION = 'v6';   // 拆分 app.js → 9 个模块，升版本以清掉旧缓存
+const CACHE_VERSION = 'v7';   // 单词卡改版 + VOICEVOX 发音
 const SHELL_CACHE = 'zoe-shell-' + CACHE_VERSION;
 const FONT_CACHE  = 'zoe-fonts-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'zoe-runtime-' + CACHE_VERSION;
@@ -54,8 +54,10 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
-  // API 直通
-  if (url.hostname === 'api.deepseek.com' || url.hostname === 'texttospeech.googleapis.com') {
+  // API 直通（VOICEVOX 音频有自己的 IndexedDB 缓存，别在 SW 里重复缓存）
+  if (url.hostname === 'api.deepseek.com' ||
+      url.hostname === 'texttospeech.googleapis.com' ||
+      url.hostname === 'tts.quest' || url.hostname.endsWith('.tts.quest')) {
     return;
   }
 

@@ -1822,6 +1822,210 @@ body {
   text-align: center; padding: 40px 24px;
 }
 
+/* ═══════════ Vocab Card v2（释义区 / 例句分词 / 收藏）═══════════ */
+.card-tts-btn.starred {
+  background: var(--rose-mist);
+  border-color: var(--rose-light);
+  color: var(--rose-deep);
+}
+.card-meaning-area { margin-bottom: 14px; }
+.card-def-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin-top: 8px;
+}
+.card-def-tag {
+  flex-shrink: 0;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg-soft);
+  color: var(--text-mute);
+  border: 1px solid var(--divider);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+.card-def-text {
+  font-size: 13px;
+  color: var(--text-warm);
+  line-height: 1.7;
+}
+.card-def-ja { font-size: 14px; }
+
+.card-example-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.card-example-tools { display: flex; gap: 2px; }
+.card-tool-btn {
+  border: none; background: transparent;
+  font-size: 14px; line-height: 1;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+.card-tool-btn:active { background: var(--rose-mist); }
+
+.card-tokens {
+  display: flex; flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: 2px; row-gap: 10px;
+  margin-bottom: 10px;
+}
+.card-tk {
+  display: inline-flex; flex-direction: column;
+  align-items: center;
+}
+.card-tk ruby { ruby-position: over; font-size: 18px; color: var(--text-warm); }
+.card-tk rt { font-size: 9px; color: var(--text-mute); font-weight: 300; }
+.card-tk .tk-romaji {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 9px;
+  color: var(--text-soft);
+  margin-top: 1px;
+}
+.card-tk.tk-target ruby {
+  color: var(--rose-deep);
+  border-bottom: 2px solid var(--rose-light);
+}
+.card-tk.tk-target .tk-romaji { color: var(--rose-deep); }
+
+.card-example-foot {
+  display: flex; align-items: flex-start; gap: 8px;
+  border-top: 1px dashed var(--divider);
+  padding-top: 8px;
+}
+.card-jlpt {
+  flex-shrink: 0;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--rose-mist);
+  color: var(--rose-deep);
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+}
+
+.card-skeleton {
+  height: 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  background: linear-gradient(90deg, var(--bg-soft) 25%, var(--rose-mist) 50%, var(--bg-soft) 75%);
+  background-size: 200% 100%;
+  animation: card-shimmer 1.4s ease infinite;
+}
+@keyframes card-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.next-word-btn {
+  display: block;
+  margin: 10px auto 0;
+  border: none; background: transparent;
+  font-family: var(--font-sans-zh);
+  font-size: 13px;
+  color: var(--text-mute);
+  padding: 10px 24px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.next-word-btn:active { color: var(--rose-deep); }
+
+/* ═══════════ 单词本列表页 ═══════════ */
+.vocab-list-container { padding: 0 24px; }
+.vl-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.vl-filter-btn {
+  border: 1.5px solid var(--divider);
+  border-radius: 20px;
+  background: transparent;
+  padding: 7px 14px;
+  font-family: var(--font-sans-zh);
+  font-size: 12px;
+  color: var(--text-mute);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.vl-filter-btn.active {
+  background: var(--rose-mist);
+  border-color: var(--rose-light);
+  color: var(--rose-deep);
+}
+.vl-count { font-size: 11px; color: var(--text-soft); }
+.vl-item {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 6px rgba(196,123,123,0.06);
+}
+.vl-main { flex: 1; min-width: 0; }
+.vl-word { font-size: 17px; color: var(--text-warm); }
+.vl-sub {
+  font-size: 11px; color: var(--text-mute);
+  margin-top: 2px;
+  display: flex; align-items: center; gap: 6px;
+}
+.vl-pos {
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--rose-mist);
+  color: var(--rose-deep);
+}
+.vl-meaning {
+  flex-shrink: 0;
+  max-width: 40%;
+  font-size: 12px; color: var(--text-mute);
+  text-align: right;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.vl-star {
+  flex-shrink: 0;
+  border: none; background: transparent;
+  font-size: 18px;
+  color: var(--text-soft);
+  padding: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.vl-star.on { color: var(--rose-deep); }
+.vl-empty {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+/* ═══════════ Toast ═══════════ */
+.zoe-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + 32px);
+  transform: translateX(-50%) translateY(12px);
+  z-index: 400;
+  max-width: 80vw;
+  background: rgba(90, 74, 74, 0.92);
+  color: #FBF6F2;
+  font-family: var(--font-sans-zh);
+  font-size: 12px;
+  padding: 9px 18px;
+  border-radius: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.zoe-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ═══════════ Backup Reminder ═══════════ */
 .backup-banner {
   margin: 0 24px 12px;
@@ -3028,6 +3232,12 @@ html[data-theme="dark"] .card-info-row {
   border-color: rgba(255,255,255,0.08) !important;
 }
 
+
+/* 单词卡 v2 微调：释义区首行的顶边框与 card-divider 重复，去掉 */
+#cardMeaningArea .card-info-row {
+  border-top: none;
+  padding-top: 0;
+}
 
 /* 待办行的小时钟图标 */
 .todo-clock {

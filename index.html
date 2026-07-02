@@ -590,6 +590,9 @@
         <div class="settings-item" onclick="navigateTo('apiDetail')">
           <span>API 用量详情</span><span class="si-arrow">›</span>
         </div>
+        <div class="settings-item" onclick="openVoicevoxSettings()">
+          <span>VOICEVOX 发音配置</span><span class="si-arrow">›</span>
+        </div>
         <div class="settings-item" onclick="openGoogleTtsSettings()">
           <span>Google TTS 配置（读音）</span><span class="si-arrow">›</span>
         </div>
@@ -620,6 +623,9 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="sub-page-title">単語帳</div>
+        <div class="sub-page-action" onclick="navigateTo('vocablist')" style="margin-left:auto;cursor:pointer;padding:6px;" aria-label="单词本列表">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
       </div>
 
       <!-- Progress bar -->
@@ -649,6 +655,7 @@
 
           <!-- Back: full details -->
           <div class="flashcard-back" id="cardBack" style="display:none;">
+            <!-- ① 单词区 -->
             <div class="card-word-back" id="cardWordBack">単語</div>
             <div class="card-reading-row">
               <span class="card-reading" id="cardReading">たんご</span>
@@ -656,22 +663,18 @@
             </div>
 
             <div class="card-tts-row">
-              <button class="card-tts-btn" onclick="event.stopPropagation();speakWord()">🔊 発音</button>
+              <button class="card-tts-btn" onclick="event.stopPropagation();speakWord()">🔊 发音</button>
               <button class="card-tts-btn" onclick="event.stopPropagation();speakWordSlow()">🐢 慢速</button>
+              <button class="card-tts-btn" id="cardStarBtn" onclick="event.stopPropagation();toggleCardStar()">☆ 收藏</button>
             </div>
 
             <div class="card-divider"></div>
 
-            <div class="card-info-row">
-              <span class="card-pos" id="cardPos"></span>
-              <span class="card-meaning" id="cardMeaning">词语、单词</span>
-            </div>
+            <!-- ② 释义区 -->
+            <div class="card-meaning-area" id="cardMeaningArea"></div>
 
-            <div class="card-example-section" id="cardExampleSection">
-              <div class="card-example-label">例句</div>
-              <div class="card-example-jp" id="cardExampleJp"></div>
-              <div class="card-example-cn" id="cardExampleCn"></div>
-            </div>
+            <!-- ③ 例句区 -->
+            <div class="card-example-area" id="cardExampleArea"></div>
           </div>
         </div>
       </div>
@@ -695,6 +698,20 @@
           <span class="anki-interval" id="intervalEasy">4天</span>
         </button>
       </div>
+
+      <!-- 下一词（跳过，不评分） -->
+      <button class="next-word-btn" id="nextWordBtn" style="display:none;" onclick="nextWord()">下一词 →</button>
+    </div>
+
+    <!-- ═══ Vocab List Page（单词本列表 + 收藏筛选）═══ -->
+    <div class="page" id="page-vocablist">
+      <div class="sub-page-header">
+        <div class="back-btn" onclick="navigateTo('vocab')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <div class="sub-page-title">单词本</div>
+      </div>
+      <div class="vocab-list-container" id="vocabListContainer"></div>
     </div>
 
     <!-- ═══ Sentence Card Page ═══ -->
@@ -997,6 +1014,27 @@
       点保存后，小豆会自动补假名、翻译、词语拆解 ❀
     </div>
     <button class="modal-submit" id="sentAddSubmit" onclick="submitSentenceAdd()">保存</button>
+  </div>
+</div>
+
+<!-- ══════ VOICEVOX Settings Modal ══════ -->
+<div class="modal-overlay" id="voicevoxModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeVoicevoxSettings()" aria-label="关闭">✕</button>
+    <div class="modal-title">VOICEVOX 发音设置</div>
+    <div class="modal-field">
+      <div class="modal-label">API Key（su-shiki WEB 版，留空则用系统语音）</div>
+      <input class="modal-input" id="voicevoxKeyInput" placeholder="在 su-shiki.com 免费申请" />
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">说话人（音色）</div>
+      <select class="modal-input" id="voicevoxSpeakerInput"></select>
+    </div>
+    <div style="font-size:11px;color:var(--text-soft);text-align:center;padding:0 0 8px;line-height:1.6;">
+      合成过的音频会缓存在本机，同一个词只请求一次 ❀
+    </div>
+    <button class="modal-submit" onclick="submitVoicevoxSettings()">保存</button>
   </div>
 </div>
 
