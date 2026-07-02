@@ -143,32 +143,72 @@ function _playAudioBlob(blob, rate) {
 }
 
 // ── VOICEVOX WEB 版 API（api.tts.quest v3，异步合成需轮询就绪状态）──
+// 失败判定原则：只有「请求报错 / key 无效 / 点数耗尽 / 明确生成失败」才算失败；
+// 「还在生成中」「首次请求慢」都不是失败，耐心等。
+const _sleep = ms => new Promise(r => setTimeout(r, ms));
+
 async function _voicevoxFetchBlob(text, speaker, key) {
   const params = new URLSearchParams({ text, speaker: String(speaker), key });
   const resp = await fetch('https://api.tts.quest/v3/voicevox/synthesis?' + params.toString());
   if (!resp.ok) throw new Error('synthesis http ' + resp.status);
   const data = await resp.json();
-  if (!data.success || !data.mp3DownloadUrl) throw new Error(data.errorMessage || 'synthesis rejected');
+  if (data.isApiKeyValid === false) throw new Error('invalid api key');
+  if (!data.success || !data.mp3DownloadUrl) {
+    // 限流：按 retryAfter 等一次再重试，不直接判死
+    if (data.retryAfter) {
+      await _sleep(Math.min(data.retryAfter, 10) * 1000 + 300);
+      const retry = await fetch('https://api.tts.quest/v3/voicevox/synthesis?' + params.toString());
+      const rdata = retry.ok ? await retry.json() : null;
+      if (rdata && rdata.success && rdata.mp3DownloadUrl) return _voicevoxAwaitAudio(rdata);
+      throw new Error((rdata && rdata.errorMessage) || 'rate limited');
+    }
+    throw new Error(data.errorMessage || 'synthesis rejected');
+  }
+  return _voicevoxAwaitAudio(data);
+}
+
+// 等音频生成完成再下载。「生成中」不算失败，只有明确 isAudioError 或彻底超时才抛
+async function _voicevoxAwaitAudio(data) {
+  let ready = false;
   if (data.audioStatusUrl) {
-    for (let i = 0; i < 20; i++) {
-      try {
-        const st = await (await fetch(data.audioStatusUrl)).json();
-        if (st.isAudioReady) break;
+    const deadline = Date.now() + 45000;
+    while (Date.now() < deadline) {
+      let st = null;
+      try { st = await (await fetch(data.audioStatusUrl)).json(); } catch {} // 状态接口偶发失败不算数
+      if (st) {
         if (st.isAudioError) throw new Error('voicevox audio error');
-      } catch (e) {
-        if (String(e.message).includes('voicevox audio error')) throw e;
+        if (st.isAudioReady) { ready = true; break; }
       }
-      await new Promise(r => setTimeout(r, 1000));
+      await _sleep(1200);
     }
   }
-  const audioResp = await fetch(data.mp3DownloadUrl);
-  if (!audioResp.ok) throw new Error('audio http ' + audioResp.status);
-  const blob = await audioResp.blob();
-  if (!blob.size || (blob.type || '').includes('json')) throw new Error('bad audio payload');
-  return blob;
+
+  // 下载 mp3：就绪后正常 1-2 次就成；状态接口没走通时多给几次机会，
+  // 服务器可能还在写文件，返回非音频内容只当「再等等」，不当失败
+  const attempts = ready ? 3 : 5;
+  let lastErr = 'audio download failed';
+  for (let i = 0; i < attempts; i++) {
+    if (i > 0) await _sleep(1500);
+    try {
+      const audioResp = await fetch(data.mp3DownloadUrl);
+      if (!audioResp.ok) { lastErr = 'audio http ' + audioResp.status; continue; }
+      const blob = await audioResp.blob();
+      const type = blob.type || '';
+      if (blob.size > 0 && !type.includes('json') && !type.includes('html') && !type.includes('text')) {
+        return blob;
+      }
+      lastErr = 'audio not ready yet';
+    } catch (e) {
+      lastErr = e.message || 'network error';
+    }
+  }
+  throw new Error(lastErr);
 }
 
 // 统一日语发音入口：opts = { slow: true } 慢速
+// 同一文本合成中再次点击时复用同一个请求，不重复扣点、也不会因限流误报失败
+const _vvInFlight = {};
+
 async function speakJa(text, opts) {
   if (!text) return;
   opts = opts || {};
@@ -182,11 +222,19 @@ async function speakJa(text, opts) {
     let blob = await ttsCacheGet(cacheKey);
     if (!blob) {
       try {
-        blob = await _voicevoxFetchBlob(text, speaker, vvKey);
+        if (!_vvInFlight[cacheKey]) {
+          _vvInFlight[cacheKey] = _voicevoxFetchBlob(text, speaker, vvKey)
+            .finally(() => { delete _vvInFlight[cacheKey]; });
+        }
+        blob = await _vvInFlight[cacheKey];
         ttsCachePut(cacheKey, blob);
       } catch (e) {
+        // 走到这里才是真失败：请求报错 / key 无效 / 点数耗尽 / 明确生成失败
         console.warn('VOICEVOX failed, fallback:', e);
-        showToast('VOICEVOX 暂时不可用，先用系统语音 ❀');
+        const msg = String(e && e.message || '');
+        showToast(msg.includes('invalid api key')
+          ? 'VOICEVOX Key 无效，先用系统语音 ❀'
+          : 'VOICEVOX 暂时不可用，先用系统语音 ❀');
         speakWithBrowserTTS(text, opts.slow ? 0.45 : 0.8);
         return;
       }
