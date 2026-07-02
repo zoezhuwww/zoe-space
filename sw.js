@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════
-//  zoe-space Service Worker · v9
+//  zoe-space Service Worker · v10
 //  策略：
 //   - App Shell（本站自家文件）: cache-first，离线优先，最快
 //   - Google Fonts (CSS + woff2):   stale-while-revalidate
 //   - 其它跨域 GET:                  network-first，回退缓存
 //   - API (DeepSeek / TTS):          直通，不缓存
 // ═══════════════════════════════════════════════════
-const CACHE_VERSION = 'v9';   // v9 修复 VOICEVOX 降级提示误报（生成中≠失败）
+const CACHE_VERSION = 'v10';  // v10 发音等待生成完再播 + 按钮加载态 + iOS 播放解锁
 const SHELL_CACHE = 'zoe-shell-' + CACHE_VERSION;
 const FONT_CACHE  = 'zoe-fonts-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'zoe-runtime-' + CACHE_VERSION;

@@ -1866,6 +1866,24 @@ body {
 }
 .card-tool-btn:active { background: var(--rose-mist); }
 
+/* 发音合成等待中：按钮转圈 + 禁点 */
+.tts-loading {
+  opacity: 0.65;
+  pointer-events: none;
+}
+.tts-loading::after {
+  content: '';
+  display: inline-block;
+  width: 9px; height: 9px;
+  margin-left: 6px;
+  border: 1.5px solid var(--rose-light);
+  border-top-color: transparent;
+  border-radius: 50%;
+  vertical-align: -1px;
+  animation: tts-spin 0.7s linear infinite;
+}
+@keyframes tts-spin { to { transform: rotate(360deg); } }
+
 .card-tokens {
   display: flex; flex-wrap: wrap;
   align-items: flex-end;

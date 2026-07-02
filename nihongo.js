@@ -131,15 +131,35 @@ async function ttsCachePut(key, blob) {
   } catch (e) { console.warn('ttsCachePut failed:', e); }
 }
 
-let _ttsAudio = null;
+// 复用同一个 <audio> 元素：iOS 上 audio.play() 必须由用户手势触发，
+// 点击瞬间先用无声音频「解锁」这个元素，之后异步合成完成再换 src 播放才不会被拦
+let _ttsAudioEl = null;
+const _SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+
+function _ttsAudioUnlock() {
+  if (!_ttsAudioEl) _ttsAudioEl = new Audio();
+  try {
+    _ttsAudioEl.src = _SILENT_WAV;
+    _ttsAudioEl.play().catch(() => {});
+  } catch {}
+}
+
 function _playAudioBlob(blob, rate) {
-  if (_ttsAudio) { _ttsAudio.pause(); _ttsAudio = null; }
-  const url = URL.createObjectURL(blob);
-  const audio = new Audio(url);
-  audio.playbackRate = rate || 1;
-  audio.onended = () => URL.revokeObjectURL(url);
-  _ttsAudio = audio;
-  audio.play().catch(() => {});
+  if (!_ttsAudioEl) _ttsAudioEl = new Audio();
+  const a = _ttsAudioEl;
+  a.pause();
+  if (a.src && a.src.startsWith('blob:')) URL.revokeObjectURL(a.src);
+  a.src = URL.createObjectURL(blob);
+  a.defaultPlaybackRate = rate || 1;
+  a.playbackRate = rate || 1;
+  a.play().catch(e => console.warn('audio play blocked:', e));
+}
+
+// 发音按钮加载态：合成等待期间转圈，避免用户以为没反应而连点
+function _setTtsLoading(btn, on) {
+  if (!btn || !btn.classList) return;
+  btn.classList.toggle('tts-loading', on);
+  btn.disabled = on;
 }
 
 // ── VOICEVOX WEB 版 API（api.tts.quest v3，异步合成需轮询就绪状态）──
@@ -216,11 +236,14 @@ async function speakJa(text, opts) {
   const vvKey = load('voicevox_key', '');
 
   if (vvKey) {
+    // 必须在第一个 await 之前调用：还在用户手势的同步上下文里，iOS 才认
+    _ttsAudioUnlock();
     const speaker = load('voicevox_speaker', VOICEVOX_DEFAULT_SPEAKER);
     // 慢速用 playbackRate 实现，音频与常速共用一份缓存
     const cacheKey = `${text}|${speaker}|1`;
     let blob = await ttsCacheGet(cacheKey);
     if (!blob) {
+      _setTtsLoading(opts.btn, true);
       try {
         if (!_vvInFlight[cacheKey]) {
           _vvInFlight[cacheKey] = _voicevoxFetchBlob(text, speaker, vvKey)
@@ -237,6 +260,8 @@ async function speakJa(text, opts) {
           : 'VOICEVOX 暂时不可用，先用系统语音 ❀');
         speakWithBrowserTTS(text, opts.slow ? 0.45 : 0.8);
         return;
+      } finally {
+        _setTtsLoading(opts.btn, false);
       }
     }
     _playAudioBlob(blob, rate);
@@ -251,10 +276,10 @@ async function speakJa(text, opts) {
   }
 }
 
-async function speakWord() {
+async function speakWord(btn) {
   const card = currentReviewCards[currentCardIdx];
   if (!card) return;
-  await speakJa(card.reading || card.word);
+  await speakJa(card.reading || card.word, { btn });
 }
 
 async function speakWithGoogleTTS(text, apiKey) {
@@ -295,17 +320,17 @@ function speakWithBrowserTTS(text, rate) {
   }
 }
 
-async function speakWordSlow() {
+async function speakWordSlow(btn) {
   const card = currentReviewCards[currentCardIdx];
   if (!card) return;
-  await speakJa(card.reading || card.word, { slow: true });
+  await speakJa(card.reading || card.word, { slow: true, btn });
 }
 
-async function speakCardExample() {
+async function speakCardExample(btn) {
   const card = currentReviewCards[currentCardIdx];
   if (!card) return;
   const sentence = getCardExampleText(card);
-  if (sentence) await speakJa(sentence);
+  if (sentence) await speakJa(sentence, { btn });
 }
 
 function copyCardExample() {
@@ -608,7 +633,7 @@ function _cardExampleHtml(v, generating) {
         <span class="card-example-label">单词例句</span>
         <span class="card-example-tools">
           <button class="card-tool-btn" onclick="event.stopPropagation();copyCardExample()" aria-label="复制例句">📋</button>
-          <button class="card-tool-btn" onclick="event.stopPropagation();speakCardExample()" aria-label="朗读例句">🔊</button>
+          <button class="card-tool-btn" onclick="event.stopPropagation();speakCardExample(this)" aria-label="朗读例句">🔊</button>
         </span>
       </div>
       ${bodyHtml}
