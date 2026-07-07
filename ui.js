@@ -73,8 +73,9 @@ function toggleGroup(titleEl) { titleEl.parentElement.classList.toggle('open'); 
 document.querySelectorAll('.sidebar-item').forEach(item => {
   item.addEventListener('click', () => {
     const page = item.dataset.page;
-    if (page) navigateTo(page);
+    // 先让侧边栏的关闭动画起步，下一帧再渲染新页面，滑出过程不掉帧
     closeSidebar();
+    if (page) requestAnimationFrame(() => navigateTo(page));
   });
 });
 

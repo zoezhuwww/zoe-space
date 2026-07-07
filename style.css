@@ -88,7 +88,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+  overscroll-behavior: contain;
 }
 
 .page {
@@ -97,14 +97,18 @@ body {
   padding-top: calc(var(--safe-top) + 56px);
   padding-bottom: calc(var(--safe-bottom) + 32px);
 }
-.page.active { display: block; }
+/* 只动 opacity：page 里有 fixed 定位的悬浮按钮，用 transform 会让它跟着跑 */
+.page.active { display: block; animation: pageFadeIn 0.22s ease; }
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 /* ═══════════ Sidebar ═══════════ */
 .sidebar-overlay {
   position: fixed; inset: 0; z-index: 200;
-  background: rgba(90, 74, 74, 0.25);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  /* 不用 backdrop-filter：它跟着 opacity 过渡时每帧重算模糊，iOS 上掉帧明显 */
+  background: rgba(90, 74, 74, 0.32);
   opacity: 0; pointer-events: none;
   transition: opacity 0.3s ease;
 }
@@ -118,6 +122,7 @@ body {
   background: var(--bg-cream);
   transform: translateX(-100%);
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: calc(var(--safe-top) + 24px) 0 calc(var(--safe-bottom) + 24px);
