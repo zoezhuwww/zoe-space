@@ -3368,7 +3368,25 @@ html[data-theme="dark"] .trend-label-cal { fill: #9B97C9; }
 .todo-clock:hover, .todo-clock:active { opacity: 0.9; }
 .todo-full-item { gap: 4px; }
 
-/* ═══════════ 听读练习（english.js） ═══════════ */
+/* ═══════════ 句子练习（practice.js） ═══════════ */
+.pr-root { padding: 0 24px 32px; }
+.pr-tabs { margin: 0 0 10px; }
+.pr-tabs-mode { margin-bottom: 4px; }
+.pr-progress-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 4px 10px; font-size: 12px; color: var(--text-mute);
+}
+.pr-fav-btn {
+  background: none; border: none; font-size: 22px; line-height: 1;
+  cursor: pointer; padding: 2px 6px; color: var(--text-soft);
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-fav-btn.faved { color: #E8B84B; }
+.pr-nav { display: flex; gap: 10px; margin-top: 16px; }
+.pr-nav .sent-action-btn { flex: 1; }
+.pr-nav .sent-action-btn:disabled { opacity: 0.4; }
+.pr-progress-done { margin-top: 12px; font-size: 12px; color: var(--text-soft); }
+.pr-root .flashcard-container { padding: 0; }
 .lis-diff { line-height: 2; }
 .lis-word {
   display: inline-block; padding: 1px 5px; margin: 1px 0;
@@ -3376,11 +3394,12 @@ html[data-theme="dark"] .trend-label-cal { fill: #9B97C9; }
 }
 .lis-word.ok { background: rgba(110, 190, 130, 0.18); color: var(--text-warm); }
 .lis-word.miss { background: rgba(230, 110, 120, 0.18); color: var(--rose-deep); text-decoration: underline dotted; }
-#lisScore { font-weight: 700; color: var(--rose-deep); margin-bottom: 8px; }
-#lisShadowRecordBtn.recording { background: var(--rose-deep); color: #fff; }
-#lisAnswerInput {
+.pr-score { font-weight: 700; font-size: 22px; color: var(--rose-deep); margin-bottom: 8px; }
+.pr-record-btn.recording { background: var(--rose-deep); color: #fff; }
+.pr-dict-input {
   background: var(--bg-card); border: 1px solid var(--border-soft);
   border-radius: 14px; padding: 12px 14px; font-size: 15px;
   color: var(--text-warm); box-sizing: border-box;
+  width: 100%; margin-top: 14px;
 }
-#lisShadowTranscript { color: var(--text-mute); text-align: center; }
+.pr-transcript { color: var(--text-mute); text-align: center; margin-top: 10px; min-height: 20px; font-size: 14px; }

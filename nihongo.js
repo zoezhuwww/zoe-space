@@ -1416,7 +1416,7 @@ function renderMistakesPage() {
 function updateStudyHubStats() {
   const reviewCount = getTodayReviewCards().length;
   const mistakeCount = getTodayMistakeReviewCount();
-  const sentCounts = (typeof getTodaySentenceCounts === 'function') ? getTodaySentenceCounts() : { dueReview: 0, total: 0 };
+  const sentCounts = (typeof getTodaySentenceCounts === 'function') ? getTodaySentenceCounts() : { dueReview: 0, todayTotal: 0, total: 0 };
   const el = document.getElementById('studyHubStats');
   if (el) el.innerHTML = `今天 <strong>${sentCounts.dueReview}</strong> 句日语 · <strong>${reviewCount}</strong> 张单词 · <strong>${mistakeCount}</strong> 道错题`;
 
@@ -1440,7 +1440,7 @@ function updateStudyHubStats() {
   if (headline && progressWrap && lastPreview) {
     const all = (typeof getSentences === 'function') ? getSentences() : [];
     if (sentCounts.dueReview > 0) {
-      const totalToday = _sentQueue && _sentQueue.length ? _sentQueue.length : sentCounts.dueReview;
+      const totalToday = sentCounts.todayTotal || sentCounts.dueReview;
       const doneToday = Math.max(0, totalToday - sentCounts.dueReview);
       headline.textContent = `今天还有 ${sentCounts.dueReview} 句在等你 ❀`;
       progressWrap.style.display = 'flex';
@@ -1475,9 +1475,9 @@ function updateStudyHubStats() {
   // Sentence hub card desc
   const sInfo = document.getElementById('sentencesInfo');
   if (sInfo) {
-    if (sentCounts.dueReview > 0) sInfo.textContent = `今天 ${sentCounts.dueReview} 张待复习`;
-    else if (sentCounts.total > 0) sInfo.textContent = `共 ${sentCounts.total} 张 · 今天都过完啦`;
-    else sInfo.textContent = '小豆每天推荐 · 也可以自己加';
+    if (sentCounts.dueReview > 0) sInfo.textContent = `今天还有 ${sentCounts.dueReview} 句没练`;
+    else if (sentCounts.todayTotal > 0) sInfo.textContent = '今天的都练完啦 🎉';
+    else sInfo.textContent = '卡片 · 听写 · 跟读 · 收藏';
   }
 
   // ───── 基金最近一笔 ─────

@@ -1,172 +1,36 @@
 // ══════════ zoe-space · sentences.js ══════════
-// 日语·句子卡：例句 SRS · 每日推送 · 手动添加
+// 日语·句子库：小豆每日推送 · 手动添加 · 学习连续天数
+// 练习交互（卡片/听写/跟读/收藏）在 practice.js，本文件只管数据。
 // 多文件共享全局作用域；加载顺序见 index.html 顶部「文件地图」，勿随意调整。
 // ═══════════════════════════════════════════
 
-// ═══════════ Sentence Card System ═══════════
-// Data shape: sentences = [{id, jp, reading, cn, breakdown:[{word,reading,meaning}], grammar, source, addedAt, srs:{interval, ease, nextReview}}]
+// Data shape: sentences = [{id, jp, reading, cn, breakdown:[{word,reading,meaning}], grammar, source, addedAt, fav, lastPracticed}]
+// （老数据可能还带 srs 字段，忽略即可）
 const SENT_LEVEL_DEFAULT = 'N4-N3';
 const SENT_DAILY_DEFAULT = 10;
+// 长度档位 → 给小豆的出题提示
+const SENT_LENGTHS = {
+  short:  { label: '短句',  ja: '每句 8-15 个字的短句',   en: '6-9 words each, short and punchy' },
+  medium: { label: '适中',  ja: '每句 15-30 个字',        en: '10-16 words each' },
+  long:   { label: '长句',  ja: '每句 30-45 个字的长句（可以是复句）', en: '16-24 words each (complex sentences welcome)' },
+};
 
 function getSentences() { return load('sentences', []); }
 function saveSentences(arr) { save('sentences', arr); }
 function getSentSettings() {
-  return load('sentence_settings', { dailyCount: SENT_DAILY_DEFAULT, level: SENT_LEVEL_DEFAULT, themes: '' });
+  const s = load('sentence_settings', {});
+  return { dailyCount: s.dailyCount || SENT_DAILY_DEFAULT, level: s.level || SENT_LEVEL_DEFAULT,
+           themes: s.themes || '', length: s.length || 'medium' };
 }
 function saveSentSettings(s) { save('sentence_settings', s); }
 
-function getTodaySentenceQueue() {
-  // Returns: sentences due today (new + SRS due)
-  const all = getSentences();
-  const today = todayKey();
-  return all.filter(s => {
-    if (!s.srs) return true;
-    return s.srs.nextReview <= today;
-  });
-}
-
+// 今日队列 = 今天推送/添加的句子（没有 SRS 了，旧句子靠 ⭐ 收藏留下来反复练）
 function getTodaySentenceCounts() {
   const all = getSentences();
   const today = todayKey();
-  let dueReview = 0, addedToday = 0;
-  all.forEach(s => {
-    if (s.addedAt && new Date(s.addedAt).toISOString().slice(0,10) === today) addedToday++;
-    if (s.srs && s.srs.nextReview <= today) dueReview++;
-    else if (!s.srs) dueReview++;
-  });
-  return { dueReview, addedToday, total: all.length };
-}
-
-let _sentQueue = [];
-let _sentIdx = 0;
-let _sentFlipped = false;
-
-function renderSentencesPage() {
-  _sentQueue = getTodaySentenceQueue();
-  _sentIdx = 0;
-  _sentFlipped = false;
-  showSentCard();
-}
-
-function showSentCard() {
-  const emptyEl = document.getElementById('sentEmpty');
-  const cardEl = document.getElementById('sentCardContainer');
-  const ankiEl = document.getElementById('sentAnkiButtons');
-  const remEl = document.getElementById('sentRemaining');
-  const progEl = document.getElementById('sentProgress');
-  const fillEl = document.getElementById('sentProgressFill');
-
-  if (_sentQueue.length === 0) {
-    emptyEl.style.display = 'block';
-    cardEl.style.display = 'none';
-    ankiEl.style.display = 'none';
-    remEl.textContent = '今天还没句子';
-    progEl.textContent = '';
-    fillEl.style.width = '0%';
-    const settings = getSentSettings();
-    const btn = document.getElementById('sentFetchBtn');
-    if (btn) btn.textContent = `🌱 让小豆推今天的 ${settings.dailyCount} 句`;
-    return;
-  }
-  if (_sentIdx >= _sentQueue.length) {
-    emptyEl.style.display = 'block';
-    document.getElementById('sentEmptyTitle').textContent = '今天的句子都过完啦 🎉';
-    cardEl.style.display = 'none';
-    ankiEl.style.display = 'none';
-    remEl.textContent = '全部完成';
-    progEl.textContent = `${_sentQueue.length} / ${_sentQueue.length}`;
-    fillEl.style.width = '100%';
-    return;
-  }
-
-  emptyEl.style.display = 'none';
-  cardEl.style.display = 'block';
-  ankiEl.style.display = _sentFlipped ? 'flex' : 'none';
-
-  const card = _sentQueue[_sentIdx];
-  document.getElementById('sentJp').textContent = card.jp || '';
-  document.getElementById('sentJpBack').textContent = card.jp || '';
-  document.getElementById('sentSourceFront').textContent = card.source || '';
-  document.getElementById('sentReading').textContent = card.reading || '';
-  document.getElementById('sentCn').textContent = card.cn || '';
-
-  // Breakdown
-  const bd = card.breakdown || [];
-  const bdEl = document.getElementById('sentBreakdown');
-  const bdWrap = document.getElementById('sentBreakdownWrap');
-  if (bd.length) {
-    bdWrap.style.display = 'block';
-    bdEl.innerHTML = bd.map(b => `
-      <div class="sent-bd-row">
-        <span class="sent-bd-word">${escHtml(b.word||'')}</span>
-        <span class="sent-bd-reading">${escHtml(b.reading||'')}</span>
-        <span class="sent-bd-meaning">${escHtml(b.meaning||'')}</span>
-      </div>`).join('');
-  } else {
-    bdWrap.style.display = 'none';
-  }
-
-  // Grammar
-  const grWrap = document.getElementById('sentGrammarWrap');
-  if (card.grammar) {
-    grWrap.style.display = 'block';
-    document.getElementById('sentGrammar').textContent = card.grammar;
-  } else {
-    grWrap.style.display = 'none';
-  }
-
-  document.getElementById('sentSource').textContent = card.source ? '— ' + card.source : '';
-
-  // Show/hide front/back
-  document.getElementById('sentFront').style.display = _sentFlipped ? 'none' : 'flex';
-  document.getElementById('sentBack').style.display = _sentFlipped ? 'block' : 'none';
-
-  // Progress
-  const remaining = _sentQueue.length - _sentIdx;
-  remEl.textContent = remaining + ' 张待复习';
-  progEl.textContent = `${_sentIdx + 1} / ${_sentQueue.length}`;
-  fillEl.style.width = Math.round((_sentIdx / _sentQueue.length) * 100) + '%';
-}
-
-function flipSentCard() {
-  _sentFlipped = !_sentFlipped;
-  showSentCard();
-}
-
-function rateSentCard(rating) {
-  const card = _sentQueue[_sentIdx];
-  if (!card) return;
-  const all = getSentences();
-  const idx = all.findIndex(s => s.id === card.id);
-  if (idx === -1) return;
-
-  const prev = all[idx].srs || { interval: 0, ease: 2.5 };
-  let newInterval;
-  if (rating === 0) newInterval = 0;
-  else if (prev.interval === 0) newInterval = SRS_INTERVALS[rating];
-  else newInterval = Math.max(1, Math.round(prev.interval * SRS_MULTIPLIERS[rating]));
-
-  const next = new Date();
-  next.setDate(next.getDate() + newInterval);
-  all[idx].srs = {
-    interval: Math.max(1, newInterval),
-    ease: prev.ease,
-    nextReview: next.toISOString().slice(0,10),
-    lastReview: todayKey(),
-  };
-  saveSentences(all);
-
-  if (rating === 0) {
-    // requeue at end
-    _sentQueue.push(card);
-  }
-  _sentIdx++;
-  _sentFlipped = false;
-  // 记录今日活跃，用于学习连续天数
-  markSentenceActiveToday();
-  showSentCard();
-  updateStudyHubStats();
-  if (typeof refreshDashboard === 'function') refreshDashboard();
+  const todays = all.filter(x => x.addedAt && dateKey(new Date(x.addedAt)) === today);
+  const done = todays.filter(x => x.lastPracticed === today).length;
+  return { dueReview: todays.length - done, todayTotal: todays.length, total: all.length };
 }
 
 // ───── Sentence streak ─────
@@ -258,11 +122,11 @@ breakdown 只列 2-5 个对 N4 学习者重要的词。只返回JSON，不要mar
     grammar: data.grammar || '',
     source: source || '自己加',
     addedAt: Date.now(),
-    srs: null,
+    fav: false,
   });
   saveSentences(all);
   closeSentenceAddModal();
-  renderSentencesPage();
+  renderPracticePage('ja');
   updateStudyHubStats();
 }
 
@@ -324,10 +188,12 @@ async function fetchDailySentences() {
   }
 
   const themeHint = settings.themes ? `偏好主题：${settings.themes}。` : '主题随机，覆盖日常各种场景。';
+  const lengthHint = (SENT_LENGTHS[settings.length] || SENT_LENGTHS.medium).ja;
   const buildPrompt = (n, batchIdx) => `请为日语水平 ${settings.level} 的学习者推荐 ${n} 个实用日常日语句子。${themeHint}（这是第 ${batchIdx + 1} 批，请和其他批的句子在场景上尽量不重复）
 
 要求：
 - 真实日本人会说的口语，不要教科书句
+- 长度：${lengthHint}
 - 涵盖不同生活场景
 - 每句配一个简短场景标签
 - breakdown 只挑 2-3 个对 ${settings.level} 重要的词，meaning 用中文，控制简短
@@ -364,12 +230,12 @@ async function fetchDailySentences() {
       grammar: s.grammar || '',
       source: s.scene ? '小豆 · ' + s.scene : '小豆推荐',
       addedAt: baseTime + i,
-      srs: null,
+      fav: false,
     });
   });
   saveSentences(all);
   save(lastPushKey, true);
-  renderSentencesPage();
+  renderPracticePage('ja');
   updateStudyHubStats();
   if (merged.length < total) {
     setTimeout(() => alert(`小豆推回来 ${merged.length} 句（原计划 ${total}）～其余的去设置里"重抽今天的"再来一次就好`), 100);
@@ -389,6 +255,7 @@ function openSentenceSettings() {
   const s = getSentSettings();
   document.getElementById('sentDailyCountInput').value = s.dailyCount;
   document.getElementById('sentLevelInput').value = s.level;
+  document.getElementById('sentLengthInput').value = s.length || 'medium';
   document.getElementById('sentThemesInput').value = s.themes || '';
   document.getElementById('sentenceSettingsModal').classList.add('open');
 }
@@ -398,23 +265,10 @@ function closeSentenceSettings() {
 function submitSentenceSettings() {
   const dailyCount = Math.max(3, Math.min(30, parseInt(document.getElementById('sentDailyCountInput').value) || SENT_DAILY_DEFAULT));
   const level = document.getElementById('sentLevelInput').value || SENT_LEVEL_DEFAULT;
+  const length = document.getElementById('sentLengthInput').value || 'medium';
   const themes = document.getElementById('sentThemesInput').value.trim();
-  saveSentSettings({ dailyCount, level, themes });
+  saveSentSettings({ dailyCount, level, themes, length });
   closeSentenceSettings();
-}
-
-// ───── TTS for sentences ─────
-// 走 nihongo.js 的统一入口 speakJa：VOICEVOX → Google → 系统语音逐级降级，
-// 和单词卡同一条路，带按钮加载态和音频缓存
-function speakSentence(btn) {
-  const card = _sentQueue[_sentIdx];
-  if (!card) return;
-  speakJa(card.jp, { btn });
-}
-function speakSentenceSlow(btn) {
-  const card = _sentQueue[_sentIdx];
-  if (!card) return;
-  speakJa(card.jp, { slow: true, btn });
 }
 
 // Modal close on overlay click

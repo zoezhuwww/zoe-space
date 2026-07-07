@@ -495,8 +495,8 @@
         <div class="study-hub-card" onclick="navigateTo('sentences')">
           <div class="study-hub-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19.5" cy="18" r="2"/></svg></div>
           <div class="study-hub-info">
-            <div class="study-hub-name">句子卡</div>
-            <div class="study-hub-desc" id="sentencesInfo">小豆每天推荐 · 也可以自己加</div>
+            <div class="study-hub-name">句子练习</div>
+            <div class="study-hub-desc" id="sentencesInfo">卡片 · 听写 · 跟读 · 收藏</div>
           </div>
           <div class="study-hub-arrow">›</div>
         </div>
@@ -570,18 +570,10 @@
       </div>
       <div class="study-hub">
         <div class="study-hub-card" onclick="navigateTo('ensentences')">
-          <div class="study-hub-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19.5" cy="18" r="2"/></svg></div>
-          <div class="study-hub-info">
-            <div class="study-hub-name">句子卡</div>
-            <div class="study-hub-desc" id="enSentencesInfo">小豆每天推荐 · 也可以自己加</div>
-          </div>
-          <div class="study-hub-arrow">›</div>
-        </div>
-        <div class="study-hub-card" onclick="navigateTo('listening')">
           <div class="study-hub-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div>
           <div class="study-hub-info">
-            <div class="study-hub-name">听读练习</div>
-            <div class="study-hub-desc">听写 · 跟读打分</div>
+            <div class="study-hub-name">句子练习</div>
+            <div class="study-hub-desc" id="enSentencesInfo">卡片 · 听写 · 跟读 · 收藏</div>
           </div>
           <div class="study-hub-arrow">›</div>
         </div>
@@ -775,90 +767,19 @@
     </div>
 
     <!-- ═══ Sentence Card Page ═══ -->
+    <!-- ═══ 日语句子练习（DOM 由 practice.js 渲染） ═══ -->
     <div class="page" id="page-sentences">
       <div class="sub-page-header">
         <div class="back-btn" onclick="navigateTo('japanese')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
-        <div class="sub-page-title">句子卡 ❀</div>
+        <div class="sub-page-title">句子练习 ❀</div>
         <div class="sub-page-action" onclick="openSentenceSettings()" style="margin-left:auto;cursor:pointer;padding:6px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
       </div>
-
-      <div class="vocab-progress-wrap">
-        <div class="vocab-progress-bar"><div class="vocab-progress-fill" id="sentProgressFill"></div></div>
-        <div class="vocab-stats">
-          <span id="sentRemaining">0 张待复习</span>
-          <span id="sentProgress"></span>
-        </div>
-      </div>
-
-      <!-- Empty state with actions -->
-      <div class="sent-empty" id="sentEmpty" style="display:none;">
-        <div class="placeholder-icon">❀</div>
-        <div class="placeholder-text" id="sentEmptyTitle">今天的句子还没准备好</div>
-        <div class="placeholder-sub">让小豆推今天的，或者把你听到的一句加进来</div>
-        <div class="sent-empty-actions">
-          <button class="sent-action-btn primary" onclick="fetchDailySentences()" id="sentFetchBtn">
-            🌱 让小豆推今天的 10 句
-          </button>
-          <button class="sent-action-btn" onclick="openSentenceAddModal()">
-            ＋ 自己加一句
-          </button>
-        </div>
-      </div>
-
-      <!-- Sentence flashcard -->
-      <div class="flashcard-container" id="sentCardContainer">
-        <div class="flashcard sent-card" id="sentCard" onclick="flipSentCard()">
-          <!-- Front -->
-          <div class="flashcard-front" id="sentFront">
-            <div class="sent-jp" id="sentJp">日本語の文</div>
-            <div class="sent-source-front" id="sentSourceFront"></div>
-            <div class="card-hint">点击翻转 · 看读音和翻译</div>
-          </div>
-          <!-- Back -->
-          <div class="flashcard-back" id="sentBack" style="display:none;">
-            <div class="sent-jp-back" id="sentJpBack">日本語の文</div>
-            <div class="sent-reading" id="sentReading">にほんご</div>
-            <div class="card-tts-row">
-              <button class="card-tts-btn" onclick="event.stopPropagation();speakSentence(this)">🔊 発音</button>
-              <button class="card-tts-btn" onclick="event.stopPropagation();speakSentenceSlow(this)">🐢 慢速</button>
-            </div>
-            <div class="card-divider"></div>
-            <div class="sent-cn" id="sentCn">中文翻译</div>
-            <div class="sent-breakdown-wrap" id="sentBreakdownWrap">
-              <div class="sent-section-label">词语拆解</div>
-              <div class="sent-breakdown" id="sentBreakdown"></div>
-            </div>
-            <div class="sent-grammar-wrap" id="sentGrammarWrap" style="display:none;">
-              <div class="sent-section-label">语法点</div>
-              <div class="sent-grammar" id="sentGrammar"></div>
-            </div>
-            <div class="sent-source" id="sentSource"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SRS Anki buttons -->
-      <div class="anki-buttons" id="sentAnkiButtons" style="display:none;">
-        <button class="anki-btn anki-again" onclick="rateSentCard(0)">
-          <span class="anki-label">再次</span><span class="anki-interval">今天</span>
-        </button>
-        <button class="anki-btn anki-hard" onclick="rateSentCard(1)">
-          <span class="anki-label">困难</span><span class="anki-interval">1天</span>
-        </button>
-        <button class="anki-btn anki-good" onclick="rateSentCard(2)">
-          <span class="anki-label">良好</span><span class="anki-interval">3天</span>
-        </button>
-        <button class="anki-btn anki-easy" onclick="rateSentCard(3)">
-          <span class="anki-label">简单</span><span class="anki-interval">7天</span>
-        </button>
-      </div>
-
-      <!-- Floating add button -->
-      <button class="sent-fab" onclick="openSentenceAddModal()" id="sentFab" title="加一句">＋</button>
+      <div class="pr-root"></div>
+      <button class="sent-fab" onclick="openSentenceAddModal()" title="加一句">＋</button>
     </div>
 
     <div class="page" id="page-grammar">
@@ -981,171 +902,19 @@
       </div>
     </div>
 
-    <!-- ═══ English Sentence Cards Page ═══ -->
+    <!-- ═══ 英语句子练习（DOM 由 practice.js 渲染） ═══ -->
     <div class="page" id="page-ensentences">
       <div class="sub-page-header">
         <div class="back-btn" onclick="navigateTo('english')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
-        <div class="sub-page-title">英语句子卡 ❀</div>
+        <div class="sub-page-title">句子练习 ❀</div>
         <div class="sub-page-action" onclick="openEnSentenceSettings()" style="margin-left:auto;cursor:pointer;padding:6px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
       </div>
-
-      <div class="vocab-progress-wrap">
-        <div class="vocab-progress-bar"><div class="vocab-progress-fill" id="enSentProgressFill"></div></div>
-        <div class="vocab-stats">
-          <span id="enSentRemaining">0 张待复习</span>
-          <span id="enSentProgress"></span>
-        </div>
-      </div>
-
-      <!-- Empty state with actions -->
-      <div class="sent-empty" id="enSentEmpty" style="display:none;">
-        <div class="placeholder-icon">❀</div>
-        <div class="placeholder-text" id="enSentEmptyTitle">今天的句子还没准备好</div>
-        <div class="placeholder-sub">让小豆推今天的，或者把你听到的一句加进来</div>
-        <div class="sent-empty-actions">
-          <button class="sent-action-btn primary" onclick="fetchDailyEnSentences()" id="enSentFetchBtn">
-            🌱 让小豆推今天的 10 句
-          </button>
-          <button class="sent-action-btn" onclick="openEnSentenceAddModal()">
-            ＋ 自己加一句
-          </button>
-        </div>
-      </div>
-
-      <!-- Sentence flashcard -->
-      <div class="flashcard-container" id="enSentCardContainer">
-        <div class="flashcard sent-card" id="enSentCard" onclick="flipEnSentCard()">
-          <!-- Front -->
-          <div class="flashcard-front" id="enSentFront">
-            <div class="sent-jp" id="enSentEn">English sentence</div>
-            <div class="sent-source-front" id="enSentSourceFront"></div>
-            <div class="card-hint">点击翻转 · 看翻译和讲解</div>
-          </div>
-          <!-- Back -->
-          <div class="flashcard-back" id="enSentBack" style="display:none;">
-            <div class="sent-jp-back" id="enSentEnBack">English sentence</div>
-            <div class="card-tts-row">
-              <button class="card-tts-btn" onclick="event.stopPropagation();speakEnSentence(this)">🔊 发音</button>
-              <button class="card-tts-btn" onclick="event.stopPropagation();speakEnSentenceSlow(this)">🐢 慢速</button>
-            </div>
-            <div class="card-divider"></div>
-            <div class="sent-cn" id="enSentCn">中文翻译</div>
-            <div class="sent-breakdown-wrap" id="enSentBreakdownWrap">
-              <div class="sent-section-label">词语拆解</div>
-              <div class="sent-breakdown" id="enSentBreakdown"></div>
-            </div>
-            <div class="sent-grammar-wrap" id="enSentNoteWrap" style="display:none;">
-              <div class="sent-section-label">用法点</div>
-              <div class="sent-grammar" id="enSentNote"></div>
-            </div>
-            <div class="sent-source" id="enSentSource"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SRS Anki buttons -->
-      <div class="anki-buttons" id="enSentAnkiButtons" style="display:none;">
-        <button class="anki-btn anki-again" onclick="rateEnSentCard(0)">
-          <span class="anki-label">再次</span><span class="anki-interval">今天</span>
-        </button>
-        <button class="anki-btn anki-hard" onclick="rateEnSentCard(1)">
-          <span class="anki-label">困难</span><span class="anki-interval">1天</span>
-        </button>
-        <button class="anki-btn anki-good" onclick="rateEnSentCard(2)">
-          <span class="anki-label">良好</span><span class="anki-interval">3天</span>
-        </button>
-        <button class="anki-btn anki-easy" onclick="rateEnSentCard(3)">
-          <span class="anki-label">简单</span><span class="anki-interval">7天</span>
-        </button>
-      </div>
-
-      <!-- Floating add button -->
+      <div class="pr-root"></div>
       <button class="sent-fab" onclick="openEnSentenceAddModal()" title="加一句">＋</button>
-    </div>
-
-    <!-- ═══ Listening & Reading Practice Page ═══ -->
-    <div class="page" id="page-listening">
-      <div class="sub-page-header">
-        <div class="back-btn" onclick="navigateTo('english')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </div>
-        <div class="sub-page-title">听读练习</div>
-        <div class="sub-page-action" id="lisProgressText" style="margin-left:auto;padding:6px;font-size:12px;color:var(--text-mute);"></div>
-      </div>
-
-      <!-- 模式切换 -->
-      <div class="speak-lang-toggle">
-        <button class="speak-lang-btn active" id="lisModeDictation" onclick="switchListenMode('dictation')">✍️ 听写</button>
-        <button class="speak-lang-btn" id="lisModeShadow" onclick="switchListenMode('shadow')">🗣️ 跟读</button>
-      </div>
-
-      <!-- Empty state -->
-      <div class="sent-empty" id="lisEmpty" style="display:none;">
-        <div class="placeholder-icon">🎧</div>
-        <div class="placeholder-text" id="lisEmptyTitle">今天的题目还没准备好</div>
-        <div class="placeholder-sub" id="lisEmptySub">让小豆按你的水平出 10 句</div>
-        <div class="sent-empty-actions">
-          <button class="sent-action-btn primary" onclick="fetchListenItems()" id="lisFetchBtn">
-            🌱 让小豆出今天的 10 句
-          </button>
-        </div>
-        <div style="font-size:11px;color:var(--text-soft);margin-top:10px;">难度和主题跟英语句子卡的设置走</div>
-      </div>
-
-      <!-- 练习区 -->
-      <div id="lisPractice" style="display:none;padding:0 24px;">
-        <!-- 听写模式 -->
-        <div id="lisDictationBox">
-          <div class="speak-topic-card">
-            <div class="speak-topic-category">DICTATION</div>
-            <div class="card-tts-row" style="justify-content:center;margin:14px 0 6px;">
-              <button class="card-tts-btn" onclick="lisPlay(this)">🔊 播放</button>
-              <button class="card-tts-btn" onclick="lisPlay(this, true)">🐢 慢速</button>
-            </div>
-            <div class="speak-topic-hint">听到什么就打什么，可以反复听</div>
-          </div>
-          <textarea class="modal-input" id="lisAnswerInput" rows="3" placeholder="Type what you hear..." style="width:100%;margin-top:14px;"></textarea>
-          <button class="food-action-btn" onclick="lisCheckDictation()" style="margin-top:10px;">✅ 对答案</button>
-        </div>
-
-        <!-- 跟读模式 -->
-        <div id="lisShadowBox" style="display:none;">
-          <div class="speak-topic-card">
-            <div class="speak-topic-category">SHADOWING</div>
-            <div class="speak-topic-text" id="lisShadowText">English sentence</div>
-            <div class="speak-topic-hint" id="lisShadowCn"></div>
-            <div class="card-tts-row" style="justify-content:center;margin-top:10px;">
-              <button class="card-tts-btn" onclick="lisPlay(this)">🔊 听示范</button>
-              <button class="card-tts-btn" onclick="lisPlay(this, true)">🐢 慢速</button>
-            </div>
-          </div>
-          <button class="food-action-btn" id="lisShadowRecordBtn" onclick="lisToggleShadowRecord()" style="margin-top:14px;">🎤 开始跟读</button>
-          <div class="speak-transcript-text" id="lisShadowTranscript" style="margin-top:10px;min-height:20px;"></div>
-        </div>
-
-        <!-- 结果 -->
-        <div class="speak-review-box" id="lisResultBox" style="display:none;margin:16px 0 0;">
-          <div class="review-score" id="lisScore" style="font-size:22px;"></div>
-          <div class="review-section">
-            <div class="review-label">逐词比对（绿=对上了 · 红=漏了/错了）</div>
-            <div class="lis-diff" id="lisDiffText"></div>
-          </div>
-          <div class="review-section">
-            <div class="review-label">原句</div>
-            <div id="lisOriginal" style="font-style:italic;"></div>
-          </div>
-          <div class="review-section">
-            <div class="review-label">翻译</div>
-            <div id="lisTranslation"></div>
-          </div>
-        </div>
-        <button class="food-action-btn" id="lisNextBtn" onclick="lisNext()" style="display:none;margin-top:12px;">下一句 →</button>
-        <div style="height:24px;"></div>
-      </div>
     </div>
 
   </div><!-- end page-container -->
@@ -1285,6 +1054,14 @@
       </select>
     </div>
     <div class="modal-field">
+      <div class="modal-label">句子长度</div>
+      <select class="modal-input" id="sentLengthInput">
+        <option value="short">短句（8–15 字）</option>
+        <option value="medium">适中（15–30 字）</option>
+        <option value="long">长句（30–45 字）</option>
+      </select>
+    </div>
+    <div class="modal-field">
       <div class="modal-label">想偏什么主题？（可不填，让小豆随便挑）</div>
       <input class="modal-input" id="sentThemesInput" placeholder="例：日剧台词、职场、旅行、SNS流行语" />
     </div>
@@ -1336,11 +1113,19 @@
       </select>
     </div>
     <div class="modal-field">
+      <div class="modal-label">句子长度</div>
+      <select class="modal-input" id="enSentLengthInput">
+        <option value="short">短句（6–9 词）</option>
+        <option value="medium">适中（10–16 词）</option>
+        <option value="long">长句（16–24 词）</option>
+      </select>
+    </div>
+    <div class="modal-field">
       <div class="modal-label">想偏什么主题？（可不填，让小豆随便挑）</div>
       <input class="modal-input" id="enSentThemesInput" placeholder="例：美剧台词、职场、旅行、日常闲聊" />
     </div>
     <div style="font-size:11px;color:var(--text-soft);text-align:center;padding:0 0 8px;line-height:1.6;">
-      听读练习的难度和主题也用这里的设置 ❀
+      听写和跟读用的也是这批句子 ❀
     </div>
     <button class="modal-submit" onclick="submitEnSentenceSettings()">保存</button>
   </div>
@@ -1356,8 +1141,9 @@
        health.js      健康：饮食日记 · 体重记录
        nihongo.js     日语：词汇卡 · 语法 · 翻译 · 助词 · 错题 · 游戏
        speaking.js    英语：口语练习
-       sentences.js   日语：句子卡
-       english.js     英语：句子卡 · 听读练习（听写/跟读）
+       sentences.js   日语：句子库（推送/添加/连续天数）
+       english.js     英语：发音链路 · 句子库
+       practice.js    句子练习引擎（日/英通用：卡片 · 听写 · 跟读 · 收藏）
        init.js        启动（★ 必须放最后，别动顺序）
 
      ⚠️ 顺序不能乱：init.js 一定在最末。其余按下面顺序加载。
@@ -1372,6 +1158,7 @@
 <script src="speaking.js"></script>
 <script src="sentences.js"></script>
 <script src="english.js"></script>
+<script src="practice.js"></script>
 <script src="init.js"></script>
 </body>
 </html>

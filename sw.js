@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════
-//  zoe-space Service Worker · v15
+//  zoe-space Service Worker · v16
 //  策略：
 //   - App Shell（本站自家文件）: cache-first，离线优先，最快
 //   - Google Fonts (CSS + woff2):   stale-while-revalidate
 //   - 其它跨域 GET:                  network-first，回退缓存
 //   - API (DeepSeek / TTS):          直通，不缓存
 // ═══════════════════════════════════════════════════
-const CACHE_VERSION = 'v15';  // v15 英语发音免 key：谷歌翻译朗读接口兜底
+const CACHE_VERSION = 'v16';  // v16 句子练习：卡片/听写/跟读合体 + 收藏，日英通用
 const SHELL_CACHE = 'zoe-shell-' + CACHE_VERSION;
 const FONT_CACHE  = 'zoe-fonts-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'zoe-runtime-' + CACHE_VERSION;
@@ -22,6 +22,7 @@ const SHELL_ASSETS = [
   './health.js',
   './nihongo.js',
   './english.js',
+  './practice.js',
   './speaking.js',
   './sentences.js',
   './init.js',
