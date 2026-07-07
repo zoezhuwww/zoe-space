@@ -167,24 +167,31 @@ function _setTtsLoading(btn, on) {
 // 「还在生成中」「首次请求慢」都不是失败，耐心等。
 const _sleep = ms => new Promise(r => setTimeout(r, ms));
 
+// 注意：限流（429）响应里 isApiKeyValid 也是 false，不能拿它当「key 无效」的依据；
+// 且 key 失效时服务器仍会走免费通道返回 success:true + 音频，能用就照用
+let _vvKeyWarned = false;
+
 async function _voicevoxFetchBlob(text, speaker, key) {
   const params = new URLSearchParams({ text, speaker: String(speaker), key });
-  const resp = await fetch('https://api.tts.quest/v3/voicevox/synthesis?' + params.toString());
-  if (!resp.ok) throw new Error('synthesis http ' + resp.status);
-  const data = await resp.json();
-  if (data.isApiKeyValid === false) throw new Error('invalid api key');
-  if (!data.success || !data.mp3DownloadUrl) {
-    // 限流：按 retryAfter 等一次再重试，不直接判死
-    if (data.retryAfter) {
-      await _sleep(Math.min(data.retryAfter, 10) * 1000 + 300);
-      const retry = await fetch('https://api.tts.quest/v3/voicevox/synthesis?' + params.toString());
-      const rdata = retry.ok ? await retry.json() : null;
-      if (rdata && rdata.success && rdata.mp3DownloadUrl) return _voicevoxAwaitAudio(rdata);
-      throw new Error((rdata && rdata.errorMessage) || 'rate limited');
+  const url = 'https://api.tts.quest/v3/voicevox/synthesis?' + params.toString();
+  let data = null;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt > 0) await _sleep(Math.min(data && data.retryAfter || 2, 15) * 1000 + 300);
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('synthesis http ' + resp.status);
+    data = await resp.json();
+    if (data.success && data.mp3DownloadUrl) {
+      if (data.isApiKeyValid === false && key && !_vvKeyWarned) {
+        _vvKeyWarned = true;
+        showToast('VOICEVOX Key 可能失效了，暂时走免费通道，记得去 tts.quest 看看 ❀');
+      }
+      return _voicevoxAwaitAudio(data);
     }
-    throw new Error(data.errorMessage || 'synthesis rejected');
+    if (!data.retryAfter) break; // 不是限流，重试也没用
   }
-  return _voicevoxAwaitAudio(data);
+  if (data && data.retryAfter) throw new Error('rate limited');
+  throw new Error((data && data.isApiKeyValid === false) ? 'invalid api key'
+    : String(data && data.errorMessage || 'synthesis rejected'));
 }
 
 // 等音频生成完成再下载。「生成中」不算失败，只有明确 isAudioError 或彻底超时才抛
