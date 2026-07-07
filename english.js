@@ -6,8 +6,10 @@
 // ═══════════════════════════════════════════
 
 // ═══════════ English TTS ═══════════
-// 链路：Google TTS（配了 key，结果缓存进 IndexedDB）→ 浏览器自带英语音
-// 慢速用 playbackRate，和常速共用一份缓存
+// 链路：Google Cloud TTS（配了 key，结果缓存进 IndexedDB）
+//   → 谷歌翻译朗读接口（免费无 key；不给跨域 fetch，只能 <audio> 直接播，没法缓存）
+//   → 浏览器自带英语音
+// 慢速用 playbackRate，和常速共用一份音频
 async function _googleTtsFetchBlob(text, apiKey) {
   const resp = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`, {
     method: 'POST',
@@ -38,13 +40,43 @@ function _speakEnBrowser(text, rate) {
   window.speechSynthesis.speak(u);
 }
 
+// 远程 URL 直接喂给共享 <audio> 元素播（谷歌翻译接口不给跨域 fetch，走不了 blob 缓存）
+function _playAudioUrl(url, rate, onError) {
+  if (!_ttsAudioEl) _ttsAudioEl = new Audio();
+  const a = _ttsAudioEl;
+  a.pause();
+  if (a.src && a.src.startsWith('blob:')) URL.revokeObjectURL(a.src);
+  let failed = false;
+  // src 校验：共享元素之后可能换播别的（比如日语 blob），残留的 onerror 不该再触发这次的兜底
+  const fail = () => {
+    if (failed || (a.src && a.src !== url)) return;
+    failed = true; a.onerror = null;
+    if (onError) onError();
+  };
+  a.onerror = fail;
+  a.src = url;
+  a.defaultPlaybackRate = rate || 1;
+  a.playbackRate = rate || 1;
+  a.play().catch(e => { console.warn('audio play blocked:', e); fail(); });
+}
+
+function _speakEnTranslate(text, opts) {
+  // 接口对长文本会拒，超长的直接交给系统语音
+  if (text.length > 180) { _speakEnBrowser(text, opts.slow ? 0.55 : 0.95); return; }
+  const url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=' + encodeURIComponent(text);
+  _playAudioUrl(url, opts.slow ? 0.65 : 1, () => _speakEnBrowser(text, opts.slow ? 0.55 : 0.95));
+}
+
+let _enTtsKeyWarned = false;
+
 async function speakEn(text, opts) {
   if (!text) return;
   opts = opts || {};
   const rate = opts.slow ? 0.65 : 1;
   const gKey = load('google_tts_key', '');
+  // 必须在第一个 await 之前调用：还在用户手势的同步上下文里，iOS 才认
+  _ttsAudioUnlock();
   if (gKey) {
-    _ttsAudioUnlock();
     const cacheKey = `en|${text}|1`;
     let blob = await ttsCacheGet(cacheKey);
     if (!blob) {
@@ -54,16 +86,18 @@ async function speakEn(text, opts) {
         ttsCachePut(cacheKey, blob);
       } catch (e) {
         console.warn('Google TTS failed, fallback:', e);
-        _speakEnBrowser(text, opts.slow ? 0.55 : 0.95);
-        return;
+        if (!_enTtsKeyWarned) {
+          _enTtsKeyWarned = true;
+          showToast('Google TTS 用不了，先用谷歌翻译的声音 ❀');
+        }
+        blob = null;
       } finally {
         _setTtsLoading(opts.btn, false);
       }
     }
-    _playAudioBlob(blob, rate);
-    return;
+    if (blob) { _playAudioBlob(blob, rate); return; }
   }
-  _speakEnBrowser(text, opts.slow ? 0.55 : 0.95);
+  _speakEnTranslate(text, opts);
 }
 
 // ═══════════ English Sentence Cards ═══════════
