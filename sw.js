@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════
-//  zoe-space Service Worker · v11
+//  zoe-space Service Worker · v12
 //  策略：
 //   - App Shell（本站自家文件）: cache-first，离线优先，最快
 //   - Google Fonts (CSS + woff2):   stale-while-revalidate
 //   - 其它跨域 GET:                  network-first，回退缓存
 //   - API (DeepSeek / TTS):          直通，不缓存
 // ═══════════════════════════════════════════════════
-const CACHE_VERSION = 'v11';  // v11 界面流畅化 + 日记按月归档 + 一键发送备份
+const CACHE_VERSION = 'v12';  // v12 句子卡发音改走统一 speakJa：VOICEVOX 优先，和单词卡一致
 const SHELL_CACHE = 'zoe-shell-' + CACHE_VERSION;
 const FONT_CACHE  = 'zoe-fonts-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'zoe-runtime-' + CACHE_VERSION;

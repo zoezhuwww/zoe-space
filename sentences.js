@@ -401,26 +401,18 @@ function submitSentenceSettings() {
   closeSentenceSettings();
 }
 
-// ───── TTS for sentences (reuse vocab TTS infrastructure if present) ─────
-function speakSentence() {
+// ───── TTS for sentences ─────
+// 走 nihongo.js 的统一入口 speakJa：VOICEVOX → Google → 系统语音逐级降级，
+// 和单词卡同一条路，带按钮加载态和音频缓存
+function speakSentence(btn) {
   const card = _sentQueue[_sentIdx];
   if (!card) return;
-  const googleKey = load('google_tts_key', '');
-  if (googleKey) {
-    speakWithGoogleTTS(card.jp, googleKey);
-  } else {
-    speakWithBrowserTTS(card.jp);
-  }
+  speakJa(card.jp, { btn });
 }
-function speakSentenceSlow() {
+function speakSentenceSlow(btn) {
   const card = _sentQueue[_sentIdx];
   if (!card) return;
-  const googleKey = load('google_tts_key', '');
-  if (googleKey) {
-    speakWithGoogleTTS(card.jp, googleKey);
-  } else {
-    speakWithBrowserTTS(card.jp);
-  }
+  speakJa(card.jp, { slow: true, btn });
 }
 
 // Modal close on overlay click
