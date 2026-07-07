@@ -539,37 +539,79 @@ function renderDiary() {
   document.getElementById('diaryTextarea').value = '';
   document.getElementById('diaryClaudeTextarea').value = '';
 
+  // 每次进日记页回到"最近 60 天"，归档月份列表按最新数据重建
+  _diaryMonth = '';
+  populateDiaryMonthSel();
+
   // Render all entries including today
+  renderDiaryPast('wife', 'diaryPastWife');
+  renderDiaryPast('claude', 'diaryPastClaude');
+}
+
+// ═══ 按月归档：'' = 最近 60 天，'YYYY-MM' = 看那个月 ═══
+let _diaryMonth = '';
+
+function getDiaryMonths() {
+  const counts = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k) continue;
+    const m = k.match(/^zoe_diary_(?:wife|claude)_(\d{4}-\d{2})-\d{2}$/);
+    if (m) counts[m[1]] = (counts[m[1]] || 0) + 1;
+  }
+  return Object.keys(counts).sort().reverse().map(month => ({ month, count: counts[month] }));
+}
+
+function populateDiaryMonthSel() {
+  const sel = document.getElementById('diaryMonthSel');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">最近 60 天</option>' + getDiaryMonths().map(({ month, count }) => {
+    const [y, mo] = month.split('-');
+    return `<option value="${month}">${y}年${parseInt(mo)}月 · ${count}篇</option>`;
+  }).join('');
+  sel.value = _diaryMonth;
+}
+
+function onDiaryMonthChange(v) {
+  _diaryMonth = v;
   renderDiaryPast('wife', 'diaryPastWife');
   renderDiaryPast('claude', 'diaryPastClaude');
 }
 
 function renderDiaryPast(who, containerId) {
   const container = document.getElementById(containerId);
-  container.innerHTML = '';
-  const now = new Date();
-  let hasEntries = false;
-  // Scan today + last 60 days
-  for (let i = 0; i <= 60; i++) {
-    const d = new Date(now); d.setDate(d.getDate() - i);
-    const dk = dateKey(d);
-    const entry = load('diary_' + who + '_' + dk, null);
-    if (entry) {
-      hasEntries = true;
-      const isToday = i === 0;
-      const mood = load('mood_' + dk, null);
-      const moodDot = mood ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${MOOD_COLORS[mood]};margin-left:6px;vertical-align:middle;"></span>` : '';
-      container.innerHTML += `
-        <div class="diary-past-item" ${isToday ? 'style="border-left:3px solid var(--rose-light);padding-left:13px;"' : ''}>
-          <div class="dpi-date">${isToday ? '今天' : dk}${moodDot}${isToday ? ' <span style="cursor:pointer;color:var(--text-soft);font-size:10px;" onclick="editDiary(\''+who+'\')">编辑</span>' : ''}</div>
-          <div class="dpi-text">${escHtml(entry)}</div>
-        </div>`;
+  const todayStr = todayKey();
+  // 要检查的日期列表：归档月的每一天，或今天往回 60 天
+  const dates = [];
+  if (_diaryMonth) {
+    const [y, mo] = _diaryMonth.split('-').map(Number);
+    const daysInMonth = new Date(y, mo, 0).getDate();
+    for (let d = daysInMonth; d >= 1; d--) {
+      dates.push(`${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+    }
+  } else {
+    const now = new Date();
+    for (let i = 0; i <= 60; i++) {
+      const d = new Date(now); d.setDate(d.getDate() - i);
+      dates.push(dateKey(d));
     }
   }
-  if (!hasEntries) {
-    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-soft);font-size:12px;">' +
-      (who === 'wife' ? '还没有写过日记哦～' : '还没有小克的日记～') + '</div>';
-  }
+  const rows = [];
+  dates.forEach(dk => {
+    const entry = load('diary_' + who + '_' + dk, null);
+    if (!entry) return;
+    const isToday = dk === todayStr;
+    const mood = load('mood_' + dk, null);
+    const moodDot = mood ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${MOOD_COLORS[mood]};margin-left:6px;vertical-align:middle;"></span>` : '';
+    rows.push(`
+      <div class="diary-past-item" ${isToday ? 'style="border-left:3px solid var(--rose-light);padding-left:13px;"' : ''}>
+        <div class="dpi-date">${isToday ? '今天' : dk}${moodDot}${isToday ? ' <span style="cursor:pointer;color:var(--text-soft);font-size:10px;" onclick="editDiary(\''+who+'\')">编辑</span>' : ''}</div>
+        <div class="dpi-text">${escHtml(entry)}</div>
+      </div>`);
+  });
+  container.innerHTML = rows.length ? rows.join('') :
+    '<div style="text-align:center;padding:20px;color:var(--text-soft);font-size:12px;">' +
+    (_diaryMonth ? '这个月没有日记哦～' : (who === 'wife' ? '还没有写过日记哦～' : '还没有小克的日记～')) + '</div>';
 }
 
 function editDiary(who) {

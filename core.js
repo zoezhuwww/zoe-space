@@ -186,15 +186,38 @@ function openRestoreMenu() {
 }
 
 // ═══════════ Settings ═══════════
-function exportData() {
+function _backupPayload() {
   const data = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key.startsWith('zoe_')) data[key] = localStorage.getItem(key);
+    if (key && key.startsWith('zoe_')) data[key] = localStorage.getItem(key);
   }
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  return data;
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(_backupPayload(), null, 2)], { type: 'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `小钰の空間_backup_${todayKey()}.json`; a.click();
+}
+
+// 用系统分享面板把备份文件发到微信 / Telegram，比下载到文件App更不容易丢
+async function shareBackup() {
+  const json = JSON.stringify(_backupPayload(), null, 2);
+  const file = new File([json], `小钰の空間_backup_${todayKey()}.json`, { type: 'application/json' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: '小钰の空間 备份' });
+      save('last_backup_date', todayKey());
+      showToast('备份已发送 ❀');
+    } catch (e) {
+      // 用户取消分享面板会抛 AbortError，不算失败，安静收起就好
+    }
+  } else {
+    // 桌面浏览器等不支持分享文件的环境，退回普通下载
+    exportData();
+    showToast('这里不支持直接分享，已改为下载备份文件');
+  }
 }
 function importDataPrompt() {
   const input = document.createElement('input'); input.type = 'file'; input.accept = '.json';

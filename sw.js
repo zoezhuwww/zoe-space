@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════
-//  zoe-space Service Worker · v10
+//  zoe-space Service Worker · v11
 //  策略：
 //   - App Shell（本站自家文件）: cache-first，离线优先，最快
 //   - Google Fonts (CSS + woff2):   stale-while-revalidate
 //   - 其它跨域 GET:                  network-first，回退缓存
 //   - API (DeepSeek / TTS):          直通，不缓存
 // ═══════════════════════════════════════════════════
-const CACHE_VERSION = 'v10';  // v10 发音等待生成完再播 + 按钮加载态 + iOS 播放解锁
+const CACHE_VERSION = 'v11';  // v11 界面流畅化 + 日记按月归档 + 一键发送备份
 const SHELL_CACHE = 'zoe-shell-' + CACHE_VERSION;
 const FONT_CACHE  = 'zoe-fonts-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'zoe-runtime-' + CACHE_VERSION;
@@ -32,9 +32,12 @@ const SHELL_ASSETS = [
 const FONT_URL = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+SC:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap';
 
 // Install: 预缓存自家 shell，字体让运行时去拿
+// cache:'reload' 绕过 HTTP 缓存直取服务器，否则新版 SW 可能把旧文件又装进新缓存
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL_ASSETS))
+    caches.open(SHELL_CACHE).then(cache =>
+      cache.addAll(SHELL_ASSETS.map(u => new Request(u, { cache: 'reload' })))
+    )
   );
   self.skipWaiting();
 });

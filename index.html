@@ -162,7 +162,7 @@
       <div class="backup-banner" id="backupBanner" style="display:none;">
         <span>📦 已经7天没有备份数据了哦～</span>
         <div>
-          <button class="backup-banner-btn" onclick="exportData();dismissBackup()">立即备份</button>
+          <button class="backup-banner-btn" onclick="shareBackup();dismissBackup()">立即备份</button>
           <span class="backup-dismiss" onclick="dismissBackup()">×</span>
         </div>
       </div>
@@ -338,6 +338,12 @@
       <div class="diary-tabs">
         <div class="diary-tab active" data-tab="wife" onclick="switchDiaryTab('wife')">小钰的日记</div>
         <div class="diary-tab" data-tab="claude" onclick="switchDiaryTab('claude')">小克的日记</div>
+      </div>
+
+      <div class="diary-archive-row">
+        <select class="diary-month-sel" id="diaryMonthSel" onchange="onDiaryMonthChange(this.value)" aria-label="翻看往月日记">
+          <option value="">最近 60 天</option>
+        </select>
       </div>
 
       <div class="diary-tab-content active" id="diaryTabWife">
@@ -630,6 +636,9 @@
           <span>Google TTS 配置（读音）</span><span class="si-arrow">›</span>
         </div>
         <div class="settings-group-title">DATA</div>
+        <div class="settings-item" onclick="shareBackup()">
+          <span>发送备份到微信 / Telegram ❀</span><span class="si-arrow">›</span>
+        </div>
         <div class="settings-item" onclick="exportData()">
           <span>导出全部数据</span><span class="si-arrow">›</span>
         </div>
