@@ -20,11 +20,10 @@ function addFood() {
 function renderFoodDiary() {
   const foods = getFoods();
   const list = document.getElementById('foodList');
-  list.innerHTML = '';
   let totalCal = 0;
-  foods.forEach((f, i) => {
+  const rows = foods.map((f) => {
     if (f.cal) totalCal += f.cal;
-    list.innerHTML += `
+    return `
       <div class="food-item">
         <div>
           <div class="fi-name">${escHtml(f.name)}</div>
@@ -35,7 +34,7 @@ function renderFoodDiary() {
         </div>
       </div>`;
   });
-  if (!foods.length) list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-soft);font-size:12px;">今天还没有记录～</div>';
+  list.innerHTML = foods.length ? rows.join('') : '<div style="text-align:center;padding:24px;color:var(--text-soft);font-size:12px;">今天还没有记录～</div>';
 
   const totalEl = document.getElementById('foodTotalCal');
   if (totalEl) totalEl.textContent = totalCal > 0 ? `~${totalCal} kcal` : '';

@@ -147,7 +147,6 @@ function renderTodoDash() {
   const doneCount = todos.filter(t => t.done).length;
   document.getElementById('todoSummary').textContent = `${undone.length} 项待办`;
   const list = document.getElementById('todoDashList');
-  list.innerHTML = '';
   // Sort by deadline (urgent first)
   const sorted = [...undone].sort((a, b) => {
     if (a.deadline && !b.deadline) return -1;
@@ -155,9 +154,9 @@ function renderTodoDash() {
     if (a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
     return 0;
   });
-  sorted.slice(0, 5).forEach((t) => {
+  const rows = sorted.slice(0, 5).map((t) => {
     const idx = todos.indexOf(t);
-    list.innerHTML += `
+    return `
       <div class="todo-item">
         <div class="todo-check" onclick="toggleTodoDash(${idx})"></div>
         <div class="todo-text">${escHtml(t.text)}</div>
@@ -165,10 +164,12 @@ function renderTodoDash() {
       </div>`;
   });
   if (undone.length === 0) {
-    list.innerHTML = '<div style="font-size:12px;color:var(--text-soft);padding:4px 0;">所有待办都完成啦 🎉</div>';
+    rows.length = 0;
+    rows.push('<div style="font-size:12px;color:var(--text-soft);padding:4px 0;">所有待办都完成啦 🎉</div>');
   } else if (undone.length > 5) {
-    list.innerHTML += `<div style="font-size:11px;color:var(--text-soft);padding:4px 0;">还有 ${undone.length - 5} 项...</div>`;
+    rows.push(`<div style="font-size:11px;color:var(--text-soft);padding:4px 0;">还有 ${undone.length - 5} 项...</div>`);
   }
+  list.innerHTML = rows.join('');
 }
 
 function toggleTodoDash(i) {
@@ -179,7 +180,6 @@ function toggleTodoDash(i) {
 function renderTodoFull() {
   const todos = getTodos();
   const list = document.getElementById('todoFullList');
-  list.innerHTML = '';
   const undone = todos.filter(t => !t.done);
   const done = todos.filter(t => t.done);
 
@@ -191,9 +191,9 @@ function renderTodoFull() {
     return 0;
   });
 
-  undone.forEach((t) => {
+  const rows = undone.map((t) => {
     const i = todos.indexOf(t);
-    list.innerHTML += `
+    return `
       <div class="todo-full-item">
         <div class="todo-check" onclick="toggleTodo(${i})"></div>
         <div class="tfi-text" onclick="editTodo(${i})">${escHtml(t.text)}</div>
@@ -204,17 +204,18 @@ function renderTodoFull() {
   });
 
   if (done.length > 0) {
-    list.innerHTML += `<div class="todo-done-divider">已完成 (${done.length})</div>`;
+    rows.push(`<div class="todo-done-divider">已完成 (${done.length})</div>`);
     done.forEach((t) => {
       const i = todos.indexOf(t);
-      list.innerHTML += `
+      rows.push(`
         <div class="todo-full-item done">
           <div class="todo-check done" onclick="toggleTodo(${i})"></div>
           <div class="tfi-text" onclick="editTodo(${i})">${escHtml(t.text)}</div>
           <div class="todo-delete" onclick="deleteTodo(${i})">×</div>
-        </div>`;
+        </div>`);
     });
   }
+  list.innerHTML = rows.join('');
 }
 
 function addTodo() {
@@ -320,10 +321,9 @@ function renderFundPage() {
   const fund = getFund();
   document.getElementById('fundBigNum').textContent = '¥' + fund.balance.toLocaleString();
   const hist = document.getElementById('fundHistory');
-  hist.innerHTML = '';
-  fund.history.forEach(h => {
+  hist.innerHTML = fund.history.length ? fund.history.map(h => {
     const d = new Date(h.time);
-    hist.innerHTML += `
+    return `
       <div class="fund-history-item">
         <div class="fhi-info">
           <div class="fhi-note">${escHtml(h.note)}</div>
@@ -331,8 +331,7 @@ function renderFundPage() {
         </div>
         <div class="fhi-amount ${h.type === 'income' ? 'positive' : 'negative'}">${h.type === 'income' ? '+' : '-'}¥${h.amount}</div>
       </div>`;
-  });
-  if (!fund.history.length) hist.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-soft);font-size:12px;">还没有记录～<br>给小克发第一笔奖金吧 🥹</div>';
+  }).join('') : '<div style="text-align:center;padding:20px;color:var(--text-soft);font-size:12px;">还没有记录～<br>给小克发第一笔奖金吧 🥹</div>';
 }
 
 // ═══════════ Habits ═══════════
@@ -361,14 +360,11 @@ function renderHabitsDash() {
   const done = habits.filter(h => h.done).length;
   document.getElementById('habitSummary').textContent = `${done} / ${habits.length}`;
   const container = document.getElementById('habitsDash');
-  container.innerHTML = '';
-  habits.forEach((h, i) => {
-    container.innerHTML += `
+  container.innerHTML = habits.map((h, i) => `
       <div class="habit" onclick="event.stopPropagation();toggleHabitDash(${i})">
         <div class="habit-dot ${h.done ? 'done' : ''}"></div>
         <div class="habit-name">${h.name}</div>
-      </div>`;
-  });
+      </div>`).join('');
 
   // Streak
   let maxStreak = 0, maxName = '';
@@ -393,16 +389,15 @@ function toggleHabitDash(i) {
 function renderHabitsFull() {
   const habits = getHabits();
   const container = document.getElementById('habitsFullList');
-  container.innerHTML = '';
-  habits.forEach((h, i) => {
+  container.innerHTML = habits.map((h, i) => {
     const streak = getHabitStreak(h.id);
-    container.innerHTML += `
+    return `
       <div class="habit-full-item">
         <div class="habit-full-dot ${h.done ? 'done' : ''}" onclick="toggleHabitFull(${i})"></div>
         <div class="habit-full-name">${h.name}</div>
         ${streak >= 2 ? `<span style="font-size:11px;color:var(--rose-deep)">🔥 ${streak}天</span>` : ''}
       </div>`;
-  });
+  }).join('');
 }
 
 function toggleHabitFull(i) {
@@ -445,14 +440,13 @@ function renderCountdown() {
   const countdowns = getCountdowns();
   const now = new Date();
   const list = document.getElementById('countdownList');
-  list.innerHTML = '';
-  countdowns.forEach((c, i) => {
+  list.innerHTML = countdowns.map((c, i) => {
     const effDate = effectiveCountdownDate(c);
     const diff = Math.ceil((effDate - now) / 86400000);
     const isPast = diff < 0;
     const dateLabel = formatDateLocal(effDate);
     const rLabel = repeatLabel(c.repeat);
-    list.innerHTML += `
+    return `
       <div class="countdown-item">
         <div>
           <div class="ci-label">${escHtml(c.name)}${rLabel ? ` <span style="font-size:10px;color:var(--text-soft);letter-spacing:0.1em;">· ${rLabel}</span>` : ''}</div>
@@ -469,7 +463,7 @@ function renderCountdown() {
           </div>
         </div>
       </div>`;
-  });
+  }).join('');
 }
 
 function openCountdownModal(idx) {
@@ -612,14 +606,13 @@ function renderAnniversary() {
     { name: '去日本', date: '2028-09-01' },
   ];
   const list = document.getElementById('anniList');
-  list.innerHTML = '';
-  ANNIVERSARIES.forEach(a => {
+  list.innerHTML = ANNIVERSARIES.map(a => {
     const diff = Math.floor((now - parseLocalDate(a.date)) / 86400000);
-    list.innerHTML += `
+    return `
       <div class="anni-item">
         <div class="ai-info"><div class="ai-name">${escHtml(a.name)}</div><div class="ai-date">${a.date}</div></div>
         <div class="ai-badge">${diff >= 0 ? diff + ' 天前' : Math.abs(diff) + ' 天后'}</div>
       </div>`;
-  });
+  }).join('');
 }
 

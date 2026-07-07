@@ -1182,26 +1182,29 @@ body {
 .fhi-amount.negative { color: var(--text-mute); }
 
 /* ═══════════ Modal ═══════════ */
+/* 开关都走 transition（visibility 延迟到滑出结束再隐藏），关闭不再是硬切 */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 300;
-  background: rgba(90, 74, 74, 0.3);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  display: none; align-items: flex-end; justify-content: center;
+  background: rgba(90, 74, 74, 0.36);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0s linear 0.3s;
 }
-.modal-overlay.open { display: flex; }
+.modal-overlay.open {
+  opacity: 1; visibility: visible; pointer-events: auto;
+  transition: opacity 0.25s ease;
+}
 .modal-sheet {
   width: 100%; max-width: 430px;
   background: var(--bg-cream);
   border-radius: 24px 24px 0 0;
   padding: 24px 24px calc(var(--safe-bottom) + 24px);
   max-height: 80vh; overflow-y: auto;
-  animation: sheetUp 0.3s ease;
+  transform: translateY(100%);
+  /* 手动列出主题过渡：--theme-transition 那条规则不再包含 .modal-sheet，避免覆盖 transform */
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), var(--theme-transition);
 }
-@keyframes sheetUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
 .modal-handle {
   width: 36px; height: 4px;
   background: var(--divider);
@@ -2672,7 +2675,7 @@ body, .app-header, .sidebar, .info-card, .day-card, .grammar-card,
 .mistake-card, .countdown-item, .study-hub-card, .anni-list,
 .flashcard, .anki-btn, .speak-topic-card, .speak-playback,
 .speak-transcript-box, .speak-review-box, .diary-textarea,
-.fund-engraving-card, .diary-past-item, .fund-history-item, .modal-sheet,
+.fund-engraving-card, .diary-past-item, .fund-history-item,
 .celebration-card, .recipe-content, .api-detail .api-balance-card,
 .api-detail .api-breakdown, .api-detail .api-day-bar-container,
 .todo-input, .food-input, .w-date-input, .w-num-input, .w-note-input,
