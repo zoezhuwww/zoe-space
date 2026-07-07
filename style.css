@@ -3367,3 +3367,20 @@ html[data-theme="dark"] .trend-label-cal { fill: #9B97C9; }
 }
 .todo-clock:hover, .todo-clock:active { opacity: 0.9; }
 .todo-full-item { gap: 4px; }
+
+/* ═══════════ 听读练习（english.js） ═══════════ */
+.lis-diff { line-height: 2; }
+.lis-word {
+  display: inline-block; padding: 1px 5px; margin: 1px 0;
+  border-radius: 6px; font-size: 14px;
+}
+.lis-word.ok { background: rgba(110, 190, 130, 0.18); color: var(--text-warm); }
+.lis-word.miss { background: rgba(230, 110, 120, 0.18); color: var(--rose-deep); text-decoration: underline dotted; }
+#lisScore { font-weight: 700; color: var(--rose-deep); margin-bottom: 8px; }
+#lisShadowRecordBtn.recording { background: var(--rose-deep); color: #fff; }
+#lisAnswerInput {
+  background: var(--bg-card); border: 1px solid var(--border-soft);
+  border-radius: 14px; padding: 12px 14px; font-size: 15px;
+  color: var(--text-warm); box-sizing: border-box;
+}
+#lisShadowTranscript { color: var(--text-mute); text-align: center; }

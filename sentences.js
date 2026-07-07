@@ -268,7 +268,9 @@ breakdown 只列 2-5 个对 N4 学习者重要的词。只返回JSON，不要mar
 
 // ───── Daily push from 小豆 ─────
 // 宽容 JSON 解析：扫描字符串里完整的 {...} 对象逐个 JSON.parse，丢掉残缺的最后一个
-function salvageSentenceArray(raw) {
+// field：对象必须带的字段（日语句子 jp / 英语句子 en）
+function salvageSentenceArray(raw, field) {
+  field = field || 'jp';
   if (!raw) return [];
   const text = raw.replace(/```json|```/g, '');
   const objects = [];
@@ -291,7 +293,7 @@ function salvageSentenceArray(raw) {
         const chunk = text.slice(start, i + 1);
         try {
           const obj = JSON.parse(chunk);
-          if (obj && obj.jp) objects.push(obj);
+          if (obj && obj[field]) objects.push(obj);
         } catch {}
         start = -1;
       }

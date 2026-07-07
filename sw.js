@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════
-//  zoe-space Service Worker · v13
+//  zoe-space Service Worker · v14
 //  策略：
 //   - App Shell（本站自家文件）: cache-first，离线优先，最快
 //   - Google Fonts (CSS + woff2):   stale-while-revalidate
 //   - 其它跨域 GET:                  network-first，回退缓存
 //   - API (DeepSeek / TTS):          直通，不缓存
 // ═══════════════════════════════════════════════════
-const CACHE_VERSION = 'v13';  // v13 修复限流被误判成 Key 无效导致发音掉回系统语音
+const CACHE_VERSION = 'v14';  // v14 英语模块：句子卡 + 听读练习（听写/跟读）
 const SHELL_CACHE = 'zoe-shell-' + CACHE_VERSION;
 const FONT_CACHE  = 'zoe-fonts-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'zoe-runtime-' + CACHE_VERSION;
@@ -21,6 +21,7 @@ const SHELL_ASSETS = [
   './life.js',
   './health.js',
   './nihongo.js',
+  './english.js',
   './speaking.js',
   './sentences.js',
   './init.js',
