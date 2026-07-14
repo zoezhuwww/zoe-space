@@ -13,7 +13,8 @@
 <title>小钰の空間</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+SC:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Zen+Old+Mincho:wght@400;500&family=Noto+Serif+SC:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -204,22 +205,30 @@
         </div>
       </div>
 
-      <!-- 日语（主 CTA） -->
-      <div class="info-card" onclick="navigateTo('japanese')">
+      <!-- 学习（日语 / 英语 双入口） -->
+      <div class="info-card">
         <div class="card-eyebrow">
-          <div class="card-label">日语 ❀</div>
+          <div class="card-label">学习 ❀</div>
           <div class="card-meta" id="jpStreakMeta">今天一点点</div>
         </div>
-        <div class="jp-feature-headline" id="jpFeatureHeadline">点进来让小豆推今天的句子 ❀</div>
-        <div class="jp-progress-wrap" id="jpProgressWrap" style="display:none;">
-          <div class="jp-progress-bar"><div class="jp-progress-fill" id="jpProgressFill"></div></div>
-          <div class="jp-progress-text" id="jpProgressText">0 / 0</div>
+        <div class="study-row" onclick="navigateTo('japanese')">
+          <div class="study-row-main">
+            <div class="study-row-title">日语</div>
+            <div class="study-row-sub" id="jpFeatureHeadline">点进来让小豆推今天的句子 ❀</div>
+            <div class="jp-progress-wrap" id="jpProgressWrap" style="display:none;">
+              <div class="jp-progress-bar"><div class="jp-progress-fill" id="jpProgressFill"></div></div>
+              <div class="jp-progress-text" id="jpProgressText">0 / 0</div>
+            </div>
+          </div>
+          <div class="study-link">开始 →</div>
         </div>
-        <div class="jp-last-preview" id="jpLastPreview" style="display:none;">
-          <div class="jp-last-jp" id="jpLastJp"></div>
-          <div class="jp-last-cn" id="jpLastCn"></div>
+        <div class="study-row" onclick="navigateTo('english')">
+          <div class="study-row-main">
+            <div class="study-row-title">英语</div>
+            <div class="study-row-sub">口语 · 句子 · 发音</div>
+          </div>
+          <div class="study-link">开始 →</div>
         </div>
-        <div class="study-link" style="margin-top:10px;">开始学习 →</div>
       </div>
 
       <!-- 习惯打卡 + streak -->

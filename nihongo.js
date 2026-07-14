@@ -1433,12 +1433,7 @@ function updateStudyHubStats() {
   const progressWrap = document.getElementById('jpProgressWrap');
   const progressFill = document.getElementById('jpProgressFill');
   const progressText = document.getElementById('jpProgressText');
-  const lastPreview = document.getElementById('jpLastPreview');
-  const lastJp = document.getElementById('jpLastJp');
-  const lastCn = document.getElementById('jpLastCn');
-
-  if (headline && progressWrap && lastPreview) {
-    const all = (typeof getSentences === 'function') ? getSentences() : [];
+  if (headline && progressWrap) {
     if (sentCounts.dueReview > 0) {
       const totalToday = sentCounts.todayTotal || sentCounts.dueReview;
       const doneToday = Math.max(0, totalToday - sentCounts.dueReview);
@@ -1455,19 +1450,6 @@ function updateStudyHubStats() {
       progressWrap.style.display = 'flex';
       progressFill.style.width = '100%';
       progressText.textContent = '完成';
-    }
-    // 最近加的一句预览
-    if (all.length > 0) {
-      const recent = [...all].sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0))[0];
-      if (recent && recent.jp) {
-        lastPreview.style.display = 'block';
-        lastJp.textContent = recent.jp;
-        lastCn.textContent = recent.cn || '';
-      } else {
-        lastPreview.style.display = 'none';
-      }
-    } else {
-      lastPreview.style.display = 'none';
     }
   }
 
